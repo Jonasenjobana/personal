@@ -1,1 +1,39 @@
-<p>header works!</p>
+<div class="app-header">
+  <div class="menu">
+    <div class="menu-left">
+      <div
+        class="menu-item"
+        [ngClass]="{ 'menu-activate': item.isActivated }"
+        *ngFor="let item of menuLeft"
+        (click)="activeChange(item)"
+      >
+        {{ item.title }}
+      </div>
+    </div>
+    <div class="menu-right">
+      <div
+        class="menu-item"
+        *ngFor="let item of menuRight"
+        (click)="activeChange(item)"
+      >
+        {{ item.title }}
+        <ng-template
+          *ngIf="item.children?.length && item.isActivated"
+          [ngTemplateOutlet]="menuChildren"
+          [ngTemplateOutletContext]="{ children: item.children, parent: item }"
+        ></ng-template>
+      </div>
+    </div>
+  </div>
+</div>
+<ng-template #menuChildren let-children="children" let-parent="parent">
+  <div class="menu-children">
+    <div
+      class="menu-child"
+      *ngFor="let item of children"
+      (click)="childClick(item, parent)"
+    >
+      {{ item.title }}
+    </div>
+  </div>
+</ng-template>

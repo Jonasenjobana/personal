@@ -1,0 +1,23 @@
+.docs {
+    width: 100%;
+    min-height: calc(100vh - 62px);
+    .left-bar {
+        width: 250px;
+        padding: 0 20px;
+        display: flex;
+        flex-direction: column;
+        .demo-item {
+            height: 30px;
+            width: 100%;
+            text-align: center;
+            color: white;
+            line-height: 30px;
+            cursor: pointer;
+            margin-top: 5px;
+            background-color: #68afec;
+            &.active {
+                background-color: #186db8;
+            }
+        }
+    }
+}

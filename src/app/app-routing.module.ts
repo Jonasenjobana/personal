@@ -3,8 +3,8 @@ import { NotFoundComponent } from './workspace/not-found/not-found.component';
 import { LayoutComponent } from './layout/layout.component';
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
-import { ZqButtonComponent } from './docs/zq-button/zq-button.component';
 import { RouterGuardService } from './shared/services/router-guard.service';
+import { DocsModule } from './docs/docs.module';
 
 const routes: Routes = [
   {
@@ -13,7 +13,7 @@ const routes: Routes = [
     children: [
       {
         path: 'docs',
-        component: ZqButtonComponent,
+        loadChildren: () => import('src/app/docs/docs.module').then(m => m.DocsModule),
       },
     ],
     canActivate: [RouterGuardService]

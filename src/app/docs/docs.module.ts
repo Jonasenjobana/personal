@@ -1,18 +1,23 @@
+import { RouterModule } from '@angular/router';
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ZqButtonComponent } from './zq-button/zq-button.component';
+import { ZqButtonDemo } from './zq-button/zq-button-demo.component';
+import { DocsComponent } from './docs.component';
+import { DocsRoutingModule } from './docs-routing.module';
 
 
 
 @NgModule({
   declarations: [
-    ZqButtonComponent
+    ZqButtonDemo,
+    DocsComponent
   ],
   imports: [
-    CommonModule
+    CommonModule,
+    DocsRoutingModule
   ],
   exports: [
-    ZqButtonComponent
+    ZqButtonDemo
   ]
 })
 export class DocsModule { }
