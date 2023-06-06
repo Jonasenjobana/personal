@@ -1,9 +1,11 @@
 .docs {
     width: 100%;
-    min-height: calc(100vh - 62px);
+    min-height: calc(100vh - 64px);
+    padding: 0 20px;
+    display: flex;
     .left-bar {
         width: 250px;
-        padding: 0 20px;
+        margin-right: 5px;
         display: flex;
         flex-direction: column;
         .demo-item {
@@ -19,5 +21,9 @@
                 background-color: #186db8;
             }
         }
+    }
+    .right-container {
+        flex: 1;
+        margin-top: 5px;
     }
 }

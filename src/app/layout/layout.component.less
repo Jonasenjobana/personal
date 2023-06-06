@@ -1,3 +1,4 @@
+@import "index";
 :host {
     width: 100%;
     height: 100%;
@@ -5,25 +6,32 @@
 .zq-layout {
     display: flex;
     flex-direction: column;
+    align-items: center;
     .zq-header {
         width: 100%;
         height: 62px;
         display: flex;
         align-items: center;
+        justify-content: center;
         padding: 0 20px;
-        background-color: #b3d0ed2e;
+        background-color: @layout-bg1;
     }
     .zq-layout__content {
         width: 100%;
+        max-width: 1920px;
+
         height: calc(100vh - 62px);
+        max-height: 1080px - 62px;
         .zq-layout__content-main {
             flex: 1;
             .zq-layout__router-container {
 
             }
-            .zq-layout__footer {
-                width: 100%;
-            }
         }
+    }
+    .zq-layout__footer {
+        width: 100%;
+        position: fixed;
+        bottom: 0;
     }
 }

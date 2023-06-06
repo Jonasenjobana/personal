@@ -1,0 +1,39 @@
+@color-dang: #ff4d4f;
+@color-dang-hov: #ff7875;
+@color-bg1: #00aaff;
+@color-text1: #ebebeb;
+@color-text2: #000000d9;
+@color-text3: #40a9ff;
+:host {
+    &.zq-btn {
+        border: none;
+        min-width: 50px;
+        height: 30px;
+        background-color: #fff;
+        border: 1px solid transparent;
+        border-color: #d9d9d9;
+        box-shadow: 0 2px #00000004;
+        color: @color-text2;
+        padding: 0 10px;
+        border-radius: 4px;
+        cursor: pointer;
+        &:hover {
+            color: @color-text3;
+            border-color: @color-text3;
+        }
+        &.zq-btn-dangerous {
+            background-color: @color-dang;
+            color: @color-text1;
+            &:hover {
+                background-color: @color-dang-hov;
+                border-color: transparent;
+            }
+        }
+        &.zq-btn-primary {
+
+        }
+        &.zq-btn-disabled {
+            cursor: not-allowed;
+        }
+    }
+}

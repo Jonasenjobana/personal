@@ -11,5 +11,7 @@ export class ZqButtonDemo implements OnInit {
 
   ngOnInit(): void {
   }
-
+  buttonClick(type: string) {
+    window.alert(`btn type:${type}`)
+  }
 }

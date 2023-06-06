@@ -1,48 +1,42 @@
-import { Component, OnInit } from '@angular/core';
+import { ZqCommonUtils } from './../shared/utils/common.util';
+import { filter, Subject, takeUntil } from 'rxjs';
+import { DemoList } from './../layout/layout.menu';
+import { MenuItem } from './../shared/model/Menu.model';
+import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 
 @Component({
   selector: 'app-docs',
   templateUrl: './docs.component.html',
-  styleUrls: ['./docs.component.less']
+  styleUrls: ['./docs.component.less'],
 })
-export class DocsComponent implements OnInit {
-  demoList: DemoItem[] = [
-    {
-      title: 'Button Demo',
-      path: 'button'
-    },
-    {
-      title: 'Select Demo',
-      path: 'select'
-    },
-    {
-      title: 'Checkbox Demo',
-      path: 'checkbox'
-    },
-    {
-      title: 'Radio Demo',
-      path: 'radio'
-    },
-    {
-      title: 'Table Demo',
-      path: 'table'
-    },
-    {
-      title: 'Pagination Demo',
-      path: 'pagination'
-    },
-  ]
-  constructor() { }
+export class DocsComponent implements OnInit, OnDestroy {
+  demoList: MenuItem[] = [];
+  destroy$: Subject<void> = new Subject();
+  constructor(private router: Router, private activatedRoute: ActivatedRoute) {
+    this.demoList = ZqCommonUtils.copyDeep(DemoList);
+    this.router.events
+      .pipe(
+        filter((event: any) => event instanceof NavigationEnd),
+        takeUntil(this.destroy$)
+      )
+      .subscribe((event) => {
+        const { url } = event;
+        const active = this.demoList.find((demo) => demo.link === url);
+        this.activeItem(active);
+        console.log(url, active, this.demoList);
+      });
+  }
 
-  ngOnInit(): void {
+  ngOnInit(): void {}
+  activeItem(item: MenuItem | undefined) {
+    if (!item) return;
+    this.demoList.forEach((el) => (el.isActivated = false));
+    item.isActivated = true;
+    this.router.navigateByUrl(item.link!);
   }
-  activeItem(item: DemoItem) {
-    this.demoList.forEach(el => el.isActivated = false)
-    item.isActivated = true
+  ngOnDestroy() {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
-}
-interface DemoItem {
-  title: string
-  path: string
-  isActivated?: boolean
 }

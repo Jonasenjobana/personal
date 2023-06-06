@@ -13,6 +13,7 @@
     <div class="menu-right">
       <div
         class="menu-item"
+        [ngClass]="{ 'menu-activate': !item.children && item.isActivated }"
         *ngFor="let item of menuRight"
         (click)="activeChange(item)"
       >

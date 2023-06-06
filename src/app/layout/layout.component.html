@@ -1,15 +1,15 @@
 <div class="zq-layout">
   <div class="zq-header">
-    <app-header></app-header>
+    <app-header [menuLeft]="menuLeft" [menuRight]="menuRight" (onMenuChange)="menuChange($event)"></app-header>
   </div>
   <div class="zq-layout__content">
     <div class="zq-layout__content-main">
       <div class="zq-layout__router-container">
         <router-outlet></router-outlet>
       </div>
-      <div class="zq-layout__footer">
-        <app-footer></app-footer>
-      </div>
     </div>
+  </div>
+  <div class="zq-layout__footer">
+    <app-footer></app-footer>
   </div>
 </div>

@@ -1,4 +1,4 @@
-import { ZqButtonDemo } from './zq-button/zq-button-demo.component';
+import { ZqButtonDemo } from './zq-button-demo/zq-button-demo.component';
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { DocsComponent } from './docs.component';
