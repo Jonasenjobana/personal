@@ -1,0 +1,16 @@
+// 通用默认边框
+.zq-default-border() {
+    background-color: #fff;
+    border: 1px solid transparent;
+    border-color: #d9d9d9;
+    box-shadow: 0 2px #00000004;
+}
+.zq-active-border() {
+    border-color: @color-text3;
+}
+.zq-error() {
+    border-color: @color-dang;
+    &:hover,&:focus {
+        border-color: @color-dang;
+    }
+}

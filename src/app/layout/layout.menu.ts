@@ -3,7 +3,7 @@ import { MenuItem } from '../shared/model/Menu.model';
 export const LAYOUT_MENU_LEFT: MenuItem[] = [
   {
     title: '首页',
-    link: '/home'
+    link: '/home',
   },
   // {
   //   title: '写文章',
@@ -19,8 +19,7 @@ export const LAYOUT_MENU_LEFT: MenuItem[] = [
 export const LAYOUT_MENU_RIGHT: MenuItem[] = [
   {
     title: '开发组件',
-    link: '/home/docs',
-    production: true,
+    link: '/docs',
   },
   // {
   //   title: '用户',
@@ -39,11 +38,11 @@ export const LAYOUT_MENU_RIGHT: MenuItem[] = [
 export const DemoList: MenuItem[] = [
   {
     title: 'Button Demo',
-    link: '/home/docs/button-demo',
+    link: '/docs/button-demo',
   },
   {
-    title: 'Form Demo',
-    link: '/home/docs/form-demo'
+    title: 'Input Demo',
+    link: '/docs/input-demo',
   },
   // {
   //   title: 'Select Demo',

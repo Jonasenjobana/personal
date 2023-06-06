@@ -5,13 +5,15 @@ import { DocsComponent } from './docs.component';
 import { DocsRoutingModule } from './docs-routing.module';
 import { ZqButtonDemo } from './zq-button-demo/zq-button-demo.component';
 import { SharedModule } from '../shared/shared.module';
+import { InputDempComponent } from './input-demp/input-demp.component';
 
 
 
 @NgModule({
   declarations: [
     ZqButtonDemo,
-    DocsComponent
+    DocsComponent,
+    InputDempComponent
   ],
   imports: [
     CommonModule,

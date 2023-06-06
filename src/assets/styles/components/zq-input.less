@@ -1,0 +1,14 @@
+@import "./zq-lib.less";
+.zq-input {
+    .zq-default-border();
+    height: 28px;
+    min-width: 50px;
+    outline: none;
+    padding: 0 5px;
+    &:focus, &:hover {
+        .zq-active-border()
+    }
+    &.zq-error {
+        .zq-error();
+    }
+}

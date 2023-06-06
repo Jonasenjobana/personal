@@ -5,22 +5,32 @@ import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { RouterGuardService } from './shared/services/router-guard.service';
 import { DocsModule } from './docs/docs.module';
+import { HomeComponent } from './workspace/home/home.component';
 
 const routes: Routes = [
   {
-    path: 'home',
+    path: '',
     component: LayoutComponent,
     children: [
+      {
+        path: '',
+        redirectTo: 'docs',
+        pathMatch: 'full',
+      },
       {
         path: 'docs',
         loadChildren: () => import('src/app/docs/docs.module').then(m => m.DocsModule),
       },
+      {
+        path: 'home',
+        component: HomeComponent
+      }
     ],
     canActivate: [RouterGuardService]
   },
   {
     path: '',
-    redirectTo: 'home',
+    redirectTo: 'docs',
     pathMatch: 'full',
   },
   {
@@ -30,7 +40,7 @@ const routes: Routes = [
 ];
 
 @NgModule({
-  imports: [RouterModule.forRoot(routes)],
+  imports: [RouterModule.forRoot(routes, { useHash: true })],
   exports: [RouterModule],
 })
 export class AppRoutingModule {}

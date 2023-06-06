@@ -6,7 +6,6 @@ export type ZqButtonSize = 'large' | 'default' | 'small';
 @Component({
   selector: 'button[zq-button]',
   template: ` <ng-content></ng-content>`,
-  styleUrls: ['./zq-button.component.less'],
   host: {
     class: 'zq-btn',
     '[class.zq-btn-disabled]': 'disabled',

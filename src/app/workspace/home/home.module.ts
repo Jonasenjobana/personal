@@ -1,18 +1,18 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ZqInputDirective } from './zq-input.directive';
+import { HomeComponent } from './home.component';
 
 
 
 @NgModule({
   declarations: [
-    ZqInputDirective
+    HomeComponent
   ],
   imports: [
     CommonModule
   ],
   exports: [
-    ZqInputDirective
+    HomeComponent
   ]
 })
-export class ZqInputModule { }
+export class HomeModule { }

@@ -24,7 +24,6 @@ export class DocsComponent implements OnInit, OnDestroy {
         const { url } = event;
         const active = this.demoList.find((demo) => demo.link === url);
         this.activeItem(active);
-        console.log(url, active, this.demoList);
       });
   }
 
