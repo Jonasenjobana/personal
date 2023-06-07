@@ -1,4 +1,4 @@
-import { ZqCommonUtils } from './../shared/utils/common.util';
+import { copyDeep } from './../shared/utils/common.util';
 import { filter, Subject, takeUntil } from 'rxjs';
 import { DemoList } from './../layout/layout.menu';
 import { MenuItem } from './../shared/model/Menu.model';
@@ -14,7 +14,7 @@ export class DocsComponent implements OnInit, OnDestroy {
   demoList: MenuItem[] = [];
   destroy$: Subject<void> = new Subject();
   constructor(private router: Router, private activatedRoute: ActivatedRoute) {
-    this.demoList = ZqCommonUtils.copyDeep(DemoList);
+    this.demoList = copyDeep(DemoList);
     this.router.events
       .pipe(
         filter((event: any) => event instanceof NavigationEnd),

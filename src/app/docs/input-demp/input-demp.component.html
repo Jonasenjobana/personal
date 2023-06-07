@@ -1,2 +1,9 @@
 <p>input-demp works!</p>
-<input zq-input>
+<form #validate="ngForm">
+    <input zq-input [(ngModel)]="test" [zq-validate]="{required: true, errorTip: '不允许为空'}" name="test">
+    <input zq-input [(ngModel)]="test2" [zq-validate]="{required: true, errorTip: '不允许为空'}" name="test2">
+    <input zq-input [(ngModel)]="test3" name="test3">
+    <button zq-button (click)="flow(validate)">提交</button>
+    <button zq-button (click)="clear(validate)">清除</button>
+</form>
+<span>{{final}}</span>

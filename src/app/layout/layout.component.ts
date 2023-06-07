@@ -18,8 +18,9 @@ export class LayoutComponent implements OnInit {
   menuRight: MenuItem[] = LAYOUT_MENU_RIGHT
   constructor(private Slayout: LayoutService, private router: Router, private activeRouter: ActivatedRoute) { 
     router.events.pipe(filter((event: any) => event instanceof NavigationEnd)).subscribe(event => {
-      const { url } = event
-      const item = this.menuLeft.find(el => url.includes(el.link)) || this.menuRight.find(el => url.includes(el.link))
+      const { url } = event as NavigationEnd
+      const item = this.menuLeft.find(el => url.includes(el.link!)) || this.menuRight.find(el => url.includes(el.link!))
+      
       this.menuChange(item)
     })
   }

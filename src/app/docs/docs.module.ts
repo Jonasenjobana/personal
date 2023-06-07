@@ -6,6 +6,7 @@ import { DocsRoutingModule } from './docs-routing.module';
 import { ZqButtonDemo } from './zq-button-demo/zq-button-demo.component';
 import { SharedModule } from '../shared/shared.module';
 import { InputDempComponent } from './input-demp/input-demp.component';
+import { FormsModule } from '@angular/forms';
 
 
 
@@ -16,6 +17,7 @@ import { InputDempComponent } from './input-demp/input-demp.component';
     InputDempComponent
   ],
   imports: [
+    FormsModule,
     CommonModule,
     SharedModule,
     DocsRoutingModule

@@ -34,7 +34,10 @@
               "includePaths": [
                 "src/assets/styles"
               ]
-            }
+            },
+            "allowedCommonJsDependencies": [
+              "lodash"
+            ]
           },
           "configurations": {
             "production": {

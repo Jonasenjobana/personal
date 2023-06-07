@@ -1,6 +1,4 @@
 import { Router } from '@angular/router';
-import { LAYOUT_MENU_LEFT, LAYOUT_MENU_RIGHT } from './../layout.menu';
-import { ZqCommonUtils } from './../../shared/utils/common.util';
 import { MenuItem } from './../../shared/model/Menu.model';
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 @Component({
