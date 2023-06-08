@@ -13,9 +13,10 @@ import { ZqSelectType } from '../../types/types'
             (click)="openSelect()"
         >
             <div class="zq-select-input">
-                <span *ngFor="let item of selectedItem">
+                <span *ngFor="let item of selectedItem" [title]="item.title">
                     {{ item.title }}
                 </span>
+                <span *ngIf="!selectedItem.length" style="color: #00000087;">{{zqPlacement}}</span>
                 <div class="select-clear" (click)="clearSelect($event)">
                     X
                 </div>
@@ -44,6 +45,7 @@ export class ZqSelectComponent implements OnInit {
     trigerWidth!: number
     isOpen: boolean = false
     triggerElement!: HTMLDivElement
+    @Input() zqPlacement: string = '请选择选项'
     @Input() selectType: ZqSelectType = null
     @Input() zqOptions: ZqSelectOption[] = []
     @Output() selectChange: EventEmitter<ZqSelectOption[]> = new EventEmitter()
