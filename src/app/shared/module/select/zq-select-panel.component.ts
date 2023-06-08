@@ -6,7 +6,7 @@ import { ZqSelectOption } from '../../types/types';
   template:  `
     <div class="zq-select-option-wraper">
       <div class="zq-option-item" [ngClass]="{'select-base-active': item._checked}" *ngFor="let item of inOptions" (click)="selectItem(item)">
-        <span [title]="item.title">{{item.title}}</span>
+        <span [title]="item.label">{{item.label}}</span>
       </div>
     </div>
   `,

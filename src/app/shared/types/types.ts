@@ -8,7 +8,7 @@ export type ZqButtonSize = 'large' | 'default' | 'small'
 export type ZqSelectType = 'Tree' | 'Multiple' | null
 export interface ZqSelectOption {
     key?: string
-    title: string
+    label: string
     value?: string
     _checked?: boolean
     _disabled?: boolean

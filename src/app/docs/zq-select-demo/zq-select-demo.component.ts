@@ -9,10 +9,10 @@ import { Component, OnInit } from '@angular/core';
 export class ZqSelectDemoComponent implements OnInit {
   option: ZqSelectOption[] = [
     {
-      title: '选项A：这是老sadasdasd鼠'
+      label: '选项A：这是老sadasdasd鼠'
     },
     {
-      title: '选项B：这是鸭asdasdddddddddddd子'
+      label: '选项B：这是鸭asdasdddddddddddd子'
     }
   ]
   title: string = ''
@@ -21,6 +21,6 @@ export class ZqSelectDemoComponent implements OnInit {
   ngOnInit(): void {
   }
   onSelectChange(item: ZqSelectOption[]) {
-    this.title = item[0]?.title || 'null'
+    this.title = item[0]?.label || 'null'
   }
 }
