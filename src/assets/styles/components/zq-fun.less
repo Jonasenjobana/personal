@@ -7,11 +7,20 @@
 }
 .zq-active-border() {
     border-color: @color-text3;
+    &:hover,&:focus {
+        border-color: @color-text3;
+        box-shadow: 0 0 0 1px @color-active-shadow;
+    }
 }
 .zq-error() {
     border-color: @color-dang;
     &:hover,&:focus {
         border-color: @color-dang;
-        box-shadow: 0 0 0 1px rgba(245,0,0,0.3);
+        box-shadow: 0 0 0 1px @color-active-shadow-error;
     }
+}
+.letter-ellipsis() {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }

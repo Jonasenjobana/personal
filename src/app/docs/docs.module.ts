@@ -5,16 +5,17 @@ import { DocsComponent } from './docs.component';
 import { DocsRoutingModule } from './docs-routing.module';
 import { ZqButtonDemo } from './zq-button-demo/zq-button-demo.component';
 import { SharedModule } from '../shared/shared.module';
-import { InputDempComponent } from './input-demp/input-demp.component';
 import { FormsModule } from '@angular/forms';
-
+import { InputDemoComponent } from './input-demo/input-demo.component';
+import { ZqSelectDemoComponent } from './zq-select-demo/zq-select-demo.component';
 
 
 @NgModule({
   declarations: [
     ZqButtonDemo,
     DocsComponent,
-    InputDempComponent
+    InputDemoComponent,
+    ZqSelectDemoComponent
   ],
   imports: [
     FormsModule,

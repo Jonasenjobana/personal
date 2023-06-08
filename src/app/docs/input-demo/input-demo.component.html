@@ -1,0 +1,10 @@
+<p>Input 表单校验</p>
+<form #validate="ngForm">
+    <input zq-input [(ngModel)]="object.username" [zq-validate]="{required: true, errorTip: '不允许为空'}" name="username">
+    <input zq-input [(ngModel)]="object.gender" [zq-validate]="{required: true, errorTip: '不允许为空'}" name="gender">
+    <input zq-input [(ngModel)]="object.describe" name="describe">
+    <button zq-button (click)="flow(validate)">提交</button>
+    <button zq-button (click)="clear(validate)">清除</button>
+    <button zq-button (click)="reset(validate)">重置</button>
+</form>
+<span>{{final}}</span>

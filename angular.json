@@ -16,7 +16,7 @@
       },
       "root": "",
       "sourceRoot": "src",
-      "prefix": "app",
+      "prefix": "zq",
       "architect": {
         "build": {
           "builder": "@angular-devkit/build-angular:browser",

@@ -1,8 +1,5 @@
 import { AfterViewInit, Component, ElementRef, Input, OnInit, Renderer2 } from '@angular/core';
-
-export type ZqButtonType = 'primary' | 'default' | 'dangerous' | null;
-export type ZqButtonShape = 'circle' | 'round' | null;
-export type ZqButtonSize = 'large' | 'default' | 'small';
+import { ZqButtonShape, ZqButtonSize, ZqButtonType } from '../../types/types';
 @Component({
   selector: 'button[zq-button]',
   template: ` <ng-content></ng-content>`,

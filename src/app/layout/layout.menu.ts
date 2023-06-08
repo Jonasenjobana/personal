@@ -44,10 +44,10 @@ export const DemoList: MenuItem[] = [
     title: 'Input Demo',
     link: '/docs/input-demo',
   },
-  // {
-  //   title: 'Select Demo',
-  //   link: 'select',
-  // },
+  {
+    title: 'Select Demo',
+    link: '/docs/select-demo',
+  },
   // {
   //   title: 'Checkbox Demo',
   //   link: 'checkbox',

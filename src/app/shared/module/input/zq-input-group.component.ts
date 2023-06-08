@@ -3,7 +3,9 @@ import { Component, Input, OnInit, TemplateRef } from '@angular/core';
 @Component({
   selector: 'zq-input-group',
   template: `
-    <span class=""></span>
+    <span class="zq-input-group-wraper">
+      <span></span>
+    </span>
   `,
 })
 export class ZqInputGroupComponent implements OnInit {

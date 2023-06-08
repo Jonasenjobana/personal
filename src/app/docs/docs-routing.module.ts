@@ -1,8 +1,9 @@
-import { InputDempComponent } from './input-demp/input-demp.component';
 import { ZqButtonDemo } from './zq-button-demo/zq-button-demo.component';
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { DocsComponent } from './docs.component';
+import { InputDemoComponent } from './input-demo/input-demo.component';
+import { ZqSelectDemoComponent } from './zq-select-demo/zq-select-demo.component';
 
 const routes: Routes = [
   {
@@ -15,7 +16,11 @@ const routes: Routes = [
       },
       {
         path: 'input-demo',
-        component: InputDempComponent
+        component: InputDemoComponent
+      },
+      {
+        path: 'select-demo',
+        component: ZqSelectDemoComponent
       }
     ]
   }
