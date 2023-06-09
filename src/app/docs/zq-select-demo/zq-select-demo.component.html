@@ -1,6 +1,18 @@
 <div class="select-demo">
-    <zq-select [zqOptions]="option" (selectChange)="onSelectChange($event)"></zq-select>
-    <div>
-        {{title}}
-    </div>
+  search
+  <zq-select
+    [zqOptions]="option"
+    [zqSearch]="true"
+    [inOptionHeight]="300"
+    (selectChange)="onSelectChange($event)"
+  ></zq-select>
+  <div>
+    {{ title }}
+  </div>
+  no search
+  <zq-select
+    [zqOptions]="option"
+    [inOptionHeight]="300"
+    (selectChange)="onSelectChange($event)"
+  ></zq-select>
 </div>
