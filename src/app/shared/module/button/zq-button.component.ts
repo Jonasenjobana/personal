@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, ElementRef, Input, OnInit, Renderer2 } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, Inject, Input, OnInit, Renderer2 } from '@angular/core';
 import { ZqButtonShape, ZqButtonSize, ZqButtonType } from '../../types/types';
 @Component({
   selector: 'button[zq-button]',
@@ -18,7 +18,10 @@ export class ZqButtonComponent implements OnInit {
   @Input() zqShape: ZqButtonShape = null;
   @Input() disabled: boolean = false;
   @Input() zqSize: ZqButtonSize = 'default';
-  constructor(private render: Renderer2, private elementRef: ElementRef) {}
+  constructor(private render: Renderer2, private elementRef: ElementRef, @Inject('CONST_VALUE') private cost: string) {
+    console.log(this.cost,'btn cost');
+    
+  }
 
   ngOnInit(): void {}
 }

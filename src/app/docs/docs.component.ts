@@ -3,7 +3,7 @@ import { filter, Subject, takeUntil } from 'rxjs';
 import { DemoList } from './../layout/layout.menu';
 import { MenuItem } from './../shared/model/Menu.model';
 import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, Inject, OnDestroy, OnInit } from '@angular/core';
 
 @Component({
   selector: 'app-docs',
@@ -13,7 +13,9 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 export class DocsComponent implements OnInit, OnDestroy {
   demoList: MenuItem[] = [];
   destroy$: Subject<void> = new Subject();
-  constructor(private router: Router, private activatedRoute: ActivatedRoute) {
+  constructor(private router: Router, private activatedRoute: ActivatedRoute,@Inject('CONST_VALUE') private cost: string) {
+    console.log(this.cost,'asdas');
+    
     this.demoList = copyDeep(DemoList);
     this.router.events
       .pipe(

@@ -8,6 +8,7 @@ import { SharedModule } from '../shared/shared.module';
 import { FormsModule } from '@angular/forms';
 import { InputDemoComponent } from './input-demo/input-demo.component';
 import { ZqSelectDemoComponent } from './zq-select-demo/zq-select-demo.component';
+import { TableDemoComponent } from './table-demo/table-demo.component';
 
 
 @NgModule({
@@ -15,16 +16,14 @@ import { ZqSelectDemoComponent } from './zq-select-demo/zq-select-demo.component
     ZqButtonDemo,
     DocsComponent,
     InputDemoComponent,
-    ZqSelectDemoComponent
+    ZqSelectDemoComponent,
+    TableDemoComponent
   ],
   imports: [
     FormsModule,
     CommonModule,
     SharedModule,
     DocsRoutingModule
-  ],
-  exports: [
-    ZqButtonDemo
   ]
 })
 export class DocsModule { }

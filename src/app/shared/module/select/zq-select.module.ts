@@ -13,5 +13,8 @@ import { ZqSelectControlItemComponent } from './zq-select-control-item.component
   declarations: [ZqSelectComponent, ZqSelectPanelComponent, ZqSelectTopControlComponent, ZqSelectControlItemComponent],
   imports: [CommonModule, OverlayModule, ZqInputModule, FormsModule, EmptyBoxModule],
   exports: [ZqSelectComponent],
+  providers: [
+    {provide: 'CONST_VALUE', useValue: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'}
+  ]
 })
 export class ZqSelectModule {}

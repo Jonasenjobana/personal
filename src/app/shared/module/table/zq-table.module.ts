@@ -1,17 +1,26 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { TableTrDirective } from './table-tr.directive';
-import { TableTdDirective } from './table-td.directive';
+import { TableTrDirective } from './cell//table-tr.directive';
+import { TableTdDirective } from './cell/table-td.directive';
+import { TableComponent } from './table.component';
+import { ZqPaginationModule } from '../pagination/zq-pagination.module';
 
 
 
 @NgModule({
   declarations: [
     TableTrDirective,
-    TableTdDirective
+    TableTdDirective,
+    TableComponent
   ],
   imports: [
-    CommonModule
+    CommonModule,
+    ZqPaginationModule
+  ],
+  exports: [
+    TableTrDirective,
+    TableTdDirective,
+    TableComponent
   ]
 })
 export class ZqTableModule { }

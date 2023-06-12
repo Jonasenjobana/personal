@@ -4,6 +4,7 @@ import { RouterModule, Routes } from '@angular/router';
 import { DocsComponent } from './docs.component';
 import { InputDemoComponent } from './input-demo/input-demo.component';
 import { ZqSelectDemoComponent } from './zq-select-demo/zq-select-demo.component';
+import { TableDemoComponent } from './table-demo/table-demo.component';
 
 const routes: Routes = [
   {
@@ -21,6 +22,10 @@ const routes: Routes = [
       {
         path: 'select-demo',
         component: ZqSelectDemoComponent
+      },
+      {
+        path: 'table-demo',
+        component: TableDemoComponent
       }
     ]
   }

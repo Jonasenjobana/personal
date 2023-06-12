@@ -1,7 +1,7 @@
 import { copyDeep } from 'src/app/shared/utils/common.util';
 import { ZqSelectOption, ControlMode } from './../../types/types';
 import { ConnectedOverlayPositionChange } from '@angular/cdk/overlay';
-import { Component, OnInit, ViewChild, ElementRef, Input, SimpleChanges, Output, EventEmitter } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef, Input, SimpleChanges, Output, EventEmitter, Inject } from '@angular/core';
 import { ZqSelectType } from '../../types/types';
 import { ZqSelectService } from './zq-select.service';
 @Component({
@@ -51,7 +51,8 @@ import { ZqSelectService } from './zq-select.service';
     class: 'zq-select'
   },
   providers: [
-    ZqSelectService
+    ZqSelectService,
+    {provide: 'CONST_VALUE', useValue: 'shit'}
   ]
 })
 export class ZqSelectComponent implements OnInit {
@@ -83,7 +84,9 @@ export class ZqSelectComponent implements OnInit {
     this._s.valueSub$.next(value)
     this._searchValue = value
   }
-  constructor(private _s: ZqSelectService) {}
+  constructor(private _s: ZqSelectService, @Inject('CONST_VALUE') private cost: string) {
+    console.log(this.cost,'CONST_VALUE');
+  }
   outSideClick() {
     this.isOpen = false;
   }

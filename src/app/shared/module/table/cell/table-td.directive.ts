@@ -1,7 +1,10 @@
 import { Directive } from '@angular/core';
 
 @Directive({
-  selector: '[zqTableTd]'
+  selector: '[zqTableTd]',
+  host: {
+    class: 'zq-td',
+  }
 })
 export class TableTdDirective {
 

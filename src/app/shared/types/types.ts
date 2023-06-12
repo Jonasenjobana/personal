@@ -15,9 +15,3 @@ export interface ZqSelectOption {
   hide?: boolean;
   checked?: boolean;
 }
-
-// 表格类型
-export interface ZqTableItem<T> {
-    property: keyof T
-    title: string
-}

@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { NgForm } from '@angular/forms';
+import { NgForm, Validators } from '@angular/forms';
 import { copyDeep } from 'src/app/shared/utils/common.util';
 
 @Component({
@@ -18,7 +18,9 @@ export class InputDemoComponent implements OnInit {
     gender: '男',
     describe: '描述123'
   }
-  constructor() { }
+  constructor() { 
+
+  }
 
   ngOnInit(): void {
     this.final = JSON.stringify(this.object)

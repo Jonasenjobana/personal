@@ -48,6 +48,10 @@ export const DemoList: MenuItem[] = [
     title: 'Select Demo',
     link: '/docs/select-demo',
   },
+  {
+    title: 'Table Demo',
+    link: '/docs/table-demo',
+  },
   // {
   //   title: 'Checkbox Demo',
   //   link: 'checkbox',
