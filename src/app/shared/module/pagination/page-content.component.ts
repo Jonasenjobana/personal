@@ -1,4 +1,5 @@
-import { Component, Input, OnInit, SimpleChanges } from '@angular/core';
+import { ZqSelectOption } from './../../types/types';
+import { Component, Input, OnInit, Output, SimpleChanges, EventEmitter } from '@angular/core';
 import { PageItemComponent } from './page-item.component';
 
 @Component({
@@ -7,11 +8,23 @@ import { PageItemComponent } from './page-item.component';
     <ul class="zq-page-ul">
       <li
         zq-page-item
-        *ngFor="let item of  listOfPageItem"
+        *ngFor="let item of listOfPageItem"
         [index]="item.index"
         [type]="item.type!"
-        (click)="pageChange(item)"
+        [disabled]="item.disabled"
+        [currentIndex]="currentPage"
+        (click)="onPageChange(item)"
       ></li>
+      <li>
+        <zq-select
+          style="width: 45px;"
+          [ngModel]="pageSize"
+          [inClear]="false"
+          [zqOptions]="pageSelectOption"
+          (selectChange)="onSizeChange($event)"
+        ></zq-select>
+        <span>页</span>
+      </li>
     </ul>
   `
 })
@@ -19,22 +32,40 @@ export class PageContentComponent implements OnInit {
   @Input() currentPage!: number;
   @Input() total!: number;
   @Input() pageSize!: number;
+  @Input() pageSizeOption: string[] = [];
+  @Output() pageChange: EventEmitter<number> = new EventEmitter();
+  @Output() sizeChange: EventEmitter<number> = new EventEmitter();
+  pageSelectOption: ZqSelectOption[] = [];
   listOfPageItem: Array<Partial<PageItemComponent>> = [];
   constructor() {}
   ngOnChanges(changes: SimpleChanges) {
-    const { currentPage, total, pageSize } = changes;
+    const { currentPage, total, pageSize, pageSizeOption } = changes;
     if (currentPage || total || pageSize) {
       this.buildIndex();
     }
-  }
-  pageChange(item: Partial<PageItemComponent>) {
-    if (!item.index) {
-      this.currentPage = item.type === 'prev_5' ? this.currentPage - 5 : this.currentPage + 5
-      this.buildIndex()
-      return
+    if (pageSizeOption) {
+      this.pageSelectOption = this.pageSizeOption.map(el => {
+        return {
+          label: el,
+          value: el
+        };
+      });
     }
-    this.currentPage = item.index
-    this.buildIndex()
+  }
+  onSizeChange(item: ZqSelectOption[]) {
+    this.sizeChange.emit(Number(item[0].label))
+  }
+  onPageChange(item: Partial<PageItemComponent>) {
+    if (!!item.disabled) return;
+    if (['prev_5', 'next_5'].includes(item.type!)) {
+      this.currentPage = item.type === 'prev_5' ? this.currentPage - 5 : this.currentPage + 5;
+    } else if (['prev', 'next'].includes(item.type!)) {
+      this.currentPage = item.type === 'prev' ? this.currentPage - 1 : this.currentPage + 1;
+    } else {
+      this.currentPage = item.index!;
+    }
+    this.pageChange.emit(this.currentPage);
+    this.buildIndex();
   }
   ngOnInit(): void {}
   buildIndex() {

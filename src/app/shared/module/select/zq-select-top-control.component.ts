@@ -20,7 +20,8 @@ import { ZqSelectService } from './zq-select.service';
       </ng-container>
       <ng-container *ngSwitchCase="'multi'"> 123 </ng-container>
     </ng-container>
-    <span class="select-clear" (click)="clearControl($event)">×</span>
+    <span *ngIf="inClear" class="sufix icon-close" (click)="clearControl($event)"></span>
+    <span *ngIf="!inClear" class="sufix icon-down" [class.sufix-active]="isOpen"></span>
   `,
   host: {
     class: "zq-select-top"
@@ -35,11 +36,15 @@ export class ZqSelectTopControlComponent implements OnInit {
   @Output() inputValueChange: EventEmitter<string> = new EventEmitter();
   @Output() inputBlur: EventEmitter<string> = new EventEmitter();
   @Output() outClearControl: EventEmitter<void> = new EventEmitter();
+  isOpen: boolean = false
   constructor(@Optional()private selectService: ZqSelectService | null) {}
   ngOnInit(): void {
     if (this.selectService) {
       this.selectService.valueSub$.subscribe(value => {
         this.searchValue = value 
+      })
+      this.selectService.openSub$.subscribe(open => {
+        this.isOpen = open
       })
     }
   }

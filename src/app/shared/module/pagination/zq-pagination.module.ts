@@ -1,3 +1,5 @@
+import { FormsModule } from '@angular/forms';
+import { ZqSelectModule } from './../select/zq-select.module';
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { PaginationComponent } from './pagination.component';
@@ -12,7 +14,9 @@ import { PageItemComponent } from './page-item.component';
     PageItemComponent
   ],
   imports: [
-    CommonModule
+    CommonModule,
+    ZqSelectModule,
+    FormsModule
   ],
   exports: [
     PaginationComponent

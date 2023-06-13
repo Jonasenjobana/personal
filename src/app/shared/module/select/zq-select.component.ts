@@ -1,9 +1,22 @@
 import { copyDeep } from 'src/app/shared/utils/common.util';
 import { ZqSelectOption, ControlMode } from './../../types/types';
 import { ConnectedOverlayPositionChange } from '@angular/cdk/overlay';
-import { Component, OnInit, ViewChild, ElementRef, Input, SimpleChanges, Output, EventEmitter, Inject } from '@angular/core';
+import {
+  Component,
+  OnInit,
+  ViewChild,
+  ElementRef,
+  Input,
+  SimpleChanges,
+  Output,
+  EventEmitter,
+  Inject,
+  forwardRef
+} from '@angular/core';
 import { ZqSelectType } from '../../types/types';
 import { ZqSelectService } from './zq-select.service';
+import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
+import { OnChangeType, OnTouchedType } from '../table/type';
 @Component({
   selector: 'zq-select',
   template: `
@@ -52,19 +65,25 @@ import { ZqSelectService } from './zq-select.service';
   },
   providers: [
     ZqSelectService,
-    {provide: 'CONST_VALUE', useValue: 'shit'}
+    {
+      provide: NG_VALUE_ACCESSOR,
+      useExisting: forwardRef(() => ZqSelectComponent),
+      multi: true
+    }
   ]
 })
-export class ZqSelectComponent implements OnInit {
+export class ZqSelectComponent implements OnInit, ControlValueAccessor {
   trigerWidth!: number;
-  isOpen: boolean = false;
+  _isOpen: boolean = false;
   triggerElement!: HTMLDivElement;
   listOfControlItem: ZqSelectOption[] = [];
   selectedItem: ZqSelectOption[] = [];
   inOptionSnap: ZqSelectOption[] = [];
   options: ZqSelectOption[] = [];
   controlMode: ControlMode = null;
-  private _searchValue: string = ''
+  private _value: string = '';
+  onChange: OnChangeType = () => {};
+  onTouched: OnTouchedType = () => {};
   @Input() zqPlacement: string = '请选择选项';
   @Input() zqSearch: boolean = false;
   @Input() selectType: ZqSelectType = null;
@@ -72,20 +91,41 @@ export class ZqSelectComponent implements OnInit {
   @Input() inClear: boolean = false;
   @Input() inMulti: boolean = false;
   @Input() inSearch: boolean = false;
-  @Input() zqOptions: ZqSelectOption[] = [];
+  @Input() zqOptions: Array<ZqSelectOption> = [];
   @Input() inOptionHeight?: number | string;
   @Output() selectChange: EventEmitter<ZqSelectOption[]> = new EventEmitter();
   @ViewChild('triggerOrigin', { static: true, read: ElementRef })
   triggerOrigin!: ElementRef<HTMLDivElement>;
   get searchValue() {
-    return this._searchValue
+    return this._value;
   }
   set searchValue(value: string) {
-    this._s.valueSub$.next(value)
-    this._searchValue = value
+    this._s.valueSub$.next(value);
+    this._value = value;
   }
-  constructor(private _s: ZqSelectService, @Inject('CONST_VALUE') private cost: string) {
-    console.log(this.cost,'CONST_VALUE');
+  get isOpen() {
+    return this._isOpen
+  }
+  set isOpen(value) {
+    this._isOpen = value
+    this._s.openSub$.next(value)
+  }
+  constructor(private _s: ZqSelectService) {}
+  writeValue(obj: any): void {
+    if (this.searchValue !== obj) {
+      this.searchValue = obj;
+      this.initOption()
+    }
+  }
+  registerOnChange(fn: OnChangeType): void {
+    this.onChange = fn;
+  }
+
+  registerOnTouched(fn: OnTouchedType): void {
+    this.onTouched = fn;
+  }
+  setDisabledState?(isDisabled: boolean): void {
+    this.inView = isDisabled;
   }
   outSideClick() {
     this.isOpen = false;
@@ -94,15 +134,21 @@ export class ZqSelectComponent implements OnInit {
     this.triggerElement = this.triggerOrigin.nativeElement;
     this.updateTrigerSize();
   }
+  initOption() {
+    this.inOptionSnap = copyDeep(this.zqOptions);
+    this.options = this.inOptionSnap
+      .filter(el => !el.hide)
+      .map(el => {
+        return {
+          ...el,
+          checked: this.searchValue == el.label
+        };
+      });
+  }
   ngOnChanges(changes: SimpleChanges) {
     const { zqOptions, zqSearch } = changes;
     if (zqOptions) {
-      this.inOptionSnap = copyDeep(this.zqOptions);
-      this.options = this.zqOptions.filter(el => !el.hide).map(el => {
-        return {
-          ...el
-        };
-      });
+      this.initOption();
     }
     if (zqSearch) {
       this.controlMode = 'search';
@@ -116,6 +162,7 @@ export class ZqSelectComponent implements OnInit {
   openSelect() {
     this.updateTrigerSize();
     this.isOpen = !this.isOpen;
+    this._s.openSub$.next(this.isOpen)
   }
   onSelectChange(item: ZqSelectOption[]) {
     this.selectedItem = item;
@@ -125,20 +172,20 @@ export class ZqSelectComponent implements OnInit {
   }
   onClear() {
     this.selectedItem = [];
-    this.options = this.inOptionSnap.filter(el => !el.hide)
-    this.searchValue = ''
-    this._s.valueSub$.next(this.searchValue)
+    this.options = this.inOptionSnap.filter(el => !el.hide);
+    this.searchValue = '';
+    this._s.valueSub$.next(this.searchValue);
     this.selectChange.emit([]);
   }
   onInputValueChange($event: string) {
     this.options = this.inOptionSnap.filter(el => el.label.includes($event) || $event === '');
   }
   onInputBlur(value: string) {
-    if (this.options.findIndex(el => el.label === value) === -1) {   
+    if (this.options.findIndex(el => el.label === value) === -1) {
       this.options = this.inOptionSnap;
-      this._s.valueSub$.next(this.searchValue)
+      this._s.valueSub$.next(this.searchValue);
     } else {
-        this.searchValue = value
+      this.searchValue = value;
     }
   }
 }

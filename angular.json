@@ -31,13 +31,9 @@
             "styles": ["src/styles.less"],
             "scripts": [],
             "stylePreprocessorOptions": {
-              "includePaths": [
-                "src/assets/styles"
-              ]
+              "includePaths": ["src/assets/styles"]
             },
-            "allowedCommonJsDependencies": [
-              "lodash"
-            ]
+            "allowedCommonJsDependencies": ["lodash"]
           },
           "configurations": {
             "production": {

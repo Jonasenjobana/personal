@@ -40,18 +40,17 @@
         &:hover {
             .zq-active-border();
 
-            .select-clear {
+            .icon-close {
                 display: block !important;
             }
         }
 
-        .select-show {
+        z .select-show {
             display: flex;
             width: 100%;
             position: relative;
             height: 100%;
             align-items: center;
-            padding-right: 20px;
         }
     }
 
@@ -63,20 +62,27 @@
 .zq-select-top {
     display: flex;
     align-items: center;
+    position: relative;
+
     .zq-select-input {
         width: 100%;
         .zq-border-none() !important;
     }
 
-    .select-clear {
+    .sufix {
         font-size: 16px;
-        display: none;
         position: absolute;
         width: 20px;
         right: 2px;
-        &:hover {
-            color: red
+        .transform-rotateZ(0deg);
+
+        &.sufix-active:not(.icon-close) {
+            .transform-rotateZ(180deg)
         }
+    }
+
+    .icon-close {
+        display: none;
     }
 }
 

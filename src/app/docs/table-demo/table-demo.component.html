@@ -1,4 +1,5 @@
 <p>table-demo works!</p>
-<zq-table [inCols]="tableItem">
+<zq-table [inCols]="tableItem" (pageChange)="onPageChange($event)" (sizeChange)="onSizeChange($event)">
     
 </zq-table>
+spage:{{page}}--size:{{size}}
