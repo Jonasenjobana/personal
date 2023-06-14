@@ -1,24 +1,22 @@
-import { ZqSelectOption } from './../../types/types';
+import { ZqSelectOption, ZqSelectType } from './type';
 import { Component, EventEmitter, Inject, Input, OnInit, Optional, Output, SimpleChanges } from '@angular/core';
-import { ZqSelectService } from './zq-select.service';
-
 @Component({
   selector: 'zq-select-top-control',
   template: `
-    <ng-container [ngSwitch]="controlMode">
+    <ng-container [ngSwitch]="selectType">
       <ng-container *ngSwitchDefault>
         <input
+          [disabled]="!zqSearch"
           class="zq-select-input"
           zq-input
-          [disabled]="controlMode !== 'search'"
           [placeholder]="zqPlacement"
           type="text"
-          [(ngModel)]="searchValue"
+          [ngModel]="value"
           (ngModelChange)="onValueChange($event)"
           (blur)="onInputBlur()"
         />
       </ng-container>
-      <ng-container *ngSwitchCase="'multi'"> 123 </ng-container>
+      <ng-container *ngSwitchCase="'Tag'"> 123 </ng-container>
     </ng-container>
     <span *ngIf="inClear" class="sufix icon-close" (click)="clearControl($event)"></span>
     <span *ngIf="!inClear" class="sufix icon-down" [class.sufix-active]="isOpen"></span>
@@ -29,30 +27,23 @@ import { ZqSelectService } from './zq-select.service';
 })
 export class ZqSelectTopControlComponent implements OnInit {
   @Input() listOfControlItem: ZqSelectOption[] = []
-  @Input() searchValue!: string;
+  @Input() value!: (string|number|null)[];
+  @Input() zqSearch!: boolean
   @Input() inClear!: boolean
   @Input() zqPlacement!: string
-  @Input() controlMode: 'search' | 'tag' | null = null;
+  @Input() selectType!: ZqSelectType
   @Output() inputValueChange: EventEmitter<string> = new EventEmitter();
   @Output() inputBlur: EventEmitter<string> = new EventEmitter();
   @Output() outClearControl: EventEmitter<void> = new EventEmitter();
   isOpen: boolean = false
-  constructor(@Optional()private selectService: ZqSelectService | null) {}
+  constructor() {}
   ngOnInit(): void {
-    if (this.selectService) {
-      this.selectService.valueSub$.subscribe(value => {
-        this.searchValue = value 
-      })
-      this.selectService.openSub$.subscribe(open => {
-        this.isOpen = open
-      })
-    }
   }
   onValueChange($event: string) {
     this.inputValueChange.emit($event);
   }
   onInputBlur() {
-    this.inputBlur.emit(this.searchValue)
+    // this.inputBlur.emit(this.value)
   }
   clearControl($event: MouseEvent) {
     $event.stopPropagation()

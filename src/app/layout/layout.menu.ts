@@ -52,10 +52,10 @@ export const DemoList: MenuItem[] = [
     title: 'Table Demo',
     link: '/docs/table-demo',
   },
-  // {
-  //   title: 'Checkbox Demo',
-  //   link: 'checkbox',
-  // },
+  {
+    title: 'Modal Demo',
+    link: '/docs/modal-demo',
+  },
   // {
   //   title: 'Radio Demo',
   //   link: 'radio',

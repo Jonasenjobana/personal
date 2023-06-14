@@ -13,7 +13,7 @@
         .select-hover()
     }
 
-    &.select-base-active {
+    &.item-checked {
         .select-active()
     }
 }
@@ -45,7 +45,7 @@
             }
         }
 
-        z .select-show {
+        .select-show {
             display: flex;
             width: 100%;
             position: relative;
@@ -94,8 +94,10 @@
         width: 100%;
         overflow: auto;
         height: auto;
-
-        .zq-option-item {
+        .zq-select-item {
+            position: relative;
+        }
+        .select-item {
             .select-base-item();
         }
     }

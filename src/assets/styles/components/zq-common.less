@@ -1,0 +1,18 @@
+.icon-size(@size) {
+    font-size: @size;
+    width: @size;
+    height: @size;
+    line-height: @size;
+}
+.zq-icon {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 2;
+    &.zq-icon-sm {
+        .icon-size(14px)
+    }
+    &.zq-icon-lg {
+        .icon-size(24px)
+    }
+}

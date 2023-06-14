@@ -1,3 +1,4 @@
+import { ZqInputModule } from './../input/zq-input.module';
 import { FormsModule } from '@angular/forms';
 import { ZqSelectModule } from './../select/zq-select.module';
 import { NgModule } from '@angular/core';
@@ -16,6 +17,7 @@ import { PageItemComponent } from './page-item.component';
   imports: [
     CommonModule,
     ZqSelectModule,
+    ZqInputModule,
     FormsModule
   ],
   exports: [

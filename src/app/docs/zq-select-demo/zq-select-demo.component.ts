@@ -1,5 +1,5 @@
-import { ZqSelectOption } from './../../shared/types/types';
 import { Component, OnInit } from '@angular/core';
+import { ZqSelectOption } from 'src/app/shared/module/select/type';
 
 @Component({
   selector: 'zq-select-demo',
@@ -9,10 +9,12 @@ import { Component, OnInit } from '@angular/core';
 export class ZqSelectDemoComponent implements OnInit {
   option: ZqSelectOption[] = [
     {
-      label: '选项A：这是老sadasdasd鼠'
+      label: '选项A：这是老sadasdasd鼠',
+      value: '1'
     },
     {
-      label: '选项B：这是鸭asdasdddddddddddd子'
+      label: '选项B：这是鸭asdasdddddddddddd子',
+      value: '2'
     }
   ]
   title: string = ''
@@ -21,6 +23,6 @@ export class ZqSelectDemoComponent implements OnInit {
   ngOnInit(): void {
   }
   onSelectChange(item: ZqSelectOption[]) {
-    this.title = item[0]?.label || 'null'
+    this.title = JSON.stringify(item)
   }
 }

@@ -5,7 +5,7 @@
     [zqSearch]="true"
     [inOptionHeight]="300"
     [inClear]="true"
-    (selectChange)="onSelectChange($event)"
+    (selectItemChange)="onSelectChange($event)"
   ></zq-select>
   <div>
     {{ title }}
@@ -14,6 +14,6 @@
   <zq-select
     [zqOptions]="option"
     [inOptionHeight]="300"
-    (selectChange)="onSelectChange($event)"
+    (selectItemChange)="onSelectChange($event)"
   ></zq-select>
 </div>

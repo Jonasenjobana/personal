@@ -1,5 +1,6 @@
-import { ZqSelectOption } from './../../types/types';
+
 import { Component, Input, OnInit, Output, SimpleChanges, EventEmitter } from '@angular/core';
+import { ZqSelectOption } from '../select/type';
 import { PageItemComponent } from './page-item.component';
 
 @Component({
@@ -16,13 +17,19 @@ import { PageItemComponent } from './page-item.component';
         (click)="onPageChange(item)"
       ></li>
       <li>
+        <span>显示</span>
         <zq-select
           style="width: 45px;"
           [ngModel]="pageSize"
           [inClear]="false"
           [zqOptions]="pageSelectOption"
-          (selectChange)="onSizeChange($event)"
+          (selectItemChange)="onSizeChange($event)"
         ></zq-select>
+        <span>条</span>
+      </li>
+      <li>
+        <span>，跳转至</span>
+        <input zq-input style="width: 20px;" (keydown.enter)="jumpToPageViaInput($event)" />
         <span>页</span>
       </li>
     </ul>
@@ -52,8 +59,26 @@ export class PageContentComponent implements OnInit {
       });
     }
   }
+  jumpToPageViaInput($event: Event) {
+    const target = $event.target as HTMLInputElement;
+    this.currentPage = Number(target.value);
+    this.currentPage = this.validPage();
+    this.buildIndex()
+    this.pageChange.emit(this.currentPage);
+    target.value = '';
+  }
+  validPage() {
+    const lastIndex = this.getLastIndex(this.total, this.pageSize);
+    return lastIndex < this.currentPage ? lastIndex : this.currentPage <= 0 ? 1 : this.currentPage;
+  }
   onSizeChange(item: ZqSelectOption[]) {
-    this.sizeChange.emit(Number(item[0].label))
+    const size = Number(item[0].label);
+    if (this.pageSize == size) return;
+    this.pageSize = size;
+    this.currentPage = this.validPage();
+    this.buildIndex();
+    this.sizeChange.emit(Number(item[0].label));
+    this.pageChange.emit(this.currentPage);
   }
   onPageChange(item: Partial<PageItemComponent>) {
     if (!!item.disabled) return;
@@ -98,7 +123,7 @@ export class PageContentComponent implements OnInit {
       return list;
     };
     if (lastIndex <= 9) {
-      return concatWithPrevNext(generatePageItems(0, lastIndex));
+      return concatWithPrevNext(generatePageItems(1, lastIndex));
     } else {
       const generateRangeItems = (selected: number, last: number): Array<Partial<PageItemComponent>> => {
         let list: Array<Partial<PageItemComponent>> = [];
@@ -113,10 +138,10 @@ export class PageContentComponent implements OnInit {
         if (selected < 5) {
           const maxLeft = selected === 4 ? 6 : 5;
           list = [...generatePageItems(2, maxLeft), next];
-        } else if (selected < last - 3) {
+        } else if (selected < last - 4) {
           list = [prev, ...generatePageItems(selected - 2, selected + 2), next];
         } else {
-          const minRight = selected === last - 3 ? last - 5 : last - 4;
+          const minRight = selected === last - 4 ? last - 5 : last - 4;
           list = [prev, ...generatePageItems(minRight, last - 1)];
         }
         return [...firstItem, ...list, ...lastItem];

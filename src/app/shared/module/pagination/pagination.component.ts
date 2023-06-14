@@ -22,11 +22,11 @@ export class PaginationComponent implements OnInit {
   /** 总页数 */
   @Input() pageRecord: number = 20;
   /** 当前页数 */
-  @Input() currentPage: number = 10;
+  @Input() currentPage: number = 1;
   /** 分页大小 */
   @Input() pageSize: number = 15;
   /** 总条数 */
-  @Input() pageCount: number = 233;
+  @Input() pageCount: number = 3231;
   @Input() pageOption: PaginationOption = new PaginationOption();
   @Input() showSize: boolean = false;
   @Input() showJump: boolean = false;

@@ -1,3 +1,4 @@
+import { PaginationOption } from './../pagination/type';
 import { Component, forwardRef, Inject, Input, OnInit, Optional, Output, SkipSelf, EventEmitter } from '@angular/core';
 import { ZqTableItem } from './type';
 
@@ -27,6 +28,7 @@ import { ZqTableItem } from './type';
 })
 export class TableComponent<T> implements OnInit {
   @Input() inCols: ZqTableItem<T>[] = [];
+  @Input() pagination: PaginationOption = new PaginationOption()
   @Output() pageChange: EventEmitter<number> = new EventEmitter();
   @Output() sizeChange: EventEmitter<number> = new EventEmitter();
   constructor() {}

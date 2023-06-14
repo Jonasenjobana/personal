@@ -5,6 +5,7 @@ import { ZqInputModule } from './module/input/zq-input.module';
 import { ZqValidateModule } from './module/validate/zq-validate.module';
 import { ZqSelectModule } from './module/select/zq-select.module';
 import { ZqTableModule } from './module/table/zq-table.module';
+import { ZqModalModule } from './module/modal/zq-modal.module';
 @NgModule({
   declarations: [
 
@@ -15,7 +16,8 @@ import { ZqTableModule } from './module/table/zq-table.module';
     ZqValidateModule,
     ZqSelectModule,
     ZqButtonModule,
-    ZqTableModule
+    ZqTableModule,
+    ZqModalModule
   ],
   exports: [
     ZqInputModule,

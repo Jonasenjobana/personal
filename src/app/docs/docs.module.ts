@@ -9,6 +9,7 @@ import { FormsModule } from '@angular/forms';
 import { InputDemoComponent } from './input-demo/input-demo.component';
 import { ZqSelectDemoComponent } from './zq-select-demo/zq-select-demo.component';
 import { TableDemoComponent } from './table-demo/table-demo.component';
+import { ZqModalDemoComponent } from './zq-modal-demo/zq-modal-demo.component';
 
 
 @NgModule({
@@ -17,7 +18,8 @@ import { TableDemoComponent } from './table-demo/table-demo.component';
     DocsComponent,
     InputDemoComponent,
     ZqSelectDemoComponent,
-    TableDemoComponent
+    TableDemoComponent,
+    ZqModalDemoComponent
   ],
   imports: [
     FormsModule,

@@ -1,4 +1,5 @@
 @active-color: #40a9ff;
+
 .zq-pagination {
     display: flex;
     width: 100%;
@@ -9,35 +10,47 @@
 .zq-page-ul {
     display: flex;
 
+    li > span {
+        margin: 0 4px;
+    }
+
     &>.zq-page-li {
         width: 30px;
         height: 30px;
         margin: 0 2px;
+
         .zq-page-item {
             cursor: pointer;
             border: 1px solid #d9d9d9;
             border-radius: 2px;
+
             &.actived-item {
                 border-color: @active-color;
                 color: @active-color
             }
+
             &.disabled-item {
                 cursor: not-allowed !important;
+
                 &:hover {
                     color: inherit;
                     border-color: #d9d9d9;
                 }
             }
-            &.prev::after{
+
+            &.prev::after {
                 content: '<';
             }
-            &.next::after{
+
+            &.next::after {
                 content: '>';
             }
+
             &:hover {
                 border-color: @active-color;
                 color: @active-color;
             }
+
             &.prev_5,
             &.next_5 {
                 border: none;
@@ -50,6 +63,7 @@
             &.prev_5 {
                 &:hover {
                     color: @active-color;
+
                     &::after {
                         color: @active-color;
                         content: '<<';
@@ -60,6 +74,7 @@
             &.next_5 {
                 &:hover {
                     color: @active-color;
+
                     &::after {
                         color: @active-color;
                         content: '>>';

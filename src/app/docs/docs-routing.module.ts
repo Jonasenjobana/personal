@@ -1,3 +1,4 @@
+import { ZqModalDemoComponent } from './zq-modal-demo/zq-modal-demo.component';
 import { ZqButtonDemo } from './zq-button-demo/zq-button-demo.component';
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
@@ -26,6 +27,10 @@ const routes: Routes = [
       {
         path: 'table-demo',
         component: TableDemoComponent
+      },
+      {
+        path: 'modal-demo',
+        component: ZqModalDemoComponent
       }
     ]
   }

@@ -7,7 +7,6 @@ export type ZqInputType = 'num' | null
     class: 'zq-input',
     '[class.zq-input-disabled]': 'disabled',
   },
-  providers: []
 })
 export class ZqInputDirective{
   @Input() inputType: ZqInputType = null
@@ -23,5 +22,4 @@ export class ZqInputDirective{
       })
     }
   }
-  
 }
