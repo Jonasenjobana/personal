@@ -1,12 +1,22 @@
 import { ZqModalType } from './type';
-import { Directive, Input, TemplateRef } from '@angular/core';
+import { ComponentRef, Directive, Input, TemplateRef, Type } from '@angular/core';
+import { CdkPortalOutlet, ComponentPortal, TemplatePortal } from '@angular/cdk/portal';
 
 @Directive({
   selector: '[zqModal]'
 })
-export class ZqModalDirective {
-  @Input() zqType: ZqModalType = 'confirm'
-  @Input() inTemplate?: TemplateRef<any> | null = null
-  constructor() { }
+export class ZqBaseModalComponent {
+  @Input() zqType: ZqModalType = 'confirm';
+  contentPortal!: CdkPortalOutlet;
+  constructor() {
 
+  }
+  attachComponentPortal<T>(portal: ComponentPortal<T>) {
+    console.log(this.contentPortal,'contentPortal');
+    
+    return this.contentPortal.attachComponentPortal(portal)
+  }
+  attachTemplatePortal<T>(portal: TemplatePortal<T>) {
+    return this.contentPortal.attachTemplatePortal(portal)
+  }
 }

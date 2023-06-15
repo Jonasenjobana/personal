@@ -1,13 +1,18 @@
-import { ElementRef, TemplateRef, Type } from '@angular/core';
-export type CB = (...param: any) => any;
+import { ElementRef, TemplateRef, Type, ViewContainerRef } from '@angular/core';
+export type CallbackType = (...param: any) => any;
 export type ZqModalType = 'confirm' | 'custom';
-export interface ZqModalConfig<T> {
-  overlayStrategy: ZqPostionStrategy;
-  origin: ElementRef;
-  mask?: boolean;
-  width?: number;
-  zqContent: string | TemplateRef<any> | Type<T>;
-  zqAfterClose: CB;
-  zqBeforeClose: CB;
+export class ZqModalConfig<T = any> {
+  overlayStrategy?: ZqPostionStrategy = 'global';
+  origin?: ElementRef;
+  mask?: boolean = true;
+  width?: number = 800;
+  zqIndex?: number = 1000;
+  zqModalType?: ZqModalType = 'confirm'
+  zqContent?: TemplateRef<any> | Type<T>;
+  zqFooter?: TemplateRef<any> | Type<T>;
+  zqContainerRef?: ViewContainerRef;
+  zqComponentParams?: Object = {}
+  zqAfterClose?: CallbackType;
+  zqBeforeClose?: CallbackType;
 }
 export type ZqPostionStrategy = 'flex' | 'global';

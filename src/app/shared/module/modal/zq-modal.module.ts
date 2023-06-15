@@ -2,11 +2,15 @@ import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ZqModalConfirmComponent } from './zq-modal-confirm.component';
 import { OverlayModule } from '@angular/cdk/overlay';
-import { ZqModalDirective } from './zq-modal.directive';
-
+import { ZqBaseModalComponent } from './zq-modal.directive';
+import {PortalModule} from '@angular/cdk/portal';
+import { ZqModalService } from './zq-modal.service';
 @NgModule({
-  declarations: [ZqModalConfirmComponent, ZqModalDirective],
-  imports: [CommonModule, OverlayModule],
-  exports: []
+  declarations: [ZqModalConfirmComponent, ZqBaseModalComponent],
+  imports: [CommonModule, OverlayModule, PortalModule],
+  exports: [ZqModalConfirmComponent, ZqBaseModalComponent],
+  providers: [
+    ZqModalService
+  ]
 })
 export class ZqModalModule {}
