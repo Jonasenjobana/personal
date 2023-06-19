@@ -15,15 +15,21 @@ export class IconDirective {
   get zqIcon() {
     return this._zqIcon;
   }
+  @Input() inPointer: boolean = true 
   @Input() right: number = 5;
   @Input() iconSize: 'sm' | 'lg' = 'sm';
   _zqIcon: string = '';
   constructor(private elementRef: ElementRef, private render: Renderer2) {}
   ngOnChanges(changes: SimpleChanges) {
-    const { zqIcon, right } = changes;
-    if ((zqIcon && !zqIcon.firstChange) || (right && !right.isFirstChange)) {
+    // const { zqIcon, right } = changes;
+    if (this.changeAndNotFirst(changes, ['zqIcon', 'right', 'inPointer'])) {
       this.renderIcon();
     }
+  }
+  changeAndNotFirst(changes: SimpleChanges, keys: string[]) {
+    return keys.some(key => {
+      changes[key] && !changes[key].firstChange
+    })
   }
   ngAfterViewInit() {
     this.renderIcon();
@@ -33,5 +39,6 @@ export class IconDirective {
     if (!element) return;
     this.render.addClass(element, `${this.zqIcon}`);
     this.render.setStyle(element, 'right', this.right + 'px');
+    this.render.setStyle(element, 'cursor', this.inPointer ? 'pointer' : 'inherit')
   }
 }

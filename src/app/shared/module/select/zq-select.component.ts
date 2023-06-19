@@ -32,12 +32,14 @@ import { ZqSelectType } from './type';
           style="width: 100%;"
           [zqPlacement]="zqPlacement"
           [inClear]="inClear"
-          [value]="value"
+          [selectedItem]="selectedItem"
+          [isOpen]="isOpen"
           [zqSearch]="zqSearch"
           [selectType]="selectType"
           (inputBlur)="onInputBlur($event)"
           (outClearControl)="onClear()"
           (inputValueChange)="onInputValueChange($event)"
+          (deleteItemChange)="onDeleteItemChange($event)"
         ></zq-select-top-control>
       </div>
     </div>
@@ -151,7 +153,7 @@ export class ZqSelectComponent implements OnInit, ControlValueAccessor {
   }
   initOption() {}
   ngOnChanges(changes: SimpleChanges) {
-    const { zqOptions } = changes;
+    const { zqOptions, selectType } = changes;
     if (zqOptions) {
       this.listOfOptions = this.zqOptions || [];
       const listOfTemplate = this.listOfOptions
@@ -164,6 +166,9 @@ export class ZqSelectComponent implements OnInit, ControlValueAccessor {
         });
       this.listOfTemplateItem$.next(listOfTemplate);
     }
+    if (selectType) {
+      this.inMulti = true;
+    }
   }
   updateTrigerSize() {
     if (!this.triggerElement) return;
@@ -174,14 +179,33 @@ export class ZqSelectComponent implements OnInit, ControlValueAccessor {
     this.updateTrigerSize();
     this.isOpen = !this.isOpen;
   }
-  onSelectChange(item: ZqSelectItem[]) {
-    this.selectedItem = item;
-    this.value = [...item.map(el => el.label)];
+  onSelectChange(item: ZqSelectItem) {
+    const index = this.selectedItem.findIndex(el => el === item);
+    if (index >= 0) {
+      this.selectedItem.splice(index, 1);
+    } else if (this.selectType === 'Default') {
+      this.selectedItem = [item];
+      this.listOfValue = this.value = [item.label];
+    } else {
+      this.selectedItem = [...this.selectedItem, item];
+      this.listOfValue = this.value = [...this.value, item.label];
+    }
     this.isOpen = this.inMulti || false;
-    this.selectItemChange.emit(item);
+    this.selectItemChange.emit(this.selectedItem);
   }
-  onClear() {}
+  onClear() {
+    this.selectedItem = [];
+    this.value = [];
+    this.selectItemChange.emit([]);
+  }
   onInputValueChange($event: string) {}
+  onDeleteItemChange($event: ZqSelectItem) {
+    const index = this.selectedItem.findIndex(el => el === $event);
+    if (index >= 0) {
+      this.selectedItem.splice(index, 1);
+      this.selectItemChange.emit(this.selectedItem);
+    }
+  }
   onInputBlur(value: string) {}
   ngOnDestory() {}
 }

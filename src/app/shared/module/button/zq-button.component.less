@@ -1,6 +1,7 @@
 @color-dang: #ff4d4f;
 @color-dang-hov: #ff7875;
 @color-bg1: #00aaff;
+@color-bg2: #1090ff;
 @color-text1: #ebebeb;
 @color-text2: #000000d9;
 @color-text3: #40a9ff;
@@ -29,8 +30,15 @@
                 border-color: transparent;
             }
         }
-        &.zq-btn-primary {
+        &.zq-btn-default {
 
+        }
+        &.zq-btn-primary {
+            background-color: @color-bg2;
+            color: #fff;
+            &:hover {
+                background-color: @color-text3;
+            }
         }
         &.zq-btn-disabled {
             cursor: not-allowed;

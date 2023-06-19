@@ -5,6 +5,7 @@
     [zqSearch]="true"
     [inOptionHeight]="300"
     [inClear]="true"
+    [(ngModel)]="value"
     (selectItemChange)="onSelectChange($event)"
   ></zq-select>
   <div>
@@ -12,6 +13,15 @@
   </div>
   no search
   <zq-select
+    [(ngModel)]="value"
+    [zqOptions]="option"
+    [inOptionHeight]="300"
+    (selectItemChange)="onSelectChange($event)"
+  ></zq-select>
+  tag
+  <zq-select
+    [selectType]="'Tag'"
+    [(ngModel)]="values"
     [zqOptions]="option"
     [inOptionHeight]="300"
     (selectItemChange)="onSelectChange($event)"

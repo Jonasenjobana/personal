@@ -1,1 +1,10 @@
-<p><button zq-button (click)="createModal()">生成modal</button></p>
+<p><button zq-button (click)="createModal('global')">全局定位</button></p>
+<p><button zq-button (click)="createModal('event-el', $event)">元素定位</button></p>
+<p><button zq-button (click)="createModal('event', $event)">点击位置定位</button></p>
+<p><button zq-button (click)="createModalTemplate('event-el', $event, tplContent)">模板测试</button></p>
+<ng-template let-params let-modalRef="modalRef" #tplContent>
+    <p>模板测试</p>
+    <span>{{params.title}}</span>
+    <span>{{modalRef}}</span>
+    <button zq-button (click)="clickMe(modalRef,params)">click me</button>
+</ng-template>

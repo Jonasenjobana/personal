@@ -16,9 +16,6 @@ import { ZqButtonComponent } from './zq-button.component';
   exports: [
     ZqButtonComponent,
     ZqButtonGroupComponent
-  ],
-  providers: [
-    {provide: 'CONST_VALUE', useValue: 'bqqqqqqqqqqqqqqqtnqqqqqqqqqqaklsd'}
   ]
 })
 export class ZqButtonModule { }

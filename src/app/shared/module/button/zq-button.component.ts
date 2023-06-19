@@ -10,6 +10,7 @@ import { ZqButtonShape, ZqButtonSize, ZqButtonType } from '../../types/types';
     '[class.zq-btn-lg]': `zqSize === 'large'`,
     '[class.zq-btn-dangerous]': `zqType === 'dangerous'`,
     '[class.zq-btn-primary]': `zqType === 'primary'`,
+    '[class.zq-btn-default]': `zqType === 'default'`
   },
 })
 export class ZqButtonComponent implements OnInit {
@@ -18,9 +19,7 @@ export class ZqButtonComponent implements OnInit {
   @Input() zqShape: ZqButtonShape = null;
   @Input() disabled: boolean = false;
   @Input() zqSize: ZqButtonSize = 'default';
-  constructor(private render: Renderer2, private elementRef: ElementRef, @Inject('CONST_VALUE') private cost: string) {
-    console.log(this.cost,'btn cost');
-    
+  constructor(private render: Renderer2, private elementRef: ElementRef) {
   }
 
   ngOnInit(): void {}

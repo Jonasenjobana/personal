@@ -26,16 +26,16 @@ import { ZqSelectOption, ZqSelectItem } from './type';
 export class ZqSelectPanelComponent implements OnInit {
   @Input() inOptionHeight?: number | string;
   @Input() listOfTemplate: ZqSelectItem[] = [];
-  @Input() listOfSelected!: any[];
+  @Input() listOfSelected: ZqSelectItem[] = [];
   @Input() inMulti: boolean = false;
-  @Output() selectChange: EventEmitter<ZqSelectItem[]> = new EventEmitter();
+  @Output() selectChange: EventEmitter<ZqSelectItem> = new EventEmitter();
   constructor() {}
-
   ngOnInit(): void {}
   selectItem(item: ZqSelectItem) {
-    this.changeEmit([item]);
+    this.changeEmit(item);
   }
-  changeEmit(item: ZqSelectItem[] = []) {
+  
+  changeEmit(item: ZqSelectItem) {
     this.selectChange.emit(item);
   }
 }
