@@ -1,5 +1,5 @@
 import { ZqModalService } from './../modal/zq-modal.service';
-import { Component, Input, OnInit, SimpleChanges } from '@angular/core';
+import { Component, Input, OnInit, SimpleChanges, ViewChild, ViewContainerRef } from '@angular/core';
 
 @Component({
   selector: 'zq-message',
@@ -23,7 +23,8 @@ export class ZqMessageComponent implements OnInit {
   }
   constructor(private modalService: ZqModalService) {}
 
-  ngOnInit(): void {}
+  ngOnInit(): void {
+  }
 }
 enum icon {
   'success' = 'check-circle',

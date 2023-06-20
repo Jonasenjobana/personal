@@ -18,10 +18,15 @@ import { Component, EventEmitter, Inject, Input, OnInit, Optional, Output, Simpl
       </ng-container>
       <ng-container *ngSwitchCase="'Tag'">
         <div class="tag-wrapper">
-          <div class="tag-item" *ngFor="let item of selectedItem">
+          <ng-container  *ngFor="let item of selectedItem;let index = index">
+          <div class="tag-item" *ngIf="inMaxShow <= 0 || index < inMaxShow">
             {{ item.label }}
             <span [zqIcon]="'close'" (click)="deleteItem(item, $event)"></span>
           </div>
+          <div class="tag-item" style="max-width: unset;" *ngIf="inMaxShow > 0 && index === inMaxShow">
+            余{{selectedItem.length - inMaxShow}}个标签
+          </div>
+          </ng-container>
         </div>
       </ng-container>
     </ng-container>
@@ -39,6 +44,7 @@ export class ZqSelectTopControlComponent implements OnInit {
   @Input() selectedItem: ZqSelectItem[] = [];
   @Input() zqPlacement!: string;
   @Input() isOpen: boolean = false;
+  @Input() inMaxShow!: number
   @Input() selectType!: ZqSelectType;
   @Output() inputValueChange: EventEmitter<string> = new EventEmitter();
   @Output() inputBlur: EventEmitter<string> = new EventEmitter();

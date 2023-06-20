@@ -22,11 +22,11 @@ export class ZqSelectItemComponent implements OnInit {
     const { value, listOfSelected } = changes
     if (value || listOfSelected) {
       this.isChecked = this.listOfSelected.findIndex(el => el.value === this.value) >= 0
-      console.log(this.isChecked, this.listOfSelected, this.value);
+      // console.log(this.isChecked, this.listOfSelected, this.value);
     }
   }
   ngOnInit(): void {
-    console.log(this.listOfSelected,'listOfSelected');
+    // console.log(this.listOfSelected,'listOfSelected');
   }
 
 }

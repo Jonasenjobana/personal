@@ -28,6 +28,7 @@ export class ZqSelectPanelComponent implements OnInit {
   @Input() listOfTemplate: ZqSelectItem[] = [];
   @Input() listOfSelected: ZqSelectItem[] = [];
   @Input() inMulti: boolean = false;
+  @Input() inMaxSelected!: number
   @Output() selectChange: EventEmitter<ZqSelectItem> = new EventEmitter();
   constructor() {}
   ngOnInit(): void {}

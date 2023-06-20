@@ -1,6 +1,6 @@
 import { copyDeep } from 'src/app/shared/utils/common.util';
 import { ZqSelectOption, ZqSelectItem } from './type';
-import { ConnectedOverlayPositionChange } from '@angular/cdk/overlay';
+import { CdkConnectedOverlay, ConnectedOverlayPositionChange, ConnectedPosition, OverlayRef } from '@angular/cdk/overlay';
 import {
   Component,
   OnInit,
@@ -15,8 +15,9 @@ import {
 } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { OnChangeType, OnTouchedType } from '../table/type';
-import { BehaviorSubject, combineLatest, combineLatestWith, map, filter } from 'rxjs';
+import { BehaviorSubject, combineLatest, combineLatestWith, map, filter, Subject, takeUntil } from 'rxjs';
 import { ZqSelectType } from './type';
+import { ZqPositionPair } from '../modal/type';
 @Component({
   selector: 'zq-select',
   template: `
@@ -31,6 +32,7 @@ import { ZqSelectType } from './type';
         <zq-select-top-control
           style="width: 100%;"
           [zqPlacement]="zqPlacement"
+          [inMaxShow]="inMaxShow"
           [inClear]="inClear"
           [selectedItem]="selectedItem"
           [isOpen]="isOpen"
@@ -49,14 +51,19 @@ import { ZqSelectType } from './type';
       [cdkConnectedOverlayOpen]="isOpen"
       [cdkConnectedOverlayWidth]="trigerWidth"
       [cdkConnectedOverlayFlexibleDimensions]="true"
-      (overlayOutsideClick)="outSideClick()"
+      [cdkConnectedOverlayPositions]="position"
+      [cdkConnectedOverlayTransformOriginOn]="'.zq-pannel'"
+      (overlayOutsideClick)="outSideClick($event)"
+      (positionChange)="positionChange($event)"
     >
       <ng-container [ngSwitch]="selectType">
         <ng-container *ngSwitchDefault>
           <zq-select-panel
+            class="zq-pannel"
             [inOptionHeight]="inOptionHeight"
             [listOfTemplate]="listOfTemplate"
             [listOfSelected]="selectedItem"
+            [inMaxSelected]="inMaxSelected"
             (selectChange)="onSelectChange($event)"
           ></zq-select-panel>
         </ng-container>
@@ -83,6 +90,11 @@ export class ZqSelectComponent implements OnInit, ControlValueAccessor {
   listOfOptions: ZqSelectOption[] = [];
   value: (string | number | null)[] = [];
   listOfValue: any[] = [];
+  position: ConnectedPosition[] = [
+    new ZqPositionPair('start', 'bottom', 'start', 'top'),
+    new ZqPositionPair('start', 'top', 'start', 'bottom')
+  ];
+  private destroy$: Subject<void> = new Subject()
   private listOfValue$ = new BehaviorSubject<any[]>([]);
   private listOfTemplateItem$ = new BehaviorSubject<ZqSelectOption[]>([]);
   onChange: OnChangeType = () => {};
@@ -101,11 +113,16 @@ export class ZqSelectComponent implements OnInit, ControlValueAccessor {
   @Input() zqOptions: Array<ZqSelectOption> = [];
   // 选择器下拉高度
   @Input() inOptionHeight?: number | string;
+  /** 最大多选显示 -1为不限制*/
+  @Input() inMaxShow: number = -1
+  /** 最多多选数量 -1为不限制 */
+  @Input() inMaxSelected: number = -1
   @Input() compareTo: (a: any, b: any) => boolean = (a: any, b: any) => a === b;
   @Output() selectItemChange: EventEmitter<ZqSelectItem[]> = new EventEmitter();
   @ViewChild('triggerOrigin', { static: true, read: ElementRef })
   triggerOrigin!: ElementRef<HTMLDivElement>;
-  constructor() {}
+  @ViewChild(CdkConnectedOverlay, {static: true}) cdkConnectedOverlay!: CdkConnectedOverlay
+  constructor(private host: ElementRef<HTMLElement>) {}
   writeValue(obj: any | any[]): void {
     if (this.value !== obj) {
       this.value = obj;
@@ -124,6 +141,10 @@ export class ZqSelectComponent implements OnInit, ControlValueAccessor {
       this.listOfValue$.next(listOfValue);
     }
   }
+  positionChange($event: any) {
+    console.log($event,'positin');
+    
+  }
   registerOnChange(fn: OnChangeType): void {
     this.onChange = fn;
   }
@@ -134,8 +155,17 @@ export class ZqSelectComponent implements OnInit, ControlValueAccessor {
   setDisabledState?(isDisabled: boolean): void {
     this.inDisabled = isDisabled;
   }
-  outSideClick() {
-    this.isOpen = false;
+  updatePosition() {
+    requestAnimationFrame(() => {
+      console.log(this.cdkConnectedOverlay.overlayRef,'this.cdkConnectedOverlay.overlayRef');
+      
+      this.cdkConnectedOverlay.overlayRef.updatePosition()
+    })
+  }
+  outSideClick(event: MouseEvent) {
+    if (!this.host.nativeElement.contains(event.target as HTMLElement)) {
+      this.isOpen = false;
+    }
   }
   ngOnInit(): void {
     this.triggerElement = this.triggerOrigin.nativeElement;
@@ -176,6 +206,8 @@ export class ZqSelectComponent implements OnInit, ControlValueAccessor {
     this.trigerWidth = width;
   }
   openSelect() {
+    console.log('click open select');
+    
     this.updateTrigerSize();
     this.isOpen = !this.isOpen;
   }
@@ -183,13 +215,21 @@ export class ZqSelectComponent implements OnInit, ControlValueAccessor {
     const index = this.selectedItem.findIndex(el => el === item);
     if (index >= 0) {
       this.selectedItem.splice(index, 1);
+      this.selectedItem = [...this.selectedItem]
     } else if (this.selectType === 'Default') {
       this.selectedItem = [item];
       this.listOfValue = this.value = [item.label];
     } else {
-      this.selectedItem = [...this.selectedItem, item];
-      this.listOfValue = this.value = [...this.value, item.label];
+      if (this.inMaxSelected > 0 && this.inMaxSelected === this.selectedItem.length) {
+        this.selectedItem = [...this.selectedItem.slice(1), item];
+        this.listOfValue = this.value = [...this.value.slice(1), item.label];
+      } else {
+        this.selectedItem = [...this.selectedItem, item];
+        this.listOfValue = this.value = [...this.value, item.label];
+      }
+   
     }
+    this.updatePosition()
     this.isOpen = this.inMulti || false;
     this.selectItemChange.emit(this.selectedItem);
   }
@@ -207,5 +247,7 @@ export class ZqSelectComponent implements OnInit, ControlValueAccessor {
     }
   }
   onInputBlur(value: string) {}
-  ngOnDestory() {}
+  ngOnDestory() {
+    this.destroy$.next()
+  }
 }

@@ -1,6 +1,5 @@
-import { Component, Input, OnInit, Output, EventEmitter, SimpleChanges, ChangeDetectorRef } from '@angular/core';
+import { Component, Input, OnInit, Output, EventEmitter } from '@angular/core';
 import { ZqSelectOption } from 'src/app/shared/module/select/type';
-
 @Component({
   selector: 'zq-select-demo',
   templateUrl: './zq-select-demo.component.html',
@@ -51,10 +50,10 @@ export class ZqSelectDemoComponent implements OnInit {
   value: string = "1"
   @Output() titleChange: EventEmitter<string> = new EventEmitter()
   constructor() {
-    
+  
   }
 
-  ngOnInit(): void {
+  ngOnInit(): void { 
   }
   onSelectChange(item: ZqSelectOption[]) {
     this.title = JSON.stringify(item)
