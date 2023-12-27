@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <div class="bg">
+      <div class="title" title="☢"> ☢ </div>
+    </div>
+  </body>
+</html>
+<style>
+  * {
+    padding: 0;
+    margin: 0;
+  }
+  .bg {
+    height: 100vh;
+    width: 100vw;
+    overflow: hidden;
+    text-align: center;
+  }
+  .title {
+    color: rgb(248, 157, 72);
+    font-size: 3.75rem;
+    font-weight: 800;
+    line-height: 1;
+    margin-top: 300px;
+    -webkit-text-stroke: 1px rgb(248, 157, 72);
+    display: inline-block;
+    width: auto;
+    position: relative;
+    animation: glitch 1s 0.5s linear infinite;
+  }
+  .title::after,
+  .title::before {
+    content: attr(title);
+    display: block;
+    position: absolute;
+    width: inherit;
+    height: 60px;
+    left: 0;
+  }
+  .title::before {
+    animation: glitchTop 1s 0.5s linear infinite;
+    clip-path: polygon(0 0, 0 40%, 100% 40%, 100% 0);
+  }
+  .title::after {
+    clip-path: polygon(0 100%, 0 60%, 100% 60%, 100% 100%);
+    bottom: 0;
+    animation: glitchBottom 1.5s 0.5s linear infinite;
+  }
+  @keyframes glitch {
+    3%,
+    77% {
+      transform: translate(2px, 0) skew(0deg);
+    }
+    4%,
+    70% {
+      transform: translate(-2px, 0) skew(0deg);
+    }
+    74% {
+      transform: translate(0, 0) skew(5deg);
+    }
+  }
+  @keyframes glitchTop {
+    2%,
+    64% {
+      transform: translate(2px, -2px);
+    }
+
+    4%,
+    60% {
+      transform: translate(-2px, 2px);
+    }
+
+    62% {
+      transform: translate(13px, -1px) skew(-13deg);
+    }
+  }
+  @keyframes glitchBottom {
+    2%,
+    64% {
+      transform: translate(-2px, 0);
+    }
+
+    4%,
+    60% {
+      transform: translate(-2px, 0);
+    }
+
+    62% {
+      transform: translate(-22px, 5px) skew(21deg);
+    }
+  }
+</style>

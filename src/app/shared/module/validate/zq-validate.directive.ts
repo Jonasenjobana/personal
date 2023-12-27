@@ -36,7 +36,7 @@ export interface ZqValidateOption {
   maxLength?: number;// 最大长度
   min?: number;// 最小值
   max?: number;// 最大值
-  custom?: (value: any) => boolean;// 自定义校验
-  customAsync?: (value: any) => Promise<boolean>;// 异步自定义校验
+  custom?: (value?: any) => boolean;// 自定义校验
+  customAsync?: (value?: any) => Promise<boolean>;// 异步自定义校验
   customAsyncDelay?: number;// 异步自定义校验延迟
 }

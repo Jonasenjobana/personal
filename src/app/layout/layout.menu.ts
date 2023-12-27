@@ -56,6 +56,18 @@ export const DemoList: MenuItem[] = [
     title: 'Modal Demo',
     link: '/docs/modal-demo',
   },
+  {
+    title: 'DI Demo',
+    link: '/docs/di-demo'
+  },
+  {
+    title: 'CODER Demo',
+    link: '/docs/coder-demo'
+  },
+  {
+    title: 'Canvas Demo',
+    link: '/docs/canvas-demo'
+  }
   // {
   //   title: 'Radio Demo',
   //   link: 'radio',

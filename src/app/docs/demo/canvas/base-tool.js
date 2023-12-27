@@ -1,0 +1,1 @@
+/**@type {HTMLDivElement}*/let a

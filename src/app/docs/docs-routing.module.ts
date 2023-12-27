@@ -1,3 +1,6 @@
+import { CanvasDemoComponent } from './canvas-demo/canvas-demo.component';
+import { CoderDemoComponent } from './coder-demo/coder-demo.component';
+import { DiDemoComponent } from './di-demo/di-demo.component';
 import { ZqModalDemoComponent } from './zq-modal-demo/zq-modal-demo.component';
 import { ZqButtonDemo } from './zq-button-demo/zq-button-demo.component';
 import { NgModule } from '@angular/core';
@@ -31,6 +34,18 @@ const routes: Routes = [
       {
         path: 'modal-demo',
         component: ZqModalDemoComponent
+      },
+      {
+        path: 'di-demo',
+        component: DiDemoComponent
+      },
+      {
+        path: 'coder-demo',
+        component: CoderDemoComponent
+      },
+      {
+        path: 'canvas-demo',
+        component: CanvasDemoComponent
       }
     ]
   }

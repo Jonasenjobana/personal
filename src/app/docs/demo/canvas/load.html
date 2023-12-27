@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <div class="container">
+      <div class="box">
+        <canvas id="myLoading" width="500px" height="500px"></canvas>
+      </div>
+    </div>
+  </body>
+</html>
+<script>
+  var canvas = document.getElementById('myLoading');
+  const { width, height } = canvas.getBoundingClientRect();
+  const centerX = width / 2;
+  const centerY = height / 2;
+  const TIME = 1000; // 2000毫秒动画
+  let radius = 200;
+  let positionRight = [450, 250];
+  let positionLeft = [50, 250];
+  let startTime = null;
+  let currentθ = 0;
+  let count = 1;
+  let preDistance = []
+  let smallCount = 3
+  let previousLeft = []
+  let previousRight = []
+  var ctx = canvas.getContext('2d');
+  function drawCircle(radius, position, drawGlitch = false) {
+    ctx.beginPath();
+    const gradient = ctx.createLinearGradient(0, 0, 500, 500);
+    // Set the fill style and draw a rectangle
+    ctx.fillStyle = '#fdfdfd';
+    ctx.arc(position[0], position[1], radius, 0, 2 * Math.PI);
+    ctx.fill();
+    if (drawGlitch) {
+      // 新图层在旧图层下
+      ctx.globalCompositeOperation = 'destination-over'
+      //
+      ctx.fillStyle = '#78f4ff'
+      ctx.arc(position[0]-Math.max(Math.random()*3,1), position[1]-Math.max(Math.random()*3,1), radius, 0, 2 * Math.PI)
+      ctx.fill();
+      ctx.fillStyle = '#fe1650'
+      ctx.arc(position[0]+Math.max(Math.random()*3,1), position[1]+Math.max(Math.random()*3,1), radius, 0, 2 * Math.PI)
+      ctx.fill();
+    }
+    ctx.closePath();
+  }
+  const startLine = currentTime => {
+    if (startTime == null) {
+      startTime = currentTime;
+    }
+    const timeElapsed = currentTime - startTime;
+    // 进度
+    const progress = Math.min(Math.pow(timeElapsed / 1000, 3), 1);
+    if (progress === 1) {
+      currentθ = 0;
+      startTime = null;
+      requestAnimationFrame(start);
+      count++;
+      positionRight = [450, 250];
+      positionLeft = [50, 250];
+
+      return;
+    }
+    positionLeft = [centerX - radius, centerY];
+    positionRight = [radius + centerX, centerY];
+    radius = 200 * progress;
+    init(radius, positionLeft, positionRight);
+    requestAnimationFrame(startLine);
+  };
+  const start = (currentTime) => {
+    if (startTime == null) {
+      startTime = currentTime;
+    }
+    const timeElapsed = currentTime - startTime;
+    // 进度
+    const progress = Math.min(timeElapsed / TIME, 1);
+    if (progress === 1 || radius <= 3) {
+      // 执行弹出
+      startTime = null;
+      init(20, [250, 250], [250, 250]);
+      requestAnimationFrame(startLine);
+      return;
+    }
+    currentθ = (Math.PI * 2 * progress * 180) / Math.PI;
+    radius = radius - radius * progress;
+    let X = radius * Math.cos(currentθ);
+    let Y = radius * Math.sin(currentθ);
+    if (currentθ >= 0 && currentθ <= 90) {
+      positionLeft = [centerX - X, centerY + Y];
+      positionRight = [centerX + X, centerY - Y];
+    } else if (currentθ > 90 && currentθ <= 180) {
+      positionLeft = [centerX + X, centerY + Y];
+      positionRight = [centerX - X, centerY - Y];
+    } else if (currentθ > 180 && currentθ <= 270) {
+      positionLeft = [centerX + X, centerY - Y];
+      positionRight = [centerX - X, centerY + Y];
+    } else {
+      positionLeft = [centerX - X, centerY - Y];
+      positionRight = [centerX + X, centerY + Y];
+    }
+    console.log(currentθ,'====');
+
+    init(radius, positionLeft, positionRight);
+    requestAnimationFrame(start);
+  };
+  function init(radius, positionLeft, positionRight) {
+    clearCanvas();
+    // drawCircle(5, [centerX, centerY]);
+    drawCircle(20, positionLeft, true);
+    // drawCircle(5, positionLeft);
+    drawCircle(20, positionRight, true);
+  }
+  function clearCanvas() {
+    ctx.clearRect(0, 0, width, height);
+  }
+  requestAnimationFrame(start);
+</script>
+<style>
+  * {
+    margin: 0;
+    padding: 0;
+  }
+  .container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    width: 100%;
+    background-color: #dfdfdf;
+    position: relative;
+  }
+  .box {
+    position: relative;
+    height: 500px;
+    width: 500px;
+    margin: auto;
+    background-color: aliceblue;
+  }
+</style>

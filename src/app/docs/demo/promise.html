@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <button id="send">send</button>
+    <button id="cancel">cancel</button>
+  </body>
+  <script>
+    let cancel = document.querySelector('#cancel');
+    let send = document.querySelector('#send');
+    let sendPromise;
+    send.addEventListener('click', () => {
+      sendPromise = new Promise((resolve, reject) => {
+        console.log('has sent', sendPromise);
+        setTimeout(() => {
+          console.log('get result', sendPromise);
+          resolve({ datas: 'hello!' });
+        }, 2000);
+        cancelFn(reject);
+      }).then(res => {
+        console.warn(res,'success!');
+      }).catch(e => {
+        console.warn(e,'reject')
+      });
+    });
+    function cancelFn(reject) {
+      cancel.addEventListener('click', () => {
+        reject('no');
+        console.log('promise reject', sendPromise);
+      });
+    }
+  </script>
+</html>

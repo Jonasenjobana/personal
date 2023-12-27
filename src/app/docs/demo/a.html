@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <div class="box">
+      <div class="form-item">
+        <span class="placeholder">account</span>
+        <input id="form-input" type="text" />
+      </div>
+    </div>
+  </body>
+</html>
+<script>
+  const inputEl = document.querySelector('#form-input');
+  const formItemEl = document.querySelector('.form-item');
+  const fontEl = document.querySelector('.placeholder');
+  inputEl.addEventListener('focus', () => {
+    fontEl.className = 'placeholder anime-in';
+    formItemEl.className = 'form-item item-anime item-anime-in';
+  });
+  inputEl.addEventListener('blur', () => {
+    fontEl.className = 'placeholder anime-out';
+    formItemEl.className = 'form-item item-anime item-anime-out';
+  });
+</script>
+<style>
+  .box {
+    width: 500px;
+    height: 400px;
+    margin: 200px auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  body {
+    background-color: #43468b;
+  }
+  .placeholder {
+    position: absolute;
+    animation-duration: 1s;
+  }
+  .placeholder.anime-in {
+    animation-name: fontIn;
+    bottom: 24px;
+    font-size: 24px;
+    color: #fff;
+  }
+  .placeholder.anime-out {
+    animation-name: fontOut;
+    bottom: 0px;
+    color: #cfc4c4;
+    font-size: 14px;
+  }
+  @keyframes fontIn {
+    from {
+      color: #cfc4c4;
+      font-size: 14px;
+      bottom: 0;
+    }
+    to {
+      bottom: 24px;
+      color: #fff;
+      font-size: 24px;
+    }
+  }
+  @keyframes fontOut {
+    from {
+      bottom: 20px;
+      color: #fff;
+      font-size: 24px;
+    }
+    to {
+      color: #cfc4c4;
+      font-size: 14px;
+      bottom: 0;
+    }
+  }
+  .form-item {
+    display: flex;
+    height: 32px;
+    width: 300px;
+    position: relative;
+    /* transition: all 1s ease-out; */
+  }
+  .form-item > input {
+    height: 32px;
+    width: 100%;
+    background-color: #32325d;
+    outline: none;
+    border: none;
+    border-bottom: 1px solid #b2b2b2;
+  }
+  .item-anime-in::after,
+  .item-anime-in::before {
+    animation-name: moveIn;
+    width: 50%;
+  }
+  .item-anime-out::after,
+  .item-anime-out::before {
+    animation-name: moveOut;
+    width: 0;
+  }
+  .item-anime::after,
+  .item-anime::before {
+    content: '';
+    display: inline-block;
+    position: absolute;
+    animation-duration: 1s;
+    bottom: -3px;
+    z-index: 1000;
+    background-color: #7d2ae8;
+    height: 2px;
+  }
+  .item-anime::before {
+    right: 50%;
+  }
+  .item-anime::after {
+    left: 50%;
+  }
+  @keyframes moveOut {
+    from {
+      width: 50%;
+    }
+    to {
+      width: 0;
+    }
+  }
+  @keyframes moveIn {
+    from {
+      width: 0;
+    }
+    to {
+      width: 50%;
+    }
+  }
+</style>

@@ -13,9 +13,7 @@ import { Component, Inject, OnDestroy, OnInit } from '@angular/core';
 export class DocsComponent implements OnInit, OnDestroy {
   demoList: MenuItem[] = [];
   destroy$: Subject<void> = new Subject();
-  constructor(private router: Router, private activatedRoute: ActivatedRoute,@Inject('CONST_VALUE') private cost: string) {
-    console.log(this.cost,'asdas');
-    
+  constructor(private router: Router, private activatedRoute: ActivatedRoute, @Inject('CONST_VALUE') private cost: string) {
     this.demoList = copyDeep(DemoList);
     this.router.events
       .pipe(

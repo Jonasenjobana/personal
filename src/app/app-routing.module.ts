@@ -14,7 +14,7 @@ const routes: Routes = [
     children: [
       {
         path: '',
-        redirectTo: 'docs',
+        redirectTo: 'docs/canvas-demo',
         pathMatch: 'full',
       },
       {
@@ -30,7 +30,7 @@ const routes: Routes = [
   },
   {
     path: '',
-    redirectTo: 'docs',
+    redirectTo: 'docs/canvas-demo',
     pathMatch: 'full',
   },
   {

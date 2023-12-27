@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <script src="./moment.js"></script>
+  </head>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+    }
+  </style>
+  <body>
+    <div style="width: 100vw; height: 100vh; overflow: hidden; display: flex; flex-direction: column">
+      <div style="height: 26px">
+        <button id="track">轨迹</button>
+        <button id="detail">详情</button>
+      </div>
+      <div id="container" style="flex: 1">
+        <canvas id="canvas"></canvas>
+      </div>
+    </div>
+  </body>
+</html>
+<script>
+  const rectW = 200;
+  const rectH = 26;
+  let rectPoints = [];
+  const testPoints = [[500, 500]];
+  new Array(30).fill(0).forEach((el, index) => {
+    if (index === 0) return;
+    const x =
+      Math.random() > 0.5
+        ? Math.min((Math.random() * 1800 * Math.random(), Math.random() * 2 * 700))
+        : testPoints[index - 1][0] + 30;
+    const y =
+      Math.random() > 0.5
+        ? Math.min((Math.random() * 800 * Math.random(), Math.random() * 2 * 300))
+        : testPoints[index - 1][1] + 30;
+    testPoints.push([x, y]);
+  });
+  let canvasDom = (button1 = button2 = divDom = ctx = null);
+  button1 = document.querySelector('#track');
+  button2 = document.querySelector('#detail');
+  currentPoint = testPoints[0];
+  button1.addEventListener('click', e => {});
+  button2.addEventListener('click', e => {});
+  const tool = (function () {
+    divDom = document.querySelector('#container');
+    const { width, height } = divDom.getBoundingClientRect();
+    canvasDom = document.querySelector('#canvas');
+    canvasDom.width = width;
+    canvasDom.height = height;
+    canvasDom.addEventListener('mousemove', e => {
+      const { x, y } = e;
+      const { offsetTop, offsetLeft } = canvasDom;
+      const body = document.querySelector('body');
+      let isIn = rectPoints.find((rect, index) => rect.isInRect([x - offsetLeft, y - offsetTop], testPoints[index]));
+      body.style.cursor = isIn ? 'pointer' : 'default';
+    });
+    canvasDom.addEventListener('click', e => {
+      const { x, y } = e;
+      const { offsetTop, offsetLeft } = canvasDom;
+      const body = document.querySelector('body');
+      rectPoints.forEach(rect => (rect.isExpand = false));
+      let rect = rectPoints.findLast((rect, index) =>
+        rect.isInRect([x - offsetLeft, y - offsetTop], testPoints[index])
+      );
+      if (rect) {
+        rect.isExpand = true;
+      }
+    });
+    ctx = canvasDom.getContext('2d');
+    const defaultOption = {
+      inlineColor: '#3f51b5',
+      outlineColor: '#3f51b5',
+      color: '#3f51b5'
+    };
+    // 绘制点
+    function drawPoints(points, option) {
+      const { inlineColor, radius, size, outlineColor } = Object.assign({}, defaultOption, { radius: 5 }, option);
+      ctx.fillStyle = inlineColor;
+      ctx.strokeStyle = outlineColor;
+      points.forEach(point => {
+        const [x, y] = point;
+        ctx.beginPath();
+        ctx.arc(x, y, radius, 0, 2 * Math.PI);
+        ctx.stroke();
+        ctx.fill();
+        ctx.closePath();
+      });
+      ctx.closePath();
+    }
+    // 绘制线
+    function drawLines(points, option) {
+      const { inlineColor, lineWidth, outlineColor } = Object.assign({}, defaultOption, { lineWidth: 2 }, option);
+      ctx.beginPath();
+      ctx.fillStyle = inlineColor;
+      ctx.strokeStyle = outlineColor;
+      points.forEach((point, index) => {
+        const [x, y] = point;
+        index == 0 && ctx.moveTo(x, y);
+        if (index > 0) {
+          ctx.lineTo(x, y);
+          ctx.moveTo(x, y);
+        }
+      });
+      ctx.stroke();
+      ctx.fill();
+      ctx.closePath();
+    }
+    return {
+      drawPoints,
+      drawLines
+    };
+  })();
+  function creatDemoRect() {
+    const length = 20; // 长10px
+    testPoints.forEach((point, index) => {
+      const [x, y] = point;
+      // 随机指向角度
+      let edge = Math.PI / 4;
+      let rectX = Math.cos(edge) * 20;
+      let rectY = Math.sin(edge) * 20;
+      // 获取夹角的中位线反向延长线
+      if (index > 0 && index < testPoints.length - 1) {
+        const [x1, y1] = translatePoint(point, testPoints[index - 1]);
+        const [x2, y2] = translatePoint(point, testPoints[index + 1]);
+        let edg1 = Math.atan2(y1, x1);
+        let edg2 = Math.atan2(y2, x2);
+        edg1 = edg1 > 0 ? edg1 : Math.PI * 2 + edg1;
+        edg2 = edg2 > 0 ? edg2 : Math.PI * 2 + edg2;
+        let min = Math.min(edg1, edg2);
+        let max = Math.max(edg1, edg2);
+        edge = (max - min) / 2 + min;
+        edge = max - min >= Math.PI ? edge : edge + Math.PI;
+        edge = edge % (Math.PI * 2);
+        rectX = Math.cos(edge) * 20;
+        rectY = Math.sin(edge) * 20;
+      }
+      let rect;
+      if (edge >= 0 && edge <= Math.PI / 2) {
+        // 左上角
+        rect = new Rect({ width: rectW, height: rectH, leftTopPoint: [rectX, rectY], lineToPoint: [rectX, rectY] });
+      } else if (edge > Math.PI / 2 && edge <= Math.PI) {
+        // 右上角
+        rect = new Rect({
+          width: rectW,
+          height: rectH,
+          leftTopPoint: [rectX - rectW, rectY],
+          lineToPoint: [rectX, rectY]
+        });
+      } else if (edge > Math.PI && edge <= (Math.PI * 3) / 2) {
+        // 右下角
+        rect = new Rect({
+          width: rectW,
+          height: rectH,
+          leftTopPoint: [rectX - rectW, rectY - rectH],
+          lineToPoint: [rectX, rectY]
+        });
+      } else if (edge > (Math.PI * 3) / 2 && edge <= Math.PI * 2) {
+        // 左下角
+        rect = new Rect({
+          width: rectW,
+          height: rectH,
+          leftTopPoint: [rectX, rectY - rectH],
+          lineToPoint: [rectX, rectY]
+        });
+      }
+      rect.setInfo(
+        `2023-${Math.max(Math.floor(Math.random() * 12), 1)}-${Math.max(Math.floor(Math.random() * 28), 1)} ${Math.max(
+          Math.floor(Math.random() * 24),
+          10
+        )}:${Math.max(Math.floor(Math.random() * 60), 10)}`
+      );
+      rectPoints.push(rect);
+    });
+  }
+  function drawDemoRect() {
+    rectPoints.forEach((rect, index) => {
+      const [x, y] = testPoints[index];
+      const [ltx, lty] = rect.lineToPoint;
+      rect.height = rect.isExpand ? 100 : 26;
+      ctx.save();
+      // 每次都变更坐标系中心 方便计算
+      ctx.translate(x, y);
+      ctx.fillStyle = 'black';
+      ctx.strokeStyle = 'black';
+      ctx.beginPath();
+      ctx.globalCompositeOperation = 'destination-over';
+      ctx.moveTo(0, 0);
+      ctx.lineTo(ltx, lty);
+      ctx.stroke();
+      ctx.fill();
+      ctx.fillStyle = rect.isExpand ? '#fff' : ctx.fillColor;
+      rect.isExpand && (ctx.globalCompositeOperation = 'source-over');
+      rect.draw(ctx);
+      ctx.closePath();
+      ctx.restore();
+    });
+  }
+  class Rect {
+    width;
+    height;
+    points;
+    leftTopPoint; // 左上开始绘制推出整个矩形点位
+    ctxOpt;
+    index; // 层级 0-9999
+    info;
+    isExpand = false;
+    lineToPoint;
+    constructor(option) {
+      if (!option) throw new Error('Rect constructor param like Option is need to be required!');
+      const {
+        width,
+        height,
+        points = [],
+        leftTopPoint,
+        strokeColor = '#000',
+        fillColor = 'rgba(255, 255, 255, 0.5)',
+        lineToPoint
+      } = option;
+      if (!width || !height || !leftTopPoint) {
+        throw new Error('Option params like width or height or leftTopPoint is need to be required!');
+      }
+      this.width = width;
+      this.height = height;
+      this.points = points;
+      this.lineToPoint = lineToPoint;
+      this.leftTopPoint = leftTopPoint;
+      this.ctxOpt = { strokeColor, fillColor };
+      if (leftTopPoint) {
+        this.setPointsByLT();
+      }
+    }
+    setInfo(info) {
+      this.info = info;
+    }
+    // 重新根据设置默认原点参考系坐标
+    setPointsByLT(leftTopPoint = this.leftTopPoint) {
+      const [ltx, lty] = (this.leftTopPoint = leftTopPoint);
+      this.points = [
+        leftTopPoint,
+        [ltx + this.width, lty],
+        [ltx + this.width, lty + this.height],
+        [ltx, lty + this.height]
+      ];
+    }
+    isInRect(point, organPoint) {
+      const [mx, my] = point;
+      const [ox, oy] = organPoint;
+      const [ltx, lty] = this.leftTopPoint;
+      const [x, y] = [ox + ltx, oy + lty];
+      return mx > x && mx < x + this.width && my > y && my < y + this.height;
+    }
+    setOrganPoint(transOrganPoint) {
+      const [ltx, lty] = this.leftTopPoint;
+      const [x, y] = transOrganPoint;
+      this.setPointsByLT([x + ltx, y + lty]);
+    }
+    draw(ctx) {
+      const [ltx, lty] = this.leftTopPoint;
+      ctx.save();
+      ctx.strokeStyle = this.ctxOpt.strokeColor;
+      ctx.fillStyle = this.isExpand ? '#fff' : this.ctxOpt.fillColor;
+      ctx.beginPath();
+      ctx.rect(ltx, lty, this.width, this.height);
+      ctx.stroke();
+      ctx.textBaseline = 'middle';
+      ctx.fillStyle = '#000';
+      ctx.fillText(this.info, ltx + 10, lty + rectH / 2, rectW - 20);
+      ctx.restore();
+      ctx.closePath();
+      // 时间
+      ctx.restore();
+    }
+  }
+  /**
+   * 变化原点后的相对点变化
+   */
+  function translatePoint(basePoint, transPoint) {
+    const [baseX, baseY] = basePoint;
+    const [transX, transY] = transPoint;
+    let x, y;
+    x = baseX >= transX ? (baseX - transX) * -1 : transX - baseX;
+    y = baseY >= transY ? (baseY - transY) * -1 : transY - baseY;
+    return [x, y];
+  }
+  isInit = true;
+  maxTime = 30000; // 总时间30s
+
+  function trackAnime() {
+    ctx.clearRect(0, 0, 10000, 10000);
+    tool.drawPoints(testPoints);
+    tool.drawLines(testPoints);
+    if (isInit) {
+      creatDemoRect();
+      isInit = false;
+    }
+    drawDemoRect();
+    requestAnimationFrame(() => {
+      this.trackAnime();
+    });
+  }
+  trackAnime();
+  ctx.save();
+  ctx.beginPath();
+  ctx.fillStyle = '#000';
+  ctx.fillText('Hello World', 50, 50);
+  ctx.fill();
+  ctx.closePath();
+  ctx.restore();
+</script>

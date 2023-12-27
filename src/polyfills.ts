@@ -45,6 +45,7 @@
 /***************************************************************************************************
  * Zone JS is required by default for Angular itself.
  */
+ (window as any)['__zone_symbol__PASSIVE_EVENTS'] = ['scroll'];
 import 'zone.js';  // Included with Angular CLI.
 
 
