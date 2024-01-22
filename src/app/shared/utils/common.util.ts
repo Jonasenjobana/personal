@@ -32,3 +32,32 @@ export function isEmpty(str: string | Array<any> | number | null | undefined) {
         (typeof str === 'object' && str instanceof Array && str.length == 0)
     );
 }
+
+/**
+ * 解决Object.assign把原有配置全替换
+ * 只替换更新的部分
+ * @param force 是否全替换
+ */
+ export function updateOption(oldOpt: any, newOpt: any, force: boolean = false) {
+    if (force) return Object.assign({}, oldOpt, newOpt)
+    let item: any = {}
+    Object.keys(newOpt).forEach(key => {
+      const hasOldKey = oldOpt.hasOwnProperty(oldOpt, key)
+      // 旧配置没有直接添加进去
+      if (!hasOldKey) {
+        item[key] = newOpt[key]
+        item = Object.assign({}, oldOpt, item)
+      } else {
+        const newItem = newOpt[key], oldItem = oldOpt[key]
+        if (typeof newItem == 'object' && !Array.isArray(newItem)) {
+          // 更新的子项
+          const updateItem = updateOption(oldItem, newItem)
+          item[key] = updateItem
+          item = Object.assign({}, oldOpt, item)
+        } else {
+          item[key] = newItem
+        }
+      }
+    })
+    return item
+  }

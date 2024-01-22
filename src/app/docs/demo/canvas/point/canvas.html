@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <style>
+    div {
+      position: relative;
+    }
+    #pick {
+      position: absolute;
+      z-index: 999;
+    }
+  </style>
+  <body>
+    <div style="width: 500px; height: 2000px">
+      <canvas id="cav"></canvas>
+      <canvas id="pick"></canvas>
+    </div>
+  </body>
+  <script>
+    const canvasEle = document.querySelector('#cav');
+    const pickEl = document.querySelector('#pick');
+    const ratio = window.devicePixelRatio;
+    const image = new Image(340, 340);
+    const ctx = canvasEle.getContext('2d');
+    const ctx2 = pickEl.getContext('2d');
+    image.src = './1.jpg';
+    image.crossOrigin = '';
+    image.onload = () => {
+      ctx.drawImage(image, 0, 0);
+      canvasEle.addEventListener('mousemove', e => {
+        const { left, top } = canvasEle.getBoundingClientRect();
+        const x = e.clientX - left;
+        const y = e.clientY - top;
+        const range = 50;
+        const tempImage = ctx.getImageData(x - range / 2, y - range / 2, x + range / 2, y + range / 2);
+        ctx2.putImageData(tempImage, 0, 0);
+        pickEl.style.left = x + 'px';
+        pickEl.style.top = y + 'px';
+      });
+    };
+    canvasEle.width = ratio * 500;
+    canvasEle.height = ratio * 500;
+    canvasEle.style.width = '500px';
+    canvasEle.style.height = '500px';
+    pickEl.width = ratio * 50;
+    pickEl.height = ratio * 50;
+    pickEl.style.width = '50px';
+    pickEl.style.height = '50px';
+    ctx.strokeStyle = 'red';
+    ctx.fillStyle = 'red';
+    ctx.lineWidth = 1;
+    ctx.imageSmoothingEnabled = false;
+    ctx.arc(3.5, 3.5, 1, 0, Math.PI * 2);
+
+    ctx.arc(0, 0, 1, 0, Math.PI * 2);
+    // ctx.moveTo(2,2);
+    // ctx.lineTo(4,4);
+    ctx.fill();
+    console.log(canvasEle);
+    console.log(ctx.getImageData(0, 0, 3, 3));
+  </script>
+</html>

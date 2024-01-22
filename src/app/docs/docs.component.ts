@@ -15,6 +15,8 @@ export class DocsComponent implements OnInit, OnDestroy {
   destroy$: Subject<void> = new Subject();
   constructor(private router: Router, private activatedRoute: ActivatedRoute, @Inject('CONST_VALUE') private cost: string) {
     this.demoList = copyDeep(DemoList);
+    console.log(this.activatedRoute,'=athis.activatedRoute.children');
+    
     this.router.events
       .pipe(
         filter((event: any) => event instanceof NavigationEnd),

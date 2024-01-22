@@ -7,6 +7,7 @@ import { ZqSelectModule } from './module/select/zq-select.module';
 import { ZqTableModule } from './module/table/zq-table.module';
 import { ZqModalModule } from './module/modal/zq-modal.module';
 import { OverlayModule } from '@angular/cdk/overlay';
+import { ReactiveFormsModule } from '@angular/forms';
 @NgModule({
   declarations: [
 
@@ -18,7 +19,8 @@ import { OverlayModule } from '@angular/cdk/overlay';
     ZqSelectModule,
     ZqButtonModule,
     ZqTableModule,
-    ZqModalModule
+    ZqModalModule,
+    ReactiveFormsModule
   ],
   exports: [
     ZqInputModule,

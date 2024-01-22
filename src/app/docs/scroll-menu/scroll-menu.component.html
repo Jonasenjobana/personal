@@ -1,0 +1,13 @@
+<div class="menu" style="overflow: auto">
+  <div class="menu-item-container" style="height: 10000px;">
+    <div
+      *ngFor="let item of menus; let i = index"
+      [ngStyle]="{ left: i * 100 + 'px' }"
+      class="menu-item"
+      [ngClass]="getMenuClass(item)"
+    >
+      {{ item.title }}
+    </div>
+  </div>
+  <div (click)="move()">click</div>
+</div>

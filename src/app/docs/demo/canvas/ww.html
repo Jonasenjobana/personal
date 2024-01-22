@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+ 
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>回形三角形</title>
+    <style>
+        .canvas {
+            background: #F3F8FB;
+            border: 1px solid rgba(229, 235, 239, 1);
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 140px;
+            height: 160px;
+            margin: 50px auto;
+        }
+    </style>
+</head>
+ 
+<body>
+    <div class="canvas">
+        <canvas width="140" height="160"></canvas>
+    </div>
+    <script>
+        const canvas = document.querySelector('canvas');
+        const ctx = canvas.getContext('2d');
+        const width = canvas.width;
+        const height = canvas.height;
+        // 三角形高度
+        const triangleHeight = 64;
+        // 三角形顶角
+        const triangleAngle = 45;
+        // 描边宽度
+        const lineWidth = 10;
+        // 离底部的距离
+        const bottomDistance = 12;
+        // 三角形底宽
+        const triangleWidth = triangleHeight * Math.tan(triangleAngle / 2 * (Math.PI / 180));
+        console.log('triangleWidth', triangleWidth)
+ 
+        const topOffsetY = lineWidth / Math.sin(triangleAngle / 2 * (Math.PI / 180))
+        console.log('topOffsetY', topOffsetY)
+        const bottomOffsetY = bottomDistance * lineWidth / triangleWidth // Math.sqrt(bottomDistance / triangleWidth)
+        console.log('bottomOffsetY', bottomOffsetY)
+ 
+        const triangleHeight2 = topOffsetY + triangleHeight + bottomOffsetY + lineWidth;
+        const triangleWidth2 = triangleHeight2 * Math.tan(triangleAngle / 2 * (Math.PI / 180)) //+ offsetX;
+        console.log('triangleWidth2', triangleWidth2, 'triangleHeight2', triangleHeight2)
+ 
+        const x0 = width / 2;  // 顶点的x坐标
+        // 三角形的顶点坐标和底边两个点的坐标
+        const y0 = (height - triangleHeight) / 2; // 顶点的y坐标
+        const x1 = x0 - triangleWidth;
+        const y1 = y0 + triangleHeight;
+        const x2 = x0 + triangleWidth;
+        const y2 = y0 + triangleHeight;
+        // 底部中间点，离底部高度为12px
+        const x3 = width / 2
+        const y3 = y0 + triangleHeight - bottomDistance// + bottomOffsetY;
+ 
+        // // 顶点
+        // const x4 = x0
+        // const y4 = y0 - topOffsetY;
+        // // 底部左边点
+        // const x5 = x0 - triangleWidth2;
+        // const y5 = y4 + triangleHeight2;
+        // // 底部右边点
+        // const x6 = x0 + triangleWidth2;
+        // const y6 = y4 + triangleHeight2;
+        // // 底部中间点，离底部高度为12px
+        // const x7 = x3
+        // // const y7 = y0 + triangleHeight + bottomOffsetY + lineWidth - bottomDistance;
+        // const y7 = y4 + triangleHeight2 - bottomDistance - bottomOffsetY;
+        function drawBase() {
+            ctx.beginPath();
+            ctx.moveTo(x0, y0);
+            ctx.lineTo(x1, y1);
+            ctx.lineTo(x3, y3);
+            ctx.lineTo(x2, y2);
+            ctx.closePath();
+        }
+ 
+        function getOuterPoints(canvasWidth, canvasHeight, lineWidth, triangleAngle, triangleWidth, triangleHeight, bottomDistance) {
+            const topOffsetY = lineWidth / Math.sin(triangleAngle / 2 * (Math.PI / 180))
+ 
+            const bottomOffsetY = bottomDistance * lineWidth / triangleWidth
+ 
+            const triangleHeight2 = topOffsetY + triangleHeight + bottomOffsetY + lineWidth;
+            const triangleWidth2 = triangleHeight2 * Math.tan(triangleAngle / 2 * (Math.PI / 180))
+ 
+ 
+            console.log('topOffsetY', topOffsetY)
+            // 顶点
+            const x4 = canvasWidth / 2
+            const y4 = (canvasHeight - triangleHeight) / 2 - topOffsetY + bottomOffsetY / 3;
+            // 底部左边点
+            const x5 = x4 - triangleWidth2;
+            const y5 = y4 + triangleHeight2;
+            // 底部右边点
+            const x6 = x4 + triangleWidth2;
+            const y6 = y4 + triangleHeight2;
+            // 底部中间点，离底部高度为12px
+            const x7 = x3
+            const y7 = y4 + triangleHeight2 - bottomDistance - bottomOffsetY;
+ 
+            return [
+                [x4, y4],
+                [x5, y5],
+                [x7, y7],
+                [x6, y6]
+            ]
+        }
+ 
+        // console.log(getOuterPoints(width, height, lineWidth, triangleAngle, triangleWidth, triangleHeight, bottomDistance))
+ 
+        ctx.save()
+        ctx.beginPath();
+        const outerPoints = getOuterPoints(width, height, lineWidth, triangleAngle, triangleWidth, triangleHeight, bottomDistance)
+        for (let i = 0; i < outerPoints.length; i++) {
+            const point = outerPoints[i];
+            if (i === 0) {
+                ctx.moveTo(point[0], point[1])
+            } else {
+                ctx.lineTo(point[0], point[1])
+            }
+        }
+        // ctx.moveTo(x4, y4);
+        // ctx.lineTo(x5, y5);
+        // ctx.lineTo(x7, y7);
+        // ctx.lineTo(x6, y6);
+        ctx.closePath();
+        // ctx.lineWidth = 1
+        ctx.fillStyle = '#157D54';
+        ctx.fill();
+        ctx.restore()
+ 
+        ctx.save();
+        drawBase();
+        ctx.fillStyle = "#FAD400"
+        ctx.fill()
+        ctx.restore();
+ 
+ 
+    </script>
+ 
+</body>
+ 
+</html>

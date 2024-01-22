@@ -1,60 +1,43 @@
-import { DiServiceService } from './inject/di-service.service';
-import { Component, OnInit, Injector, InjectionToken, ElementRef, Self, ViewChild } from '@angular/core';
-import { DiComponentComponent } from './components/di-component/di-component.component';
-export const ANIMALTOKEN = new InjectionToken<string>('This is Aniaml Token Description');
-export const DiFactory = (elementRef: ElementRef) => {
-  const InjectorAnimal = Injector.create({
-    providers: [
-      {
-        provide: ANIMALTOKEN,
-        useValue: '🐱'
-      }
-    ]
-  });
-  return new DiServiceService(InjectorAnimal.get(ANIMALTOKEN), elementRef);
-};
+import { Component, signal, computed, WritableSignal, OnInit, Signal, effect, ChangeDetectionStrategy } from '@angular/core';
 @Component({
   selector: 'di-demo',
   template: `
-    <p>{{ animal }}</p>
-    <di-component #diComponent></di-component>
-    <div style="overflow: auto; height: 400px; width: 400px; border: 1px solid #000" #scrollEl>
-      <div style="height: 10000px; width: 300px; background: pink">
-      </div>
-    </div>
+    <p>signal</p>
+    <p>{{count()}}-{{copcount()}}</p>
+    <p>{{count2}}</p>
   `,
-  providers: [
-    // DiServiceService
-    {
-      provide: DiServiceService,
-      useFactory: DiFactory,
-      deps: [ElementRef]
-    }
-  ]
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class DiDemoComponent implements OnInit {
-  animal: string = '';
-  constructor(@Self() private diService_: DiServiceService, private injector: Injector) {
-    console.log(this.injector.get(ElementRef),this,'==========');
-    
-    this.animal = this.diService_.animal;
-  }
-  @ViewChild('scrollEl', {static: true}) scrollEl!: ElementRef<HTMLDivElement>
-  @ViewChild('diComponent', { static: false}) diComponent!: DiComponentComponent
-  ngOnInit(): void {
-    const el = this.scrollEl.nativeElement
-    console.log(el,'===========dame');
-    
-    el.addEventListener('scroll', (e) => {
-      e.preventDefault()
-      console.log('=============scroll=============')
-    })
+  count: WritableSignal<number> = signal(0);
+  count2: number = 1
+  copcount: Signal<number> = computed(() => {
+    return this.count() + 1;
+  });
+  map: WeakMap<any, any> = new WeakMap()
+  constructor() {
+    effect(() => {
+      console.log('当前值发送变化', this.count());
+    }, {allowSignalWrites: true});
+    let obj: any = {};
+    this.map.set(obj, obj);
+    console.log(this.map);
     setTimeout(() => {
-      console.log(this.diService_.animal,'===')
-    }, 10000);
+      obj = null;
+    }, 1000);
+  }
+  ngOnInit(): void {
+    setInterval(() => {
+      // this.count.set(this.count())
+      this.count.update(val => val+1)
+      console.log('==',this.count(), this.copcount());
+      this.count2++;
+    }, 3000)
   }
   ngAfterViewInit() {
-    console.log(this.diComponent.injector.get(ANIMALTOKEN),'this.diComponent.injector');
+    setTimeout(() => {
+      console.log(this.map,'========');
+    }, 5000);
     
   }
 }

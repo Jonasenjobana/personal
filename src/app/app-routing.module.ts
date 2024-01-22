@@ -13,11 +13,6 @@ const routes: Routes = [
     component: LayoutComponent,
     children: [
       {
-        path: '',
-        redirectTo: 'docs/canvas-demo',
-        pathMatch: 'full',
-      },
-      {
         path: 'docs',
         loadChildren: () => import('src/app/docs/docs.module').then(m => m.DocsModule),
       },
@@ -26,12 +21,7 @@ const routes: Routes = [
         component: HomeComponent
       }
     ],
-    canActivate: [RouterGuardService]
-  },
-  {
-    path: '',
-    redirectTo: 'docs/canvas-demo',
-    pathMatch: 'full',
+    // canActivate: [RouterGuardService]
   },
   {
     path: '**',

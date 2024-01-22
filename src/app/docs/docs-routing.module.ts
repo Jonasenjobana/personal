@@ -1,3 +1,4 @@
+import { FormDemoComponent } from './form-demo/form-demo.component';
 import { CanvasDemoComponent } from './canvas-demo/canvas-demo.component';
 import { CoderDemoComponent } from './coder-demo/coder-demo.component';
 import { DiDemoComponent } from './di-demo/di-demo.component';
@@ -9,6 +10,7 @@ import { DocsComponent } from './docs.component';
 import { InputDemoComponent } from './input-demo/input-demo.component';
 import { ZqSelectDemoComponent } from './zq-select-demo/zq-select-demo.component';
 import { TableDemoComponent } from './table-demo/table-demo.component';
+import { ScrollMenuComponent } from './scroll-menu/scroll-menu.component';
 
 const routes: Routes = [
   {
@@ -46,6 +48,14 @@ const routes: Routes = [
       {
         path: 'canvas-demo',
         component: CanvasDemoComponent
+      },
+      {
+        path: 'scroll-demo',
+        component: ScrollMenuComponent
+      },
+      {
+        path: 'form-demo',
+        component: FormDemoComponent
       }
     ]
   }

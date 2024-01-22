@@ -1,0 +1,14 @@
+<ng-container *ngIf="formGroup">
+  <form [formGroup]="formGroup">
+    <input type="text" formControlName="name" />
+    <input type="text" formControlName="age" />
+    <input type="text" formControlName="sex" />
+    <ng-container formGroupName="address">
+      <input type="text" formControlName="strees" />
+      <input type="text" formControlName="city" />
+      <input type="text" formControlName="state" />
+      <input type="text" formControlName="zip" />
+    </ng-container>
+  </form>
+</ng-container>
+<button type="submit" (click)="submit()">submit</button>

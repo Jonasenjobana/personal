@@ -67,15 +67,15 @@ export const DemoList: MenuItem[] = [
   {
     title: 'Canvas Demo',
     link: '/docs/canvas-demo'
-  }
-  // {
-  //   title: 'Radio Demo',
-  //   link: 'radio',
-  // },
-  // {
-  //   title: 'Table Demo',
-  //   link: 'table',
-  // },
+  },
+  {
+    title: 'Scroll Demo',
+    link: '/docs/scroll-demo',
+  },
+  {
+    title: 'Form Demo',
+    link: '/docs/form-demo',
+  },
   // {
   //   title: 'Pagination Demo',
   //   link: 'pagination',

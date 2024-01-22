@@ -1,4 +1,8 @@
 <div><button zq-button (click)="track()">轨迹</button> <button zq-button (click)="detail()">详情</button></div>
-<div class="canvas-container">
+<!-- <div class="canvas-container">
   <div id="map"></div>
+</div> -->
+<div style="width: 500px; height: 2000px; position: relative;">
+  <canvas id="cav"></canvas>
+  <canvas id="pick" style="position: absolute; z-index: 999;border: 1px solid red;"></canvas>
 </div>
