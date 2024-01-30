@@ -22,7 +22,7 @@ import { PageItemComponent } from './page-item.component';
           style="width: 45px;"
           [ngModel]="pageSize"
           [inClear]="false"
-          [zqOptions]="pageSelectOption"
+          [inOptions]="pageSelectOption"
           (selectItemChange)="onSizeChange($event)"
         ></zq-select>
         <span>条</span>

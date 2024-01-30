@@ -1,0 +1,16 @@
+@import '/src/assets/styles/components/zq-lib.less';
+.input-range {
+    display: inline-flex;
+    align-items: center;
+    height: 32px;
+    input {
+        width: 100px;
+    }
+    &.range-invalid {
+        input {
+            border: none;
+            box-shadow: none;
+        }
+        .zq-error();
+    }
+}

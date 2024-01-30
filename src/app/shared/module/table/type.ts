@@ -17,5 +17,5 @@ export interface ZqTableOption {
 }
 export type TableType = 'select' | 'input' | 'rule' | '';
 
-export type OnChangeType = () => any;
-export type OnTouchedType = (value: any) => void;
+export type OnChangeType = (value: any) => any;
+export type OnTouchedType = () => void;

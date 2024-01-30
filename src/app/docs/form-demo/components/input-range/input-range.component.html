@@ -1,0 +1,8 @@
+<div *ngIf="formGroup" class="input-range" [formGroup]="formGroup">
+  <input type="text" zq-input [formControlName]="controlNames.value1" />
+  <ng-container *ngIf="!isNumber && isEdit">
+    <zq-select [inOptions]="inTypeOpts" style="width: 50px; margin: 0 10px;" [formControlName]="controlNames.type!"></zq-select>
+  </ng-container>
+  <ng-container *ngIf="isNumber"><span>{{inType}}</span></ng-container>
+  <input type="text" zq-input [formControlName]="controlNames.value2" />
+</div>

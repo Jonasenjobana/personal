@@ -17,6 +17,11 @@ import { CanvasDemoComponent } from './canvas-demo/canvas-demo.component';
 import { HttpClientModule } from '@angular/common/http';
 import { ScrollMenuComponent } from './scroll-menu/scroll-menu.component';
 import { FormDemoComponent } from './form-demo/form-demo.component';
+import { TestFormComponent } from './form-demo/test-form/test-form.component';
+import { InputRangeComponent } from './form-demo/components/input-range/input-range.component';
+import { InputRangeTmpComponent } from './form-demo/components/input-range-tmp/input-range-tmp.component';
+import { SlValidatorDirective } from './form-demo/components/input-range-tmp/sl-validator.directive';
+import { SlNumberValidatorDirective } from './form-demo/components/input-range-tmp/sl-number-validator.directive';
 
 
 @NgModule({
@@ -33,7 +38,12 @@ import { FormDemoComponent } from './form-demo/form-demo.component';
     JsonStrPipe,
     CanvasDemoComponent,
     ScrollMenuComponent,
-    FormDemoComponent
+    FormDemoComponent,
+    TestFormComponent,
+    InputRangeComponent,
+    InputRangeTmpComponent,
+    SlValidatorDirective,
+    SlNumberValidatorDirective
   ],
   imports: [
     FormsModule,
@@ -42,7 +52,7 @@ import { FormDemoComponent } from './form-demo/form-demo.component';
     DocsRoutingModule,
     HttpClientModule,
     FormsModule,
-    ReactiveFormsModule
+    ReactiveFormsModule,
   ]
 })
 export class DocsModule { }

@@ -1,6 +1,11 @@
 import { copyDeep } from 'src/app/shared/utils/common.util';
 import { ZqSelectOption, ZqSelectItem } from './type';
-import { CdkConnectedOverlay, ConnectedOverlayPositionChange, ConnectedPosition, OverlayRef } from '@angular/cdk/overlay';
+import {
+  CdkConnectedOverlay,
+  ConnectedOverlayPositionChange,
+  ConnectedPosition,
+  OverlayRef
+} from '@angular/cdk/overlay';
 import {
   Component,
   OnInit,
@@ -11,13 +16,15 @@ import {
   Output,
   EventEmitter,
   Inject,
-  forwardRef
+  forwardRef,
+  Optional
 } from '@angular/core';
-import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
+import { ControlContainer, ControlValueAccessor, NG_VALUE_ACCESSOR, NgForm } from '@angular/forms';
 import { OnChangeType, OnTouchedType } from '../table/type';
 import { BehaviorSubject, combineLatest, combineLatestWith, map, filter, Subject, takeUntil } from 'rxjs';
 import { ZqSelectType } from './type';
 import { ZqPositionPair } from '../modal/type';
+import { uniqueId } from 'lodash';
 @Component({
   selector: 'zq-select',
   template: `
@@ -26,9 +33,8 @@ import { ZqPositionPair } from '../modal/type';
       [ngClass]="{ 'zq-select-active': isOpen }"
       cdkOverlayOrigin
       #triggerOrigin="cdkOverlayOrigin"
-      (click)="openSelect()"
     >
-      <div class="select-show">
+      <div class="select-show" (click)="openSelect()">
         <zq-select-top-control
           style="width: 100%;"
           [zqPlacement]="zqPlacement"
@@ -94,7 +100,7 @@ export class ZqSelectComponent implements OnInit, ControlValueAccessor {
     new ZqPositionPair('start', 'bottom', 'start', 'top'),
     new ZqPositionPair('start', 'top', 'start', 'bottom')
   ];
-  private destroy$: Subject<void> = new Subject()
+  private destroy$: Subject<void> = new Subject();
   private listOfValue$ = new BehaviorSubject<any[]>([]);
   private listOfTemplateItem$ = new BehaviorSubject<ZqSelectOption[]>([]);
   onChange: OnChangeType = () => {};
@@ -110,19 +116,22 @@ export class ZqSelectComponent implements OnInit, ControlValueAccessor {
   @Input() inClear: boolean = false;
   /** 多选 */
   @Input() inMulti: boolean = false;
+  @Input() inOptions: Array<ZqSelectOption> | string[] = [];
   @Input() zqOptions: Array<ZqSelectOption> = [];
   // 选择器下拉高度
   @Input() inOptionHeight?: number | string;
   /** 最大多选显示 -1为不限制*/
-  @Input() inMaxShow: number = -1
+  @Input() inMaxShow: number = -1;
   /** 最多多选数量 -1为不限制 */
-  @Input() inMaxSelected: number = -1
+  @Input() inMaxSelected: number = -1;
+  /** 分割符 */
+  @Input() splitStr: string = ',';
   @Input() compareTo: (a: any, b: any) => boolean = (a: any, b: any) => a === b;
   @Output() selectItemChange: EventEmitter<ZqSelectItem[]> = new EventEmitter();
   @ViewChild('triggerOrigin', { static: true, read: ElementRef })
   triggerOrigin!: ElementRef<HTMLDivElement>;
-  @ViewChild(CdkConnectedOverlay, {static: true}) cdkConnectedOverlay!: CdkConnectedOverlay
-  constructor(private host: ElementRef<HTMLElement>) {}
+  @ViewChild(CdkConnectedOverlay, { static: true }) cdkConnectedOverlay!: CdkConnectedOverlay;
+  constructor(private host: ElementRef<HTMLElement>, @Optional() private controlContainer: ControlContainer) {}
   writeValue(obj: any | any[]): void {
     if (this.value !== obj) {
       this.value = obj;
@@ -141,14 +150,10 @@ export class ZqSelectComponent implements OnInit, ControlValueAccessor {
       this.listOfValue$.next(listOfValue);
     }
   }
-  positionChange($event: any) {
-    console.log($event,'positin');
-    
-  }
+  positionChange($event: any) {}
   registerOnChange(fn: OnChangeType): void {
     this.onChange = fn;
   }
-
   registerOnTouched(fn: OnTouchedType): void {
     this.onTouched = fn;
   }
@@ -157,10 +162,8 @@ export class ZqSelectComponent implements OnInit, ControlValueAccessor {
   }
   updatePosition() {
     requestAnimationFrame(() => {
-      console.log(this.cdkConnectedOverlay.overlayRef,'this.cdkConnectedOverlay.overlayRef');
-      
-      this.cdkConnectedOverlay.overlayRef.updatePosition()
-    })
+      this.cdkConnectedOverlay.overlayRef.updatePosition();
+    });
   }
   outSideClick(event: MouseEvent) {
     if (!this.host.nativeElement.contains(event.target as HTMLElement)) {
@@ -183,8 +186,16 @@ export class ZqSelectComponent implements OnInit, ControlValueAccessor {
   }
   initOption() {}
   ngOnChanges(changes: SimpleChanges) {
-    const { zqOptions, selectType } = changes;
-    if (zqOptions) {
+    const { inOptions, selectType } = changes;
+    if (inOptions) {
+      if (typeof this.inOptions[0] == 'string') {
+        this.zqOptions = (this.inOptions.map(el => {
+          return {
+            value: el,
+            label: el
+          }
+        })) as ZqSelectItem[]
+      }
       this.listOfOptions = this.zqOptions || [];
       const listOfTemplate = this.listOfOptions
         .filter(el => !el.hide)
@@ -206,8 +217,8 @@ export class ZqSelectComponent implements OnInit, ControlValueAccessor {
     this.trigerWidth = width;
   }
   openSelect() {
-    console.log('click open select');
-    
+    console.log('=========');
+
     this.updateTrigerSize();
     this.isOpen = !this.isOpen;
   }
@@ -215,7 +226,7 @@ export class ZqSelectComponent implements OnInit, ControlValueAccessor {
     const index = this.selectedItem.findIndex(el => el === item);
     if (index >= 0) {
       this.selectedItem.splice(index, 1);
-      this.selectedItem = [...this.selectedItem]
+      this.selectedItem = [...this.selectedItem];
     } else if (this.selectType === 'Default') {
       this.selectedItem = [item];
       this.listOfValue = this.value = [item.label];
@@ -227,11 +238,17 @@ export class ZqSelectComponent implements OnInit, ControlValueAccessor {
         this.selectedItem = [...this.selectedItem, item];
         this.listOfValue = this.value = [...this.value, item.label];
       }
-   
     }
-    this.updatePosition()
+    this.updatePosition();
     this.isOpen = this.inMulti || false;
+    this.updateValue();
+    console.log(this.controlContainer, 'controltaondklasj');
+
     this.selectItemChange.emit(this.selectedItem);
+  }
+  updateValue() {
+    const value = this.selectedItem.map(item => item.value).join(this.splitStr);
+    this.onChange(value);
   }
   onClear() {
     this.selectedItem = [];
@@ -245,9 +262,10 @@ export class ZqSelectComponent implements OnInit, ControlValueAccessor {
       this.selectedItem.splice(index, 1);
       this.selectItemChange.emit(this.selectedItem);
     }
+    this.updateValue();
   }
   onInputBlur(value: string) {}
   ngOnDestory() {
-    this.destroy$.next()
+    this.destroy$.next();
   }
 }

@@ -6,7 +6,7 @@ import { Component, EventEmitter, Inject, Input, OnInit, Optional, Output, Simpl
     <ng-container [ngSwitch]="selectType">
       <ng-container *ngSwitchDefault>
         <input
-          [disabled]="!zqSearch"
+          *ngIf="zqSearch; else span"
           class="zq-select-input"
           zq-input
           [placeholder]="zqPlacement"
@@ -15,6 +15,9 @@ import { Component, EventEmitter, Inject, Input, OnInit, Optional, Output, Simpl
           (ngModelChange)="onValueChange($event)"
           (blur)="onInputBlur()"
         />
+        <ng-template #span>
+          <div style="height: 30px; line-height: 30px;">{{value}}</div>
+        </ng-template>
       </ng-container>
       <ng-container *ngSwitchCase="'Tag'">
         <div class="tag-wrapper">

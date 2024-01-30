@@ -1,12 +1,12 @@
 <div class="select-demo">
   search
   <zq-select
-    [zqOptions]="option"
+    [inOptions]="option"
     [zqSearch]="true"
     [inOptionHeight]="300"
     [inClear]="true"
     [(ngModel)]="value"
-    (selectItemChange)="onSelectChange($event)"
+    (ngModelChange)="modelChange($event)"
   ></zq-select>
   <div>
     {{ title }}
@@ -14,7 +14,7 @@
   no search
   <zq-select
     [(ngModel)]="value"
-    [zqOptions]="option"
+    [inOptions]="option"
     [inOptionHeight]="300"
     (selectItemChange)="onSelectChange($event)"
   ></zq-select>
@@ -22,7 +22,7 @@
   <zq-select
     [selectType]="'Tag'"
     [(ngModel)]="values"
-    [zqOptions]="option"
+    [inOptions]="option"
     [inOptionHeight]="300"
     (selectItemChange)="onSelectChange($event)"
   ></zq-select>

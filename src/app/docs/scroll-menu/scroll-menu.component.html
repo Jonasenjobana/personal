@@ -11,3 +11,17 @@
   </div>
   <div (click)="move()">click</div>
 </div>
+<!-- list.component.html -->
+<button (click)="toggle()">Show / Hide Items</button>
+<hr />
+<div [@listAnimation]="items.length">
+  <div *ngFor="let item of items">
+    {{ item }}
+  </div>
+</div>
+<div [@queryAnimation]="exp">
+  <h1>Title</h1>
+  <div class="content">
+    Blah blah blah
+  </div>
+</div>

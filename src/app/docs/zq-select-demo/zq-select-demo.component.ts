@@ -57,9 +57,12 @@ export class ZqSelectDemoComponent implements OnInit {
   }
   onSelectChange(item: ZqSelectOption[]) {
     this.title = JSON.stringify(item)
-    this.value = item[0].value
     this.zqComponentParams.title = JSON.stringify(item)
     this.params.options = item
     this.zqComponentParams.params = item
+  }
+  modelChange($event: any) {
+    console.log(this.value, $event);
+    
   }
 }

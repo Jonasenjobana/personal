@@ -1,0 +1,5 @@
+<div class="input-range" [class.range-invalid]="!rangeValid">
+  <input [type]="inputType" zq-input [(ngModel)]="model.value1" #ngModel="ngModel" slNumberValidator [inMax]="10" [inMin]="2"/>
+  <span>{{ inType }}</span>
+  <input [type]="inputType" zq-input [(ngModel)]="model.value2" #ngModel="ngModel" slNumberValidator [inMax]="10" [inMin]="2"/>
+</div>

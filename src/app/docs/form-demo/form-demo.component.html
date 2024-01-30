@@ -1,14 +1,28 @@
-<ng-container *ngIf="formGroup">
-  <form [formGroup]="formGroup">
-    <input type="text" formControlName="name" />
-    <input type="text" formControlName="age" />
-    <input type="text" formControlName="sex" />
-    <ng-container formGroupName="address">
-      <input type="text" formControlName="strees" />
-      <input type="text" formControlName="city" />
-      <input type="text" formControlName="state" />
-      <input type="text" formControlName="zip" />
+<ng-container *ngIf="device && formGroup">
+  <form id="form-div" (ngSubmit)="onSubmit()" [formGroup]="formGroup">
+    <input zq-input type="text" formControlName="deviceName" />
+    <input zq-input type="text" formControlName="deviceCode" />
+    <input zq-input type="text" formControlName="id" />
+   <ng-container formArrayName="attrs">
+    <ng-container *ngFor="let item of attrs.controls; index as i" [formGroupName]="i">
+      <input zq-input type="text" formControlName="name" />
+      <input-range [inFormGroup]="item.get('range')" [inType]="item.value['range']['type']" [isNumber]="item.value['range']['type'] == '~'" [validator]="validator"></input-range>
+      <input zq-input type="text" formControlName="unit" />
+      <input zq-input type="text" formControlName="value" />
     </ng-container>
+   </ng-container>
+    <test-form [inFormGroup]="formGroup.get('test2')"></test-form>
+    <div formGroupName="test">
+      <input zq-input type="text" formControlName="a" />
+      <input zq-input type="text" formControlName="b" (ngModelChange)="onSubmit()" />
+      <zq-select
+        [inOptions]="option"
+        [inOptionHeight]="300"
+        [inClear]="true"
+        formControlName="c"
+      ></zq-select>
+    </div>
   </form>
 </ng-container>
-<button type="submit" (click)="submit()">submit</button>
+<button type="submit" form="form-div" (click)="submit()">submit</button>
+<input-range-tmp *ngIf="device" [inModel]="device.attrs[0].range" [inRange]="[0, 100]"></input-range-tmp>
