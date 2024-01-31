@@ -76,8 +76,8 @@ export const DemoList: MenuItem[] = [
     title: 'Form Demo',
     link: '/docs/form-demo',
   },
-  // {
-  //   title: 'Pagination Demo',
-  //   link: 'pagination',
-  // },
+  {
+    title: 'Message Demo',
+    link: '/docs/message-demo',
+  },
 ];

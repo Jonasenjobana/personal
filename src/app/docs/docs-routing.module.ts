@@ -11,6 +11,7 @@ import { InputDemoComponent } from './input-demo/input-demo.component';
 import { ZqSelectDemoComponent } from './zq-select-demo/zq-select-demo.component';
 import { TableDemoComponent } from './table-demo/table-demo.component';
 import { ScrollMenuComponent } from './scroll-menu/scroll-menu.component';
+import { MessageDemoComponent } from './message-demo/message-demo.component';
 
 const routes: Routes = [
   {
@@ -56,6 +57,14 @@ const routes: Routes = [
       {
         path: 'form-demo',
         component: FormDemoComponent
+      },
+      {
+        path: 'table-demo',
+        component: TableDemoComponent
+      },
+      {
+        path: 'message-demo',
+        component: MessageDemoComponent
       }
     ]
   }

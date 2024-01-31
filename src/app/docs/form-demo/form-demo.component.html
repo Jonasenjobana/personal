@@ -25,4 +25,7 @@
   </form>
 </ng-container>
 <button type="submit" form="form-div" (click)="submit()">submit</button>
-<input-range-tmp *ngIf="device" [inModel]="device.attrs[0].range" [inRange]="[0, 100]"></input-range-tmp>
+<form #ngForm="ngForm">
+  <input *ngIf="device" zq-input type="text" [(ngModel)]="device.id" name="id"/>
+  <input-range-tmp *ngIf="device" [inRange]="[0, 100]" [(ngModel)]="device.attrs[0].range" name="attrs"></input-range-tmp>
+</form>

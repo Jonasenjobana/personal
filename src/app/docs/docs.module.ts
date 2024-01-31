@@ -22,6 +22,8 @@ import { InputRangeComponent } from './form-demo/components/input-range/input-ra
 import { InputRangeTmpComponent } from './form-demo/components/input-range-tmp/input-range-tmp.component';
 import { SlValidatorDirective } from './form-demo/components/input-range-tmp/sl-validator.directive';
 import { SlNumberValidatorDirective } from './form-demo/components/input-range-tmp/sl-number-validator.directive';
+import { MessageDemoComponent } from './message-demo/message-demo.component';
+import { MessageTipComponent } from './message-demo/components/message-tip/message-tip.component';
 
 
 @NgModule({
@@ -43,7 +45,9 @@ import { SlNumberValidatorDirective } from './form-demo/components/input-range-t
     InputRangeComponent,
     InputRangeTmpComponent,
     SlValidatorDirective,
-    SlNumberValidatorDirective
+    SlNumberValidatorDirective,
+    MessageDemoComponent,
+    MessageTipComponent
   ],
   imports: [
     FormsModule,

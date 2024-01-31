@@ -1,5 +1,5 @@
-import { AbstractControl, FormArray, FormBuilder, FormControl, FormGroup } from '@angular/forms';
-import { Component } from '@angular/core';
+import { AbstractControl, FormArray, FormBuilder, FormControl, FormGroup, NgForm } from '@angular/forms';
+import { Component, ViewChild } from '@angular/core';
 import { ZqSelectItem } from 'src/app/shared/module/select/type';
 import { isNumber } from 'lodash';
 
@@ -109,6 +109,12 @@ export class FormDemoComponent {
       this.formGroup.patchValue(res);
     }, 2000);
   }
+  @ViewChild('ngForm') set ngForm(value: NgForm) {
+    console.log(value)
+    value.statusChanges?.subscribe(el => {
+      console.log('ffofo', el)
+    })
+  }
   option: ZqSelectItem[] = [
     {
       label: '唱',
@@ -139,8 +145,6 @@ export class FormDemoComponent {
   onSelectChange() {}
   validator = (group: AbstractControl) => {
     const value2 = Number(group.value.value2)
-    console.log(value2, group);
-    
     if (!isNumber(value2) || Number.isNaN(value2) || value2 < 0) {
       return {
         errMsg: '值需大于等于0'
