@@ -1,5 +1,21 @@
 <form class="input-range" #ngForm="ngForm">
-  <input [type]="inputType" zq-input [(ngModel)]="model.value1" name="value1" slNumberValidator [inMax]="10" [inMin]="2"/>
-  <span>{{ inType }}</span>
-  <input [type]="inputType" zq-input [(ngModel)]="model.value2" name="value2" slNumberValidator [inMax]="10" [inMin]="2"/>
+  <input
+    [type]="inputType"
+    zq-input
+    [(ngModel)]="value[inKeys.value1]"
+    [name]="inKeys.value1"
+    slNumberValidator
+    [inMax]="10"
+    [inMin]="2"
+  />
+  <span>{{ value[inKeys.type] || inType }}</span>
+  <input
+    [type]="inputType"
+    zq-input
+    [(ngModel)]="value[inKeys.value2]"
+    [name]="inKeys.value2"
+    slNumberValidator
+    [inMax]="10"
+    [inMin]="2"
+  />
 </form>

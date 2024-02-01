@@ -24,6 +24,8 @@ import { SlValidatorDirective } from './form-demo/components/input-range-tmp/sl-
 import { SlNumberValidatorDirective } from './form-demo/components/input-range-tmp/sl-number-validator.directive';
 import { MessageDemoComponent } from './message-demo/message-demo.component';
 import { MessageTipComponent } from './message-demo/components/message-tip/message-tip.component';
+import { MessageWarpComponent } from './message-demo/components/message-warp/message-warp.component';
+import { EllipsePipe } from './message-demo/ellipse.pipe';
 
 
 @NgModule({
@@ -47,7 +49,9 @@ import { MessageTipComponent } from './message-demo/components/message-tip/messa
     SlValidatorDirective,
     SlNumberValidatorDirective,
     MessageDemoComponent,
-    MessageTipComponent
+    MessageTipComponent,
+    MessageWarpComponent,
+    EllipsePipe
   ],
   imports: [
     FormsModule,

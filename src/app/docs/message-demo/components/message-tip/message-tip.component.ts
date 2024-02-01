@@ -1,6 +1,4 @@
 import { Component, Input, SimpleChanges } from '@angular/core';
-import { interval, timeout } from 'rxjs';
-
 @Component({
   selector: 'message-tip',
   template: `

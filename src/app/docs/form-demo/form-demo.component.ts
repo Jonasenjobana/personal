@@ -1,5 +1,5 @@
 import { AbstractControl, FormArray, FormBuilder, FormControl, FormGroup, NgForm } from '@angular/forms';
-import { Component, ViewChild } from '@angular/core';
+import { Component, Injector, Input, ViewChild } from '@angular/core';
 import { ZqSelectItem } from 'src/app/shared/module/select/type';
 import { isNumber } from 'lodash';
 
@@ -9,8 +9,11 @@ import { isNumber } from 'lodash';
   styleUrls: ['./form-demo.component.less']
 })
 export class FormDemoComponent {
-  device!: Device;
-  constructor(private fb: FormBuilder) {
+  @Input() device!: Device;
+  @Input() test: string = 'test'
+  constructor(private fb: FormBuilder,private injector: Injector) {
+    console.log(injector.get(Input),'inject');
+    
     setTimeout(() => {
       this.formGroup = this.fb.group({
         id: this.fb.control(''),
@@ -112,8 +115,11 @@ export class FormDemoComponent {
   @ViewChild('ngForm') set ngForm(value: NgForm) {
     console.log(value)
     value.statusChanges?.subscribe(el => {
-      console.log('ffofo', el)
+      console.log('statusChanges', el)
     })
+  }
+  modelChange($event: any) {
+    console.log($event, this.ngForm,'=========')
   }
   option: ZqSelectItem[] = [
     {

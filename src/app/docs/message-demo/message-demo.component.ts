@@ -1,5 +1,6 @@
-import { Component } from '@angular/core';
+import { Component, Injector, Input, SimpleChanges } from '@angular/core';
 import { MessageService } from './components/message.service';
+import { throwError } from 'rxjs';
 
 @Component({
   selector: 'message-demo',
@@ -7,10 +8,12 @@ import { MessageService } from './components/message.service';
   styleUrls: ['./message-demo.component.less']
 })
 export class MessageDemoComponent {
-  constructor(private message_: MessageService) {
+  constructor(private message_: MessageService, private injetor: Injector) {
 
   }
+  text: string = '呜呜呜带多大阿达打撒打撒'
+  width: number = 100
   showMessage() {
-    this.message_.success('111')
+    this.message_.success('')
   }
 }

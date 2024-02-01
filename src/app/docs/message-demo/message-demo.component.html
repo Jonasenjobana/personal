@@ -1,1 +1,6 @@
 <button zq-button (click)="showMessage()">success</button>
+<div style="width: 100px;font-size: 16px;" #rangeEl>
+    <span style="white-space: nowrap;">
+        {{text | ellipse:rangeEl:16}}
+    </span>
+</div>

@@ -10,17 +10,21 @@ import { isEmpty, isNumber } from 'lodash';
 export class InputRangeComponent {
   @Input() inFormGroup: AbstractControl | null = null;
   /** 动态key */
-  @Input() controlNames: { value1: string; value2: string, type?: string } = { value1: 'value1', value2: 'value2', type: 'type' };
+  @Input() controlNames: { value1: string; value2: string; type?: string } = {
+    value1: 'value1',
+    value2: 'value2',
+    type: 'type'
+  };
   @Input() isMinMax: boolean = false;
   @Input() required: boolean = false;
   @Input() validator: ValidatorFn | null = null;
   @Input() inType: string = '~';
   @Input() isNumber: boolean = false;
-  @Input() inTypeOpts: string[] = ['=', '<', '≤', '≥', '≠', '>']
-  @Input() isEdit: boolean = true
+  @Input() inTypeOpts: string[] = ['=', '<', '≤', '≥', '≠', '>'];
+  @Input() isEdit: boolean = true;
   validatorSet: Set<ValidatorFn> = new Set();
   formGroup?: FormGroup;
-  preRange?: {value1: string | number, value2: string | number, type: string}
+  preRange?: { value1: string | number; value2: string | number; type: string };
   ngOnChanges(changes: SimpleChanges) {
     const { required, validator, inFormGroup, isRange, isNumber } = changes;
     if (inFormGroup && this.inFormGroup) {
@@ -29,25 +33,25 @@ export class InputRangeComponent {
         value1: this.formGroup.value[this.controlNames.value1],
         value2: this.formGroup.value[this.controlNames.value2],
         type: this.formGroup.value[this.controlNames.type!]
-      }
+      };
       if (required && this.required) {
         this.formGroup.addValidators(this.requiredValidator);
       }
       if (isNumber && this.isNumber) {
         this.formGroup.get('value1')?.valueChanges.subscribe(el => {
           if (Number.isNaN(Number(el)) && el != '-') {
-            this.formGroup?.get('value1')?.setValue(parseFloat(this.preRange!.value1+'' || ''))
+            this.formGroup?.get('value1')?.setValue(parseFloat(this.preRange!.value1 + '' || ''));
           } else {
-            this.preRange!.value1 = el
+            this.preRange!.value1 = el;
           }
-        })
+        });
         this.formGroup.get('value2')?.valueChanges.subscribe(el => {
           if (Number.isNaN(Number(el)) && el != '-') {
-            this.formGroup?.get('value2')?.setValue(parseFloat(this.preRange!.value2+'' || ''))
+            this.formGroup?.get('value2')?.setValue(parseFloat(this.preRange!.value2 + '' || ''));
           } else {
-            this.preRange!.value2 = el
+            this.preRange!.value2 = el;
           }
-        })
+        });
         this.formGroup.addValidators(this.minAndMaxValidator);
       }
       if (validator && this.validator) {
@@ -57,13 +61,13 @@ export class InputRangeComponent {
   }
   /**
    * 处理 负号 小数点 0开头 -0 +0 正号
-   * @param value 
+   * @param value
    */
   setValueToNumber(value: string) {
     if (value[0] == '-') {
-      
     }
   }
+
   minAndMaxValidator: ValidatorFn = (group: AbstractControl) => {
     const { value1, value2 } = this.controlNames;
     const v1 = Number(group.get(value1)?.value);
@@ -86,7 +90,7 @@ export class InputRangeComponent {
     if (isEmpty(minValue) || isEmpty(maxValue)) {
       errMsg = '范围不能为空！';
     } else if (!typeValue) {
-      errMsg = '类型不能为空！'
+      errMsg = '类型不能为空！';
     } else {
       return null;
     }

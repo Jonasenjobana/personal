@@ -1,42 +1,32 @@
-import { Injectable, ViewContainerRef, Renderer2, Optional } from '@angular/core';
-import { MessageTipComponent } from './message-tip/message-tip.component';
-import { Subject, Subscribable, Subscription, interval, takeUntil } from 'rxjs';
+import { Injectable, Injector } from '@angular/core';
+import { Overlay } from '@angular/cdk/overlay';
+import { MessageWarpComponent } from './message-warp/message-warp.component';
+import { ComponentPortal } from '@angular/cdk/portal';
 
 @Injectable({
   providedIn: 'root'
 })
 export class MessageService {
-  private messageQueue: MessageTipComponent[] = [];
-
-  private tipTime: number = 2000;
-  private destory$: Subject<void> = new Subject();
-  constructor(@Optional() private render: Renderer2) {
-    this.auto();
+  private container?: MessageWarpComponent;
+  constructor(private overlay: Overlay, private injector: Injector) {
   }
   setCountTime(time: number = 1000) {
-    this.tipTime = time;
-    this.auto();
   }
   success(tip: string) {
-    const currentTip = new MessageTipComponent();
-    currentTip.lifeTime = this.tipTime;
-    this.messageQueue.push(currentTip);
-    this.update();
+    this.create().create()
   }
-  auto() {
-    this.destory$.next();
-    interval(this.tipTime)
-      .pipe(takeUntil(this.destory$))
-      .subscribe(() => {
-        this.messageQueue.shift();
-        this.update();
-      });
-  }
-  update() {
-    if (this.messageQueue.length == 0) {
-      this.destory$.next();
-      return;
-    }
-    this.auto()
+  create(): MessageWarpComponent {
+    if (this.container) return this.container;
+    const overlayRef = this.overlay.create({
+      hasBackdrop: false,
+      scrollStrategy: this.overlay.scrollStrategies.noop(),
+      positionStrategy: this.overlay.position().global()
+    });
+    const componentPortal = new ComponentPortal(MessageWarpComponent, null, this.injector);
+    const componentRef = overlayRef.attach(componentPortal);
+    const overlayPane = overlayRef.overlayElement;
+    overlayPane.style.zIndex = '1010';
+    this.container = componentRef.instance;
+    return this.container;
   }
 }
