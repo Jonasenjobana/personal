@@ -37,7 +37,13 @@ export class CanvasDemoComponent implements OnInit {
     // 创建离屏
     const renderCanvas = new RenderTree(canvasEle, ctx, 800, 800)
     const circle = new ACircleNode({radius: 40, position: [100, 100], onClick: ({x,y}) => {
-      console.log(x,y,'click')
+      console.log(x,y,'click');
+    }, onMouseIn: ({x,y}) => {
+      console.log('=======');
+      
+    }, onMouseOut: ({x,y}) => {
+      console.log('-------');
+      
     }})
     const circle2 = new ACircleNode({radius:30, position: [100, 100]})
     circle.addChild(circle2);

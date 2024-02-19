@@ -30,7 +30,27 @@ class ANode<T = AShape> {
   removeChild(node: ANode) {}
   remove() {}
   render(ctx: CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D, isHash: boolean = false) {}
-  hidden() {}
+  hidden() {};
+  renderChild(ctx: CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D, nodes: ANode[], isHash: boolean = false) {
+    const children = nodes
+    for (let i = 0; i < children.length; i++) {
+      const node = children[i];
+      node.render(ctx, isHash);
+      this.renderChild(ctx, node.children);
+    }
+  }
+  aRender(aRender: ARenderTree, node: ANode) {
+    const hashMap = aRender.hashMap
+    function aNode() {
+      if (hashMap.has(node.hashId)) {
+        node.genHash();
+        aNode();
+        return;
+      }
+      hashMap.set(node.hashId, node);
+    }
+    aNode();
+  }
 }
 export class ACircleNode extends ANode<'Circle'> {
   radius: number;
@@ -50,10 +70,10 @@ export class ACircleNode extends ANode<'Circle'> {
       ctx.fillStyle = '#'+this.hashId
     }
     ctx.arc(x, y, this.radius, 0, Math.PI * 2);
-    console.log('#'+this.hashId,'===');
     ctx.stroke();
     isHash && ctx.fill();
     ctx.restore();
+    this.renderChild(ctx, this.children, isHash);
     ctx.closePath();
   }
 }
@@ -64,6 +84,7 @@ export class ARenderTree {
   element: HTMLCanvasElement;
   ctx: OffscreenCanvasRenderingContext2D;
   nodeTree: ANode[] = [];
+  preNode?: ANode
   constructor(element: HTMLCanvasElement, width: number, height: number) {
     const ele = new OffscreenCanvas(width, height);
     ele.width = width;
@@ -105,6 +126,21 @@ export class ARenderTree {
         node.onClick && node.onClick({ x: clientX - left, y: clientY - top });
       }
     });
+    this.element.addEventListener('mousemove', ({clientX, clientY}: MouseEvent) => {
+      const [r, g, b] = this.ctx.getImageData(clientX - left, clientY - top, 1, 1).data;
+      const hex = this.rgbToHex([r, g, b]);
+      const node = this.hashMap.get(hex);
+      if (this.preNode && this.preNode !== node) {
+        this.preNode.onMouseOut && this.preNode.onMouseOut({ x: clientX - left, y: clientY - top });
+        this.element.style.cursor = 'default'
+        this.preNode = undefined;
+      }
+      if (node) {
+        this.element.style.cursor = 'pointer'
+        node.onMouseIn && node.onMouseIn({ x: clientX - left, y: clientY - top });
+        this.preNode = node;
+      }
+    });
   }
   rgbToHex(rgb: number[]) {
     let hex = '';
@@ -116,18 +152,9 @@ export class ARenderTree {
   render() {
     const ctx = this.ctx;
     ctx.clearRect(0, 0, this.width, this.height);
-    function renderNodes(nodes?: ANode[]) {
-      if (!nodes) return;
-      for (let i = 0; i < nodes.length; i++) {
-        const node = nodes[i];
-        node.render(ctx, true);
-        renderNodes(node.children);
-      }
-    }
     for (let i = 0; i < this.nodeTree.length; i++) {
       const node = this.nodeTree[i];
       node.render(ctx, true);
-      renderNodes(node.children);
     }
   }
 }
