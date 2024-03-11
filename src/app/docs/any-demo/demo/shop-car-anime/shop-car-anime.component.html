@@ -1,0 +1,19 @@
+<div class="mobile">
+  <div class="products">
+    <ng-container *ngFor="let item of products">
+      <div class="product" (click)="addToCar(item)">
+        <div class="left">
+          <div class="fly-box" moveAnime [targetEl]="card">
+            <div class="fly"></div>
+          </div>
+        </div>
+        <div>
+          {{ item.name }}
+        </div>
+      </div>
+    </ng-container>
+  </div>
+  <div class="shop-card">
+    <div class="card" #card></div>
+  </div>
+</div>
