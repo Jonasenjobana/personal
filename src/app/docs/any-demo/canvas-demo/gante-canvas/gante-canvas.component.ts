@@ -47,7 +47,10 @@ export class GanteCanvasComponent {
       renderer: new Renderer() // 指定渲染器
     });
     this.stageGroup = new Group({
-      name: 'gante graph'
+      name: 'gante graph',
+      style: {
+        y: 40
+      }
     });
     this.canvas.addEventListener('wheel', ($event: FederatedWheelEvent) => {
       this.onMouseWheeel($event);
@@ -65,19 +68,22 @@ export class GanteCanvasComponent {
     const { width, height } = this.getGanteRect;
     this.stage = Object.assign(this.stage, { width, height });
     const { stageLength, scale, scrollDistance } = this.stage;
+    this.stageGroup.removeChildren();
     this.createBackground(stageLength, scale, width, scrollDistance);
+    this.ganteBtn();
   }
   createBackground(stageLength: number, scale: number, width: number, scrollDistance: number) {
     let actualLength = stageLength * scale,
       actualWidth = width * scale,
       totalLine = Math.round(actualWidth / actualLength);
-    for (let i = 0; i < totalLine; i++) {
+    let headGroup = new Group();
+    for (let i = 0; i < 100; i++) {
       let line = new Line({
         style: {
           x1: i * actualLength - scrollDistance,
           y1: 0,
           x2: i * actualLength + 1 - scrollDistance,
-          y2: 200,
+          y2: 500,
           lineWidth: 1,
           stroke: '#333',
           lineDash: [5, 5]
@@ -100,33 +106,73 @@ export class GanteCanvasComponent {
           fontSize: 24,
           fill: '#1890FF',
           stroke: '#F04864',
-          textBaseline: 'middle',
+          textBaseline: 'middle'
         }
       });
       rect.appendChild(text);
-      this.stageGroup.appendChild(line);
-      this.stageGroup.appendChild(rect);
+      rect.addEventListener('mousemove', $event => {
+        rect.style.fill = '#e06568';
+      });
+      headGroup.appendChild(line);
+      headGroup.appendChild(rect);
+      this.stageGroup.appendChild(headGroup);
     }
+  }
+  ganteBtn() {
+    let btnRect = new Rect({
+      style: {
+        x: 0,
+        y: -40,
+        width: 80,
+        height: 36,
+        radius: 5,
+        fill: "#61afee"
+      }
+    })
+    let text = new Text({
+      style: {
+        x: 40,
+        y: 18,
+        text: '重置',
+        fontSize: 12,
+        fill: '#000',
+        textBaseline: 'middle',
+        textAlign: 'center'
+      }
+    })
+    btnRect.appendChild(text);
+    btnRect.addEventListener('click', () => {
+      this.stage.scale = 1;
+      this.stage.scrollDistance = 0;
+      this.createStage();
+    })
+    this.stageGroup.appendChild(btnRect);
   }
   onMouseWheeel($event: FederatedWheelEvent) {
     const { shiftKey, deltaY } = $event;
-    const dir = deltaY > 0 ? 1 : -1;
+    const dir = deltaY > 0 ? -1 : 1;
     let { scrollDistance, scale } = this.stage;
     if (shiftKey) {
+      let diffScroll = 50 * scale;
       // 水平滚动
-      scrollDistance += dir * 50;
-      this.stage.scrollDistance = scrollDistance;
-      if (scrollDistance <= 0) {
+      scrollDistance += diffScroll * dir * -1;
+      if (scrollDistance < 0) {
+        this.stage.scrollDistance = scrollDistance;
+        this.stageGroup.translate(diffScroll * dir * -1);
+      } else {
         this.stage.scrollDistance = 0;
       }
     } else {
       // 缩放
-      scale += dir * 0.25;
-      if (scale <= 4 && scale >= 0.1) {
+      let tempScale = 1 + dir * 0.1;
+      scale *= tempScale;
+      if (scale <= 2 && scale >= 0.5) {
         this.stage.scale = scale;
+        this.stageGroup.scale(tempScale);
       }
     }
-    this.renderGante();
+    // this.renderGante();
+    console.log(this.stage)
   }
   renderGante() {
     this.stageGroup.removeChildren();
