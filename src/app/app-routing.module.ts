@@ -13,6 +13,11 @@ const routes: Routes = [
     component: LayoutComponent,
     children: [
       {
+        path: '',
+        pathMatch: 'full',
+        redirectTo: 'docs'
+      },
+      {
         path: 'docs',
         loadChildren: () => import('src/app/docs/docs.module').then(m => m.DocsModule),
       },

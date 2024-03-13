@@ -19,6 +19,8 @@
     "@angular/platform-browser": "^16.2.12",
     "@angular/platform-browser-dynamic": "^16.2.12",
     "@angular/router": "^16.2.12",
+    "@antv/g": "^5.18.25",
+    "@antv/g-canvas": "^1.11.27",
     "leaflet": "^1.9.4",
     "lodash": "^4.17.21",
     "marked": "^5.0.4",

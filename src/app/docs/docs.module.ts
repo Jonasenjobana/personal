@@ -26,6 +26,7 @@ import { MessageDemoComponent } from './message-demo/message-demo.component';
 import { MessageTipComponent } from './message-demo/components/message-tip/message-tip.component';
 import { MessageWarpComponent } from './message-demo/components/message-warp/message-warp.component';
 import { EllipsePipe } from './message-demo/ellipse.pipe';
+import { CanvasDemoModule } from './any-demo/canvas-demo/canvas-demo.module';
 
 
 @NgModule({
@@ -61,6 +62,7 @@ import { EllipsePipe } from './message-demo/ellipse.pipe';
     HttpClientModule,
     FormsModule,
     ReactiveFormsModule,
+    CanvasDemoModule
   ]
 })
 export class DocsModule { }

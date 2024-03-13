@@ -34,7 +34,7 @@ export class DocsComponent implements OnInit, OnDestroy {
     if (!item) return;
     this.demoList.forEach((el) => (el.isActivated = false));
     item.isActivated = true;
-    this.router.navigateByUrl(item.link!);
+    // this.router.navigateByUrl(item.link!);
   }
   ngOnDestroy() {
     this.destroy$.next();

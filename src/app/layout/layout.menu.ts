@@ -80,4 +80,8 @@ export const DemoList: MenuItem[] = [
     title: 'Message Demo',
     link: '/docs/message-demo',
   },
+  {
+    title: 'Gante Demo',
+    link: '/docs/gante-demo',
+  },
 ];

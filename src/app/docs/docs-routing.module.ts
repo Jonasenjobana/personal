@@ -12,12 +12,18 @@ import { ZqSelectDemoComponent } from './zq-select-demo/zq-select-demo.component
 import { TableDemoComponent } from './table-demo/table-demo.component';
 import { ScrollMenuComponent } from './scroll-menu/scroll-menu.component';
 import { MessageDemoComponent } from './message-demo/message-demo.component';
+import { GanteCanvasComponent } from './any-demo/canvas-demo/gante-canvas/gante-canvas.component';
 
 const routes: Routes = [
   {
     path: '',
     component: DocsComponent,
     children: [
+      {
+        path: '',
+        pathMatch: 'full',
+        redirectTo: 'gante-demo'
+      },
       {
         path: 'button-demo',
         component: ZqButtonDemo
@@ -65,6 +71,10 @@ const routes: Routes = [
       {
         path: 'message-demo',
         component: MessageDemoComponent
+      },
+      {
+        path: 'gante-demo',
+        component: GanteCanvasComponent
       }
     ]
   }
