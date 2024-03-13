@@ -4,7 +4,8 @@ import { isEmpty, isNumber } from 'lodash';
 
 @Component({
   selector: 'input-range',
-  templateUrl: './input-range.component.html'
+  templateUrl: './input-range.component.html',
+  styleUrls: ['./input-range.component.less']
 })
 export class InputRangeComponent {
   @Input() inFormGroup: AbstractControl | null = null;

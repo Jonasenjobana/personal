@@ -19,12 +19,12 @@
       "prefix": "",
       "architect": {
         "build": {
-          "builder": "@angular-devkit/build-angular:application",
+          "builder": "@angular-devkit/build-angular:browser",
           "options": {
             "outputPath": "dist/personal",
             "index": "src/index.html",
-            "browser": "src/main.ts",
-            "polyfills": ["src/polyfills.ts"],
+            "main": "src/main.ts",
+            "polyfills": "src/polyfills.ts",
             "tsConfig": "tsconfig.app.json",
             "inlineStyleLanguage": "less",
             "assets": ["src/favicon.ico", "src/assets"],
@@ -41,7 +41,7 @@
                 {
                   "type": "initial",
                   "maximumWarning": "500kb",
-                  "maximumError": "2mb"
+                  "maximumError": "1mb"
                 },
                 {
                   "type": "anyComponentStyle",
@@ -58,7 +58,9 @@
               "outputHashing": "all"
             },
             "development": {
+              "buildOptimizer": false,
               "optimization": false,
+              "vendorChunk": true,
               "extractLicenses": false,
               "sourceMap": true,
               "namedChunks": true
@@ -70,10 +72,10 @@
           "builder": "@angular-devkit/build-angular:dev-server",
           "configurations": {
             "production": {
-              "buildTarget": "personal:build:production"
+              "browserTarget": "personal:build:production"
             },
             "development": {
-              "buildTarget": "personal:build:development"
+              "browserTarget": "personal:build:development"
             }
           },
           "defaultConfiguration": "development"
@@ -81,14 +83,14 @@
         "extract-i18n": {
           "builder": "@angular-devkit/build-angular:extract-i18n",
           "options": {
-            "buildTarget": "personal:build"
+            "browserTarget": "personal:build"
           }
         },
         "test": {
           "builder": "@angular-devkit/build-angular:karma",
           "options": {
             "main": "src/test.ts",
-            "polyfills": ["src/polyfills.ts"],
+            "polyfills": "src/polyfills.ts",
             "tsConfig": "tsconfig.spec.json",
             "karmaConfig": "karma.conf.js",
             "inlineStyleLanguage": "less",

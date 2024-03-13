@@ -1,29 +1,6 @@
 <p>Input 表单校验</p>
-<!-- <div style="height: 2000px;"></div> -->
 <form #validate="ngForm">
-
-    @defer (on viewport(validate)) {
-        hello angular
-    }
-    @defer (when flag) {
-        flag show
-    }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    <input zq-input [(ngModel)]="object.username" [zq-validate]="{required: true, errorTip: '不允许为空'}" name="username">
     <input zq-input [(ngModel)]="object.gender" [zq-validate]="{required: true, errorTip: '不允许为空'}" name="gender">
     <input zq-input [(ngModel)]="object.describe" name="describe">
     <input zq-input [(ngModel)]="object.asynTest" name="asynTest" zqAsyncValidate [zq-validate]="{customAsync: object.customAsync}">

@@ -1,6 +1,6 @@
 import { debounceTime, interval, Observable, of, Subscriber, timeout, filter, map, mergeMap } from 'rxjs';
-import { Component, OnInit, afterRender } from '@angular/core';
-import { NgForm } from '@angular/forms';
+import { Component, OnInit } from '@angular/core';
+import { NgForm, Validators } from '@angular/forms';
 import { copyDeep } from 'src/app/shared/utils/common.util';
 
 @Component({
@@ -9,7 +9,6 @@ import { copyDeep } from 'src/app/shared/utils/common.util';
   styleUrls: ['./input-demo.component.less']
 })
 export class InputDemoComponent implements OnInit {
-  flag: boolean = false;
   object = {
     username: 'admin',
     gender: '男',
@@ -35,18 +34,12 @@ export class InputDemoComponent implements OnInit {
   }
   disabledButton = false
   constructor() { 
-    // afterRender()
+
   }
 
   ngOnInit(): void {
     this.final = JSON.stringify(this.object)
-    this.init();
-    setTimeout(() => {
-      this.flag = true;
-    }, 1000);
-    setTimeout(() => {
-      this.flag = false;
-    }, 3000);
+    this.init()
   }
   test = 1
   test2 = 2
@@ -66,7 +59,7 @@ export class InputDemoComponent implements OnInit {
     this.final = JSON.stringify(this.object)
   }
   clear(ngForm: NgForm) {
-    ngForm.reset();
+    ngForm.reset()
   }
   reset(ngForm: NgForm) {
     this.object = copyDeep(this.object2)
