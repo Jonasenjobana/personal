@@ -1,7 +1,8 @@
-import { Component, ElementRef, ViewChild } from '@angular/core';
+import { Component, ElementRef, Input, ViewChild } from '@angular/core';
 import { Canvas, Rect, Group, Line, FederatedWheelEvent, Text } from '@antv/g';
 import { Renderer } from '@antv/g-canvas';
-import { GanteData, GanteStageData } from './gante';
+import { GanteData, GanteOption } from './gante';
+import { AntVGDraggable } from '../util/drag.canvas';
 @Component({
   selector: 'gante-canvas',
   templateUrl: './gante-canvas.component.html',
@@ -13,31 +14,15 @@ export class GanteCanvasComponent {
   }
   private canvas!: Canvas;
   private stageGroup!: Group;
+  private barGroup: Group;
   @ViewChild('gante', { static: true }) set ganteRef(value: ElementRef<HTMLDivElement>) {
     this.ganteEl = value.nativeElement;
   }
+  @Input() ganteOption: GanteOption = new GanteOption(); 
   ganteEl: HTMLDivElement;
   get getGanteRect() {
     return this.ganteEl.getBoundingClientRect();
   }
-  private state: 'click' | 'wheel' | 'drag' | 'default' = 'default';
-  private stage!: GanteStageData;
-  private stageDatas: GanteData[] = [
-    {
-      stageRange: ['1-1', '1-3'],
-      offsetStage: 20,
-      colIndex: 1,
-      color: '#00ff00',
-      stageName: '启动项目'
-    },
-    {
-      stageRange: ['1-2', '1-4'],
-      offsetStage: 0,
-      colIndex: 2,
-      color: '#ff0000',
-      stageName: '需求调研'
-    }
-  ];
   ngAfterViewInit() {
     const { width, height } = this.getGanteRect;
     this.canvas = new Canvas({
@@ -61,29 +46,28 @@ export class GanteCanvasComponent {
     });
   }
   initStage() {
-    this.stage = new GanteStageData();
   }
   // stage
   createStage() {
-    const { width, height } = this.getGanteRect;
-    this.stage = Object.assign(this.stage, { width, height });
-    const { stageLength, scale, scrollDistance } = this.stage;
     this.stageGroup.removeChildren();
-    this.createBackground(stageLength, scale, width, scrollDistance);
+    this.createBackground();
     this.ganteBtn();
   }
-  createBackground(stageLength: number, scale: number, width: number, scrollDistance: number) {
-    let actualLength = stageLength * scale,
-      actualWidth = width * scale,
-      totalLine = Math.round(actualWidth / actualLength);
-    let headGroup = new Group();
-    for (let i = 0; i < 100; i++) {
+  createBackground() {
+    const { barWidth, scale, scrollOffsetX, colData, barHeight, lineRowTotal, rowHeight } = this.ganteOption;
+    let actualLength = barWidth * scale;
+    let headGroup = new Group({
+      style: {
+        cursor: 'grab'
+      }
+    });
+    for (let i = 0; i < colData.length; i++) {
       let line = new Line({
         style: {
-          x1: i * actualLength - scrollDistance,
+          x1: i * actualLength - scrollOffsetX,
           y1: 0,
-          x2: i * actualLength + 1 - scrollDistance,
-          y2: 500,
+          x2: i * actualLength + 1 - scrollOffsetX,
+          y2: lineRowTotal * rowHeight,
           lineWidth: 1,
           stroke: '#333',
           lineDash: [5, 5]
@@ -91,28 +75,29 @@ export class GanteCanvasComponent {
       });
       let rect = new Rect({
         style: {
-          x: i * actualLength - scrollDistance + 1,
+          x: i * actualLength - scrollOffsetX + 1,
           y: 0,
-          width: actualLength - scrollDistance,
-          height: 40,
-          fill: '#ffd5d3'
+          width: actualLength - scrollOffsetX,
+          height: barHeight,
+          fill: '#309eff'
         }
       });
       let text = new Text({
         style: {
           x: actualLength / 2,
-          y: 20,
-          text: i,
-          fontSize: 24,
-          fill: '#1890FF',
-          stroke: '#F04864',
-          textBaseline: 'middle'
+          y: barHeight / 2,
+          text: colData[i],
+          fontSize: 14,
+          fill: '#fff',
+          textBaseline: 'middle',
+          textAlign: 'center'
         }
       });
       rect.appendChild(text);
       rect.addEventListener('mousemove', $event => {
         rect.style.fill = '#e06568';
       });
+      AntVGDraggable({canvas: this.canvas ,el: rect, parent: headGroup})
       headGroup.appendChild(line);
       headGroup.appendChild(rect);
       this.stageGroup.appendChild(headGroup);
@@ -122,7 +107,7 @@ export class GanteCanvasComponent {
     let btnRect = new Rect({
       style: {
         x: 0,
-        y: -40,
+        y: 0,
         width: 80,
         height: 36,
         radius: 5,
@@ -142,37 +127,32 @@ export class GanteCanvasComponent {
     })
     btnRect.appendChild(text);
     btnRect.addEventListener('click', () => {
-      this.stage.scale = 1;
-      this.stage.scrollDistance = 0;
       this.createStage();
     })
-    this.stageGroup.appendChild(btnRect);
+    this.canvas.appendChild(btnRect);
   }
   onMouseWheeel($event: FederatedWheelEvent) {
     const { shiftKey, deltaY } = $event;
     const dir = deltaY > 0 ? -1 : 1;
-    let { scrollDistance, scale } = this.stage;
+    let { scrollOffsetX, scale } = this.ganteOption;
     if (shiftKey) {
-      let diffScroll = 50 * scale;
+      let diffScroll = 50;
       // 水平滚动
-      scrollDistance += diffScroll * dir * -1;
-      if (scrollDistance < 0) {
-        this.stage.scrollDistance = scrollDistance;
+      scrollOffsetX += diffScroll * dir * -1;
+      if (scrollOffsetX < 0) {
+        this.ganteOption.scrollOffsetX = scrollOffsetX;
         this.stageGroup.translate(diffScroll * dir * -1);
       } else {
-        this.stage.scrollDistance = 0;
+        this.ganteOption.scrollOffsetX = 0;
       }
     } else {
       // 缩放
-      let tempScale = 1 + dir * 0.1;
-      scale *= tempScale;
-      if (scale <= 2 && scale >= 0.5) {
-        this.stage.scale = scale;
-        this.stageGroup.scale(tempScale);
+      scale += dir * 0.2;
+      if (scale <= 4 && scale >= 1) {
+        this.ganteOption.scale = scale;
       }
     }
-    // this.renderGante();
-    console.log(this.stage)
+    this.renderGante();
   }
   renderGante() {
     this.stageGroup.removeChildren();
