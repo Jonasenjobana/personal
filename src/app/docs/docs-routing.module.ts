@@ -13,6 +13,7 @@ import { TableDemoComponent } from './table-demo/table-demo.component';
 import { ScrollMenuComponent } from './scroll-menu/scroll-menu.component';
 import { MessageDemoComponent } from './message-demo/message-demo.component';
 import { GanteCanvasComponent } from './any-demo/canvas-demo/gante-canvas/gante-canvas.component';
+import { ParticalCanvasComponent } from './any-demo/canvas-demo/partical-canvas/partical-canvas.component';
 
 const routes: Routes = [
   {
@@ -22,7 +23,7 @@ const routes: Routes = [
       {
         path: '',
         pathMatch: 'full',
-        redirectTo: 'gante-demo'
+        redirectTo: 'partical'
       },
       {
         path: 'button-demo',
@@ -75,6 +76,10 @@ const routes: Routes = [
       {
         path: 'gante-demo',
         component: GanteCanvasComponent
+      },
+      {
+        path: 'partical',
+        component: ParticalCanvasComponent
       }
     ]
   }
