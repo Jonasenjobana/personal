@@ -18,7 +18,6 @@ export class FireworkPartical {
         this.vy = vy;
     }
 }
-// TODO 粒子爆炸尾焰
 export class Firework {
     particals: FireworkPartical[] = [];
     // 爆炸状态 0 烟花上升 1 正在爆炸 2 爆炸结束
@@ -140,7 +139,7 @@ export class Firework {
                 this.ctx.fillStyle = partical.color;
                 this.ctx.fillRect(partical.x, partical.y, 2, 3);
                 partical.tailPartical.forEach((el, i) => {
-                    this.ctx.fillStyle = `rgba(255, 255, 255, ${(partical.tailPartical.length - i)/this.tailpipe})`;
+                    this.ctx.globalAlpha = (partical.tailPartical.length - i)/this.tailpipe;
                     this.ctx.fillRect(el.x, el.y, 2, 1);
                 })
                 // 尾焰粒子
@@ -148,7 +147,6 @@ export class Firework {
                 partical.tailPartical = partical.tailPartical.slice(0, 12);
             }
         })
-        console.log('boom', this.particals);
         this.ctx.restore();
         this.particals = this.particals.filter(el => el.age > 0)
         // 爆炸完成
