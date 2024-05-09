@@ -180,6 +180,24 @@ export class FireworkControl {
     this.ctx = ctx;
     this.width = ctx.canvas.width;
     this.height = ctx.canvas.height;
+    const stream = ctx.canvas.captureStream(60)
+    const recorder = new MediaRecorder(stream);
+    let chunks = []
+    recorder.ondataavailable = (e) => {
+      chunks.push(e.data)
+    };
+    recorder.start();
+    recorder.onstop = (e) => {
+      var blob = new Blob(chunks, { 'type' : 'video/webm' });
+      var url = URL.createObjectURL(blob);
+      // 你可以用这个URL创建一个视频元素，进行预览
+      var video = document.createElement('video');
+      video.src = url;
+      console.log(url, chunks,' stop ')
+    }
+    setTimeout(() => {
+      recorder.stop()
+    }, 10000);
     this.fireworks = new Array(this.maxFirework).fill(0).map((el, idx) => {
       return new Firework(ctx);
     });
