@@ -13,7 +13,7 @@ export class PipeCanvasComponent {
   }
   canvas: Canvas
   pipeEl: HTMLDivElement
-  @ViewChild('gante', { static: false }) set ganteRef(value: ElementRef<HTMLDivElement>) {
+  @ViewChild('pipe', { static: false }) set pipeRef(value: ElementRef<HTMLDivElement>) {
     this.pipeEl = value.nativeElement;
     const {width, height} = this.pipeEl.getBoundingClientRect();
     this.canvas = new Canvas({

@@ -27,6 +27,7 @@ import { MessageTipComponent } from './message-demo/components/message-tip/messa
 import { MessageWarpComponent } from './message-demo/components/message-warp/message-warp.component';
 import { EllipsePipe } from './message-demo/ellipse.pipe';
 import { CanvasDemoModule } from './any-demo/canvas-demo/canvas-demo.module';
+import { VxeTableModule } from './any-demo/vxe-table/vxe-table.module';
 
 
 @NgModule({
@@ -52,7 +53,7 @@ import { CanvasDemoModule } from './any-demo/canvas-demo/canvas-demo.module';
     MessageDemoComponent,
     MessageTipComponent,
     MessageWarpComponent,
-    EllipsePipe
+    EllipsePipe,
   ],
   imports: [
     FormsModule,
@@ -62,7 +63,8 @@ import { CanvasDemoModule } from './any-demo/canvas-demo/canvas-demo.module';
     HttpClientModule,
     FormsModule,
     ReactiveFormsModule,
-    CanvasDemoModule
+    CanvasDemoModule,
+    VxeTableModule
   ]
 })
 export class DocsModule { }

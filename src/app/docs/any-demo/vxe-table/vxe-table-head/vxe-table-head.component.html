@@ -1,0 +1,12 @@
+<table class="vxe-table">
+    <colgroup>
+        <col *ngFor="let item of columns" [style.width.px]="item.width">
+    </colgroup>
+    <thead class="vxe-head">
+        <tr>
+            <td *ngFor="let item of columns">
+                <ng-template [ngTemplateOutlet]="item.vxeColumnTemplate"></ng-template>
+            </td>
+        </tr>
+    </thead>
+</table>

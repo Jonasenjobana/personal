@@ -1,0 +1,20 @@
+<table class="vxe-table">
+    <colgroup>
+        <col *ngFor="let item of columns" [style.width.px]="item.width">
+    </colgroup>
+    <tbody class="vxe-body">
+        <!-- 基础表格 -->
+        <tr *ngFor="let item of inData;let index = index">
+            <td *ngFor="let col of columns" [style.text-align]="col.align">
+                <ng-container [ngSwitch]="col.type">
+                    <ng-container *ngSwitchCase="'checkbox'"></ng-container>
+                    <ng-container *ngSwitchCase="'seq'"><span>{{index + 1}}</span></ng-container>
+                    <ng-container *ngSwitchDefault>
+                        <ng-template *ngIf="col.template" [ngTemplateOutlet]="col.template" [ngTemplateOutletContext]="{row: item, col: col}"></ng-template>
+                        <span *ngIf="!col.template">{{item[col.field]}}</span>
+                    </ng-container>
+                </ng-container>
+            </td>
+        </tr>
+    </tbody>
+</table>

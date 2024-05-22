@@ -192,6 +192,7 @@ export class FireworkControl {
       var url = URL.createObjectURL(blob);
       // 你可以用这个URL创建一个视频元素，进行预览
       var video = document.createElement('video');
+      document.body.appendChild(video)
       video.src = url;
       console.log(url, chunks,' stop ')
     }
