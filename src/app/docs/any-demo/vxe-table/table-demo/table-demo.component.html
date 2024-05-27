@@ -1,0 +1,23 @@
+<div class="container">
+  <form #form="ngForm">
+    <vxe-table [inData]="data" (checkChange)="onCheckChange($event)">
+      <vxe-colgroup title="基本信息" [width]="300" align="center" fixed="left">
+        <vxe-column type="seq" [width]="100"></vxe-column>
+        <vxe-column title="Name" field="name"></vxe-column>
+      </vxe-colgroup>
+      <vxe-colgroup title="更多信息">
+        <vxe-column title="Role" [width]="333" field="role"></vxe-column>
+        <vxe-column title="Age" [width]="66" field="age"></vxe-column>
+        <vxe-colgroup title="详细信息">
+          <vxe-column title="Sex" [width]="66" field="sex"></vxe-column>
+          <vxe-column title="Num" [width]="123" field="num"></vxe-column>
+        </vxe-colgroup>
+      </vxe-colgroup>
+      <vxe-colgroup title="额外信息" [width]="150">
+        <vxe-column title="Date" field="date"></vxe-column>
+        <vxe-column title="Address" [width]="100" field="address"></vxe-column>
+      </vxe-colgroup>
+    </vxe-table>
+  </form>
+  <button nz-button (click)="onSubmit(form)">提交</button>
+</div>
