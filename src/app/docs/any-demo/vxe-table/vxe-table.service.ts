@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
-import { Subject } from 'rxjs';
+import { BehaviorSubject, Subject } from 'rxjs';
 import { VxeColumnComponent } from './vxe-column/vxe-column.component';
+import { VxeColumnGroup, VxeColumnGroups } from './vxe-model';
 
 /** */
 @Injectable()
@@ -10,8 +11,9 @@ export class VxeTableService {
   private _data: any[] = [];
   // 固定列
   public fixedColumn: FixedColumn = new FixedColumn();
-  public allColumn: VxeColumnComponent[] = [];
+  public allColumn: VxeColumnGroups = [];
   public tableWrapperHeight: number
+  public tableHeaderColumn$: BehaviorSubject<VxeColumnGroups> = new BehaviorSubject([]);
   set data(value: any) {
     this._data = value;
     this.dataChange$.next(value);
@@ -25,17 +27,25 @@ export class VxeTableService {
 
   constructor() {
   }
-  addFixed(dir: 'left' | 'right', vxeCol: VxeColumnComponent) {
+  addFixed(dir: 'left' | 'right', vxeCol: VxeColumnGroup) {
     this.fixedColumn[dir].push(vxeCol);
     this.fixedChange$.next();
   }
   destroy() {
     this.fixedColumn = new FixedColumn();
   }
+  changeSort(column: VxeColumnComponent) {
+    
+  }
+  /**按照dom顺序数组 */
+  getDomFlow(domArray: any) {
+    return domArray.sort((a, b) => a.element.nativeElement.compareDocumentPosition(b.element.nativeElement) & Node.DOCUMENT_POSITION_FOLLOWING ? -1 : 1);
+  }
 }
+
 class FixedColumn {
-  left: VxeColumnComponent[]
-  right: VxeColumnComponent[]
+  left: VxeColumnGroup[]
+  right: VxeColumnGroup[]
   get hasFixed() {
     return this.left.length > 0 || this.right.length > 0
   }

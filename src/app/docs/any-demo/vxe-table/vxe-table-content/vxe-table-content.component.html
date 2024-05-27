@@ -1,11 +1,11 @@
 <table class="vxe-table">
     <colgroup>
-        <col *ngFor="let item of columns" [style.width.px]="item.width">
+        <col *ngFor="let item of contentCol" [style.width.px]="item.width || 50">
     </colgroup>
     <tbody class="vxe-body">
         <!-- 基础表格 -->
         <tr *ngFor="let item of inData;let index = index">
-            <td *ngFor="let col of columns" [style.text-align]="col.align">
+            <td *ngFor="let col of contentCol" [style.text-align]="col.align">
                 <ng-container [ngSwitch]="col.type">
                     <ng-container *ngSwitchCase="'checkbox'"></ng-container>
                     <ng-container *ngSwitchCase="'seq'"><span>{{index + 1}}</span></ng-container>

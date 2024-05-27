@@ -28,7 +28,8 @@
             "tsConfig": "tsconfig.app.json",
             "inlineStyleLanguage": "less",
             "assets": ["src/favicon.ico", "src/assets"],
-            "styles": ["src/styles.less", "src/styles/leaflet.css"],
+            "styles": ["src/styles.less", "src/styles/leaflet.css",
+            "node_modules/ng-zorro-antd/ng-zorro-antd.min.css"],
             "scripts": [],
             "stylePreprocessorOptions": {
               "includePaths": ["src/assets/styles"]

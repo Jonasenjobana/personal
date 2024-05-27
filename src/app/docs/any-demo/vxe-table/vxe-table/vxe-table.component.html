@@ -1,9 +1,9 @@
 <div class="vxe-table-wrapper" #tableWrapper>
     <div class="vxe-table-head">
-        <vxe-table-head [columns]="columns"></vxe-table-head>
+        <vxe-table-head [headCol]="headCol" (columnChange)="onColumnChange($event)"></vxe-table-head>
     </div>
     <div class="vxe-table-content">
-        <vxe-table-content [columns]="columns"></vxe-table-content>
+        <vxe-table-content [contentCol]="contenCol"></vxe-table-content>
     </div>
 </div>
 <!-- 冻结列 -->

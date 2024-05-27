@@ -1,7 +1,8 @@
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, ContentChildren, ElementRef, EventEmitter, Input, Output, QueryList, SimpleChanges, ViewChild } from '@angular/core';
 import { VxeTableService } from '../vxe-table.service';
 import { VxeColumnComponent } from '../vxe-column/vxe-column.component';
-import { VxeColumnConfig, VxePageConfig, VxeRowConfig, VxeTreeConfig } from '../vxe-model';
+import { VxeColumnConfig, VxeColumnGroups, VxePageConfig, VxeRowConfig, VxeTreeConfig, VxeVirtualConfig } from '../vxe-model';
+import { VxeColgroupComponent } from '../vxe-colgroup/vxe-colgroup.component';
 
 @Component({
   selector: 'vxe-table',
@@ -18,16 +19,22 @@ export class VxeTableComponent {
   @Input() rowConfig: VxeRowConfig;
   @Input() minHeight: number = 300;
   @Input() maxHeight: number;
+  /**表单模式 */
+  @Input() formModel: boolean = false;
   // 分页配置
   @Input() pageConfig: VxePageConfig;
-  // 行
-  @ContentChildren(VxeColumnComponent) columnComponents: QueryList<VxeColumnComponent>;
+  // 虚拟滚动
+  @Input() virtualConfig: VxeVirtualConfig;
+  /**列 */
+  @ContentChildren(VxeColumnComponent) columnComponents?: QueryList<VxeColumnComponent>;
+  @ContentChildren(VxeColgroupComponent) colgroupComponents?: QueryList<VxeColgroupComponent>;
   @ViewChild('tableWrapper') tableWrapper: ElementRef<HTMLDivElement>;
   @Output() checkChange: EventEmitter<any> = new EventEmitter();
   //水平滚动距离
   horizenScroll: number = 0;
   public containerHeight: number
-  public columns: VxeColumnComponent[]
+  public headCol: VxeColumnGroups
+  public contenCol: VxeColumnComponent[]
   constructor(private elementRef: ElementRef, public vxeService: VxeTableService, private cdr: ChangeDetectorRef) {  
   }
   ngOnChanges(changes: SimpleChanges) {
@@ -37,9 +44,12 @@ export class VxeTableComponent {
     }
   }
   ngAfterContentInit() {
-    this.resetTable(this.columnComponents);
+    this.resetTable();
     this.columnComponents.changes.subscribe((observer: QueryList<VxeColumnComponent>) => {
-      this.resetTable(observer);
+      this.resetTable();
+    })
+    this.colgroupComponents.changes.subscribe((observer: QueryList<VxeColgroupComponent>) => {
+      this.resetTable();
     })
   }
   ngAfterViewInit() {
@@ -48,8 +58,16 @@ export class VxeTableComponent {
     this.vxeService.tableWrapperHeight = height;
     this.containerHeight = height;
   }
-  resetTable(observer: QueryList<VxeColumnComponent>) {
-    this.columns = observer.toArray();
-    this.vxeService.allColumn = this.columns;
+  onColumnChange(columns: VxeColumnGroups) {
+    this.contenCol = columns.filter(el => el.VXETYPE == 'vxe-column') as VxeColumnComponent[];
+  }
+  resetTable() {
+    requestAnimationFrame(() => {
+      const groups = this.colgroupComponents.toArray() || [];
+      const columns = this.columnComponents.toArray() || [];
+      // 保证节点顺序
+      this.headCol = this.vxeService.getDomFlow([...groups, ...columns]);
+      this.vxeService.allColumn = this.headCol;
+    })
   }
 }

@@ -1,11 +1,11 @@
 <!-- 冻结列 -->
 <div class="vxe-table-fixed-wraper" *ngIf="fixedColumn.hasFixed">
     <div class="vxe-fixed-left" *ngIf="fixedColumn.left.length>0" [style.height.px]="containerHeight" [style.width.px]="fixedColumn.leftWidth">
-        <vxe-table-head [columns]="fixedColumn.left"></vxe-table-head>
-        <vxe-table-content [columns]="fixedColumn.left"></vxe-table-content>
+        <vxe-table-head [headCol]="fixedColumn.left"></vxe-table-head>
+        <!-- <vxe-table-content [columns]="fixedColumn.left"></vxe-table-content> -->
     </div>
     <div class="vxe-fixed-right" *ngIf="fixedColumn.right.length>0" [style.height.px]="containerHeight" [style.width.px]="fixedColumn.rightWidth">
-        <vxe-table-head [columns]="fixedColumn.right"></vxe-table-head>
-        <vxe-table-content [columns]="fixedColumn.right"></vxe-table-content>
+        <vxe-table-head [headCol]="fixedColumn.right"></vxe-table-head>
+        <!-- <vxe-table-content [columns]="fixedColumn.right"></vxe-table-content> -->
     </div>
 </div>

@@ -1,18 +1,24 @@
 <!-- 表头 插槽为表内容 -->
 <ng-template #vxeColumn>
   <div class="vxe-column vxe-cell" [style.text-align]="align">
-    <ng-container [ngSwitch]="type">
-      <ng-container *ngSwitchCase="'checkbox'">
-        <label nz-checkbox [(ngModel)]="isCheck"></label>
+    <span>
+      <ng-container [ngSwitch]="type">
+        <ng-container *ngSwitchCase="'checkbox'">
+          <label nz-checkbox [(ngModel)]="isCheck"></label>
+        </ng-container>
+        <ng-container *ngSwitchCase="'radio'"> </ng-container>
+        <ng-container *ngSwitchCase="'expand'"> </ng-container>
+        <ng-container *ngSwitchCase="'seq'">
+          <span>{{title || '#'}}</span>
+        </ng-container>
+        <ng-container *ngSwitchDefault>
+          {{title}}
+        </ng-container>
       </ng-container>
-      <ng-container *ngSwitchCase="'radio'"> </ng-container>
-      <ng-container *ngSwitchCase="'expand'"> </ng-container>
-      <ng-container *ngSwitchCase="'seq'">
-        <span>{{title || '#'}}</span>
-      </ng-container>
-      <ng-container *ngSwitchDefault>
-        {{title}}
-      </ng-container>
-    </ng-container>
+    </span>
+    <span class="sortable" *ngIf="sortable" (click)="sortStatusChange()">
+      <span *ngIf="!asce" nz-icon nzType="sort-ascending" nzTheme="outline"></span>
+      <span *ngIf="asce" nz-icon nzType="sort-descending" nzTheme="outline"></span>
+    </span>
   </div>
 </ng-template>

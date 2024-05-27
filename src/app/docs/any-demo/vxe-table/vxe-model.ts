@@ -1,3 +1,6 @@
+import { VxeColgroupComponent } from "./vxe-colgroup/vxe-colgroup.component"
+import { VxeColumnComponent } from "./vxe-column/vxe-column.component"
+
 export interface VxeColumnConfig {
     
 }
@@ -19,4 +22,22 @@ export interface VxeTreeConfig {
     rowField: string
     /**父节点字段名 默认parentId*/
     parentField: string
+}
+export interface VxeVirtualConfig {
+    /**是否开启虚拟滚动 */
+    enabled: boolean
+    /**虚拟滚动行高度 */
+    itemHeight: number
+    /**最小缓冲 */
+    minBuffer: number
+    /**最大缓冲 */
+    maxBuffer: number
+}
+
+export type VxeColumnGroups = VxeColumnGroup[]
+export type VxeColumnGroup = (VxeColgroupComponent | VxeColumnComponent) & {
+    _level?: number;
+    _colspan?: number;
+    _isLeaf?: boolean,
+    _parent?: VxeColumnGroup
 }
