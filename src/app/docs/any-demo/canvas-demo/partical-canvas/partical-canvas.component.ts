@@ -12,8 +12,9 @@ export class ParticalCanvasComponent {
   constructor() {}
   ngAfterViewInit() {
     const canvas = this.firework.nativeElement;
-    canvas.width = 700;
-    canvas.height = 920;
+    const {width, height} = this.firework.nativeElement.getBoundingClientRect()
+    canvas.width = width;
+    canvas.height = height;
     const ctx = canvas.getContext('2d');
     new FireworkControl(ctx);
   }

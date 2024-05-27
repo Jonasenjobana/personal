@@ -14,6 +14,7 @@ import { ScrollMenuComponent } from './scroll-menu/scroll-menu.component';
 import { MessageDemoComponent } from './message-demo/message-demo.component';
 import { GanteCanvasComponent } from './any-demo/canvas-demo/gante-canvas/gante-canvas.component';
 import { ParticalCanvasComponent } from './any-demo/canvas-demo/partical-canvas/partical-canvas.component';
+import { PipeCanvasComponent } from './any-demo/canvas-demo/pipe-canvas/pipe-canvas.component';
 
 const routes: Routes = [
   {
@@ -74,8 +75,8 @@ const routes: Routes = [
         component: MessageDemoComponent
       },
       {
-        path: 'gante-demo',
-        component: GanteCanvasComponent
+        path: 'pipe-demo',
+        component: PipeCanvasComponent
       },
       {
         path: 'partical',
