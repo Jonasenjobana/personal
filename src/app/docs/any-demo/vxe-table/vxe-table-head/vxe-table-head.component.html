@@ -1,4 +1,4 @@
-<table class="vxe-table">
+<table class="vxe-table" #tableRef [style.transform]="'translateX(' + transformX + 'px)'">
   <colgroup>
         <col *ngFor="let item of colgroupLeaf" [style.width.px]="item.width || 50">
     </colgroup>

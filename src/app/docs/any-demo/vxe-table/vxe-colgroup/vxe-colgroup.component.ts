@@ -1,41 +1,35 @@
-import { Component, ContentChildren, ElementRef, Input, Optional, QueryList, SimpleChanges, TemplateRef, ViewChild } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, ContentChildren, ElementRef, Inject, Input, Optional, QueryList, SimpleChanges, SkipSelf, TemplateRef, ViewChild, forwardRef } from '@angular/core';
 import { VxeTableService } from '../vxe-table.service';
 import { VxeColumnComponent } from '../vxe-column/vxe-column.component';
-import { VxeColumnGroups } from '../vxe-model';
+import { VxeColumnGroup, VxeColumnGroups } from '../vxe-model';
+import { VxeColumnGroupBase } from '../vxe-base/vxe-column-group';
 
 @Component({
   selector: 'vxe-colgroup',
   templateUrl: './vxe-colgroup.component.html',
   styleUrls: ['./vxe-colgroup.component.less'],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class VxeColgroupComponent {
+export class VxeColgroupComponent extends VxeColumnGroupBase {
   readonly VXETYPE = 'vxe-colgroup';
-  @Input() field: string
-  @Input() width: number
-  @Input() fixed: 'left' | 'right'
-  @Input() title: string
-  @Input() align: 'left' | 'right' | 'center' = 'center';
   @ContentChildren(VxeColumnComponent) columns: QueryList<VxeColumnComponent>;
   @ContentChildren(VxeColgroupComponent) groups: QueryList<VxeColgroupComponent>;
-  @ViewChild('vxeTemplate') vxeColumnTemplate: TemplateRef<any>
   columnCount: number = 0;
-  children: VxeColumnGroups
-  constructor(@Optional()private vxeService: VxeTableService, public element: ElementRef) {
+  constructor(@Optional()protected override vxeService: VxeTableService, public override element: ElementRef, @Optional() @SkipSelf() public parent: VxeColgroupComponent, private cdr: ChangeDetectorRef) {
+    super(vxeService, element)
     if (!vxeService) Error('error: vxeService is null');
   }
   ngOnChanges(changes: SimpleChanges) {
-    const {fixed} = changes
-    if (fixed) {
-      requestAnimationFrame(() => {
-        this.setFixedColumn()
-      })
+    const {fixed, width} = changes
+    if (fixed && !fixed.isFirstChange()) {
+      this.setFixedColumn();
+    }
+    if (width) {
+      this.setWidth(this.width);
     }
   }
-  setFixedColumn() {
-    console.log(this.fixed)
-    this.fixed && this.vxeService.addFixed(this.fixed, this)
-  }
   ngAfterContentInit() {
+    this.setFixedColumn();
     this.reset();
     this.columns.changes.subscribe((data) => {
       this.reset()
@@ -51,5 +45,15 @@ export class VxeColgroupComponent {
     const columns = this.columns.toArray()
     const groups = this.groups.toArray();
     this.children = this.vxeService.getDomFlow([...groups, ...columns]);
+    this.setWidth(this.width);
+  }
+  override setWidth(width: number = 0) {
+    let childWidth = 0;
+    this.children.forEach(el => {
+      childWidth += el.componentWidth;
+    })
+    const currentWidth = this.vxeColumnTemplate?.elementRef.nativeElement.getBoundingClientRect().width || 0
+    this.componentWidth = Math.max(childWidth, width, currentWidth);
+    this.cdr.markForCheck();
   }
 }

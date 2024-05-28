@@ -1,23 +1,27 @@
 <div class="container">
-  <form #form="ngForm">
-    <vxe-table [inData]="data" (checkChange)="onCheckChange($event)">
-      <vxe-colgroup title="基本信息" [width]="300" align="center" fixed="left">
-        <vxe-column type="seq" [width]="100"></vxe-column>
-        <vxe-column title="Name" field="name"></vxe-column>
+  <form #form="ngForm"> </form>
+  <vxe-table [inData]="data" (checkChange)="onCheckChange($event)" [rowConfig]="{ isHover: true }">
+    <vxe-colgroup title="基本信息" [width]="150" align="center" fixed="left">
+      <vxe-column type="seq" [width]="100"></vxe-column>
+      <vxe-column title="Name" field="name">
+        <ng-template let-row="row" let-col="col">
+          <input type="text" nz-input [(ngModel)]="row[col.field]" />
+        </ng-template>
+      </vxe-column>
+    </vxe-colgroup>
+    <vxe-colgroup title="更多信息">
+      <vxe-column title="Role" [width]="333" field="role"></vxe-column>
+      <vxe-column title="Age" [width]="66" field="age"></vxe-column>
+      <vxe-colgroup title="详细信息">
+        <vxe-column title="Sex" [width]="66" field="sex"></vxe-column>
+        <vxe-column title="Num" [width]="123" field="num"></vxe-column>
       </vxe-colgroup>
-      <vxe-colgroup title="更多信息">
-        <vxe-column title="Role" [width]="333" field="role"></vxe-column>
-        <vxe-column title="Age" [width]="66" field="age"></vxe-column>
-        <vxe-colgroup title="详细信息">
-          <vxe-column title="Sex" [width]="66" field="sex"></vxe-column>
-          <vxe-column title="Num" [width]="123" field="num"></vxe-column>
-        </vxe-colgroup>
-      </vxe-colgroup>
-      <vxe-colgroup title="额外信息" [width]="150">
-        <vxe-column title="Date" field="date"></vxe-column>
-        <vxe-column title="Address" [width]="100" field="address"></vxe-column>
-      </vxe-colgroup>
-    </vxe-table>
-  </form>
+    </vxe-colgroup>
+    <vxe-colgroup title="额外信息" [width]="150" fixed="right">
+      <vxe-column title="Date" field="date" [width]="50"></vxe-column>
+      <vxe-column title="Address" [width]="100" field="address"></vxe-column>
+    </vxe-colgroup>
+    <vxe-column title="Address" [width]="100" field="address" fixed="right"></vxe-column>
+  </vxe-table>
   <button nz-button (click)="onSubmit(form)">提交</button>
 </div>

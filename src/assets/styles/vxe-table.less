@@ -6,7 +6,12 @@
 }
 .vxe-table-wrapper {
     position: relative;
-    overflow: auto;
+    .vxe-table-head {
+        overflow: hidden;
+    }
+    .vxe-table-content {
+        overflow: auto;
+    }
 }
 .vxe-table {
     table-layout: fixed;
@@ -27,6 +32,12 @@
     }
 
     .vxe-body {
+        overflow: auto;
+        tr.hover {
+            td {
+                background-color: #f5f7fa;
+            }
+        }
         &>tr:nth-child(1) {
             border-top: unset;
 
@@ -46,14 +57,43 @@
         top: 0;
         width: 100%;
         z-index: 1;
+        overflow: hidden;
+        .vxe-fixed-header,.vxe-fixed-content {
+            position: relative;
+            vxe-table-head, vxe-table-content {
+                position: absolute;
+                top: 0;
+                z-index: 1;
+            }
+        }
     }
     .vxe-fixed-left {
         left: 0;
-        box-shadow: 8px 0px 10px -5px rgba(0,0,0,.12)
+        box-shadow: 8px 0px 10px -5px rgba(0,0,0,.12);
+        .vxe-fixed-header {
+            vxe-table-head {
+                left: 0;
+            }  
+        }
+        .vxe-fixed-content {
+            vxe-table-content {
+                left: 0;
+            }
+        }
     }
 
     .vxe-fixed-right {
         right: 0;
-        box-shadow: -8px 0px 10px -5px rgba(0,0,0,.12)
+        box-shadow: -8px 0px 10px -5px rgba(0,0,0,.12);
+        .vxe-fixed-header {
+            vxe-table-head {
+                right: 0;
+            }
+        }
+        .vxe-fixed-content {
+            vxe-table-content {
+                right: 0;
+            }
+        }
     }
 }

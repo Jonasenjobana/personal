@@ -1,10 +1,28 @@
-<table class="vxe-table">
+<table class="vxe-table" [style.transform]="'translateX(' + transformX + 'px)'">
     <colgroup>
         <col *ngFor="let item of contentCol" [style.width.px]="item.width || 50">
     </colgroup>
-    <tbody class="vxe-body">
+    <!-- 虚拟滚动表格 -->
+    <cdk-virtual-scroll-viewport *ngIf="virtualConfig" [minBufferPx]="virtualConfig.minBuffer || 300" [maxBufferPx]="virtualConfig.maxBuffer || 300" [itemSize]="virtualConfig.itemHeight || 30" >
+        <tbody class="vxe-body">
+            <!-- 基础表格 -->
+            <tr *cdkVirtualFor="let item of inData;let index = index" [class.hover]="isHover && index == hoverIndex" (mouseenter)="onMouseEnter(index)" (mouseleave)="onMouseLeave()">
+                <td *ngFor="let col of contentCol" [style.text-align]="col.align">
+                    <ng-container [ngSwitch]="col.type">
+                        <ng-container *ngSwitchCase="'checkbox'"></ng-container>
+                        <ng-container *ngSwitchCase="'seq'"><span>{{index + 1}}</span></ng-container>
+                        <ng-container *ngSwitchDefault>
+                            <ng-template *ngIf="col.template" [ngTemplateOutlet]="col.template" [ngTemplateOutletContext]="{row: item, col: col}"></ng-template>
+                            <span *ngIf="!col.template">{{item[col.field]}}</span>
+                        </ng-container>
+                    </ng-container>
+                </td>
+            </tr>
+        </tbody>
+    </cdk-virtual-scroll-viewport>
+    <tbody class="vxe-body" *ngIf="!virtualConfig">
         <!-- 基础表格 -->
-        <tr *ngFor="let item of inData;let index = index">
+        <tr *ngFor="let item of inData;let index = index" [class.hover]="isHover && index == hoverIndex" (mouseenter)="onMouseEnter(index)" (mouseleave)="onMouseLeave()">
             <td *ngFor="let col of contentCol" [style.text-align]="col.align">
                 <ng-container [ngSwitch]="col.type">
                     <ng-container *ngSwitchCase="'checkbox'"></ng-container>

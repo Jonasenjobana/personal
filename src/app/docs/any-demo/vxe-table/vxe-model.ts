@@ -1,3 +1,4 @@
+import { VxeColumnGroupBase } from "./vxe-base/vxe-column-group"
 import { VxeColgroupComponent } from "./vxe-colgroup/vxe-colgroup.component"
 import { VxeColumnComponent } from "./vxe-column/vxe-column.component"
 
@@ -7,6 +8,8 @@ export interface VxeColumnConfig {
 export interface VxeRowConfig {
     /**限制行高 */
     height: number
+    /**移入高亮 */
+    isHover: boolean
 }
 export interface VxePageConfig {
     pageSize: number
@@ -35,9 +38,13 @@ export interface VxeVirtualConfig {
 }
 
 export type VxeColumnGroups = VxeColumnGroup[]
-export type VxeColumnGroup = (VxeColgroupComponent | VxeColumnComponent) & {
+export type VxeColumnGroup = VxeColumnGroupBase & {
+    /**树层级 */
     _level?: number;
+    /**跨列 */
     _colspan?: number;
+    /**叶节点 */
     _isLeaf?: boolean,
-    _parent?: VxeColumnGroup
+    /**列排序 */
+    _sortIndex?: number
 }

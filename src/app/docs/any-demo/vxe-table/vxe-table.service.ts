@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { BehaviorSubject, Subject } from 'rxjs';
 import { VxeColumnComponent } from './vxe-column/vxe-column.component';
 import { VxeColumnGroup, VxeColumnGroups } from './vxe-model';
+import { isNotEmpty } from 'src/app/shared/utils/common.util';
 
 /** */
 @Injectable()
@@ -14,6 +15,8 @@ export class VxeTableService {
   public allColumn: VxeColumnGroups = [];
   public tableWrapperHeight: number
   public tableHeaderColumn$: BehaviorSubject<VxeColumnGroups> = new BehaviorSubject([]);
+  public tableColumn$: BehaviorSubject<VxeColumnGroups> = new BehaviorSubject([]);
+  public hoverIndex$: Subject<number> = new Subject();
   set data(value: any) {
     this._data = value;
     this.dataChange$.next(value);
@@ -38,7 +41,7 @@ export class VxeTableService {
     
   }
   /**按照dom顺序数组 */
-  getDomFlow(domArray: any) {
+  getDomFlow(domArray: VxeColumnGroups) {
     return domArray.sort((a, b) => a.element.nativeElement.compareDocumentPosition(b.element.nativeElement) & Node.DOCUMENT_POSITION_FOLLOWING ? -1 : 1);
   }
 }
@@ -51,12 +54,12 @@ class FixedColumn {
   }
   get rightWidth() {
     return this.right.reduce((width, el) => {
-      return el.width + width
+      return (el.width || el.element.nativeElement.getBoundingClientRect().width) + width
     }, 0)
   }
   get leftWidth() {
     return this.left.reduce((width, el) => {
-      return el.width + width
+      return (el.width || el.element.nativeElement.getBoundingClientRect().width) + width
     }, 0)
   }
   constructor() {
