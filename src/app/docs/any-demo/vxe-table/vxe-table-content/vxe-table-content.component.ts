@@ -37,8 +37,14 @@ export class VxeTableContentComponent {
   @Input() vxeWraperHeight: number;
   @Input() minHeight: number
   @Input() maxHeight: number
-  @ViewChild('virtualContent') virtualContent: CdkVirtualScrollViewport;
+  @ViewChild('virtualContent') set virtualContent(ref: CdkVirtualScrollViewport) {
+    if (!ref) return;
+    this.virtualContentRef = ref;
+    this.addScrollEvent();
+    this.initVirtual();
+  };
   @ViewChild('vxeTable') vxeTable: ElementRef<HTMLTableElement>;
+  private virtualContentRef: CdkVirtualScrollViewport
   get gutterConfig(): VxeGutterConfig {
     return this.vxeService.gutterConfig;
   }
@@ -85,7 +91,7 @@ export class VxeTableContentComponent {
     }
   }
   /**滚动同步处理 */
-  listenScroll() {
+  addScrollEvent() {
     /**非虚拟滚动监听 */
     if (!this.isVirtual) {
       const el = this.elementRef.nativeElement;
@@ -95,7 +101,7 @@ export class VxeTableContentComponent {
         !this.fixed && this.vxeService.scrollLeft$.next(scrollLeft);
       });
     } else {
-      this.virtualContent.elementScrolled().subscribe(e => {
+      this.virtualContentRef.elementScrolled().subscribe(e => {
         const { scrollLeft, scrollTop } = e.target as HTMLElement;
         !this.fixed && this.vxeService.scrollLeft$.next(scrollLeft);
         this.vxeService.scrollTop$.next(scrollTop);
@@ -108,14 +114,10 @@ export class VxeTableContentComponent {
       const el = this.elementRef.nativeElement;
       el.scrollTo({ top: scrollTop });
     } else {
-      this.virtualContent.scrollTo({ top: scrollTop });
+      this.virtualContentRef.scrollTo({ top: scrollTop });
     }
   }
   ngAfterViewInit() {
-    requestAnimationFrame(() => {
-      this.listenScroll();
-      this.initVirtual();
-    });
   }
   updateDom() {
     const {height} = this.gutterConfig
@@ -127,7 +129,7 @@ export class VxeTableContentComponent {
   initVirtual() {
     if (!this.isVirtual) return;
     if (this.fixed == 'right') {
-      const virtualEl = this.virtualContent.elementRef.nativeElement;
+      const virtualEl = this.virtualContentRef.elementRef.nativeElement;
       virtualEl.scrollLeft = virtualEl.scrollWidth - virtualEl.clientWidth;
     }
   }

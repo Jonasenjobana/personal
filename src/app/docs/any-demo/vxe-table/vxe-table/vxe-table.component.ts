@@ -31,7 +31,7 @@ import { fromEvent } from 'rxjs';
 @Component({
   selector: 'vxe-table',
   templateUrl: './vxe-table.component.html',
-  styleUrls: ['./vxe-table.component.less'],
+  styleUrls: ['./vxe-table.component.less']
 })
 export class VxeTableComponent {
   /**表格数据 */
@@ -55,7 +55,7 @@ export class VxeTableComponent {
   @Input() gutterConfig: VxeGutterConfig = {
     width: 8,
     height: 6
-  }
+  };
   /**列 */
   @ContentChildren(VxeColumnComponent) columnComponents?: QueryList<VxeColumnComponent>;
   @ContentChildren(VxeColgroupComponent) colgroupComponents?: QueryList<VxeColgroupComponent>;
@@ -73,25 +73,13 @@ export class VxeTableComponent {
     public vxeService: VxeTableService,
     private renderer: Renderer2,
     private cdr: ChangeDetectorRef
-  ) {
-    this.vxeService.headHeight$.subscribe((height) => {
-      if (!height) return;
-      this.setTableHeight();
-      this.cdr.markForCheck();
-    })
-    this.vxeService.headWidth$.subscribe(width => {
-      this.headWidth = width;
-    })
-    this.vxeService.scrollLeft$.subscribe(scrollLeft => {
-      this.scrollLeft = scrollLeft;
-    })
-  }
+  ) {}
   ngOnChanges(changes: SimpleChanges) {
     const { inData, rowConfig, minHeight, maxHeight, gutterConfig } = changes;
     if (inData) {
       this.vxeService.data = this.inData;
     }
-    if (minHeight && !minHeight.isFirstChange() || maxHeight && !maxHeight.isFirstChange()) {
+    if ((minHeight && !minHeight.isFirstChange()) || (maxHeight && !maxHeight.isFirstChange())) {
       this.setTableHeight();
     }
   }
@@ -101,6 +89,19 @@ export class VxeTableComponent {
     this.tableHeight = Math.max(height, minHeight);
     this.tableHeight = (maxHeight && Math.min(maxHeight, this.tableHeight)) || this.tableHeight;
     this.renderer.setStyle(this.elementRef.nativeElement, 'height', this.tableHeight + 'px');
+  }
+  ngAfterViewInit() {
+    this.vxeService.headHeight$.subscribe(height => {
+      if (!height) return;
+      this.setTableHeight();
+    });
+    this.vxeService.headWidth$.subscribe(width => {
+      this.headWidth = width;
+    });
+    this.vxeService.scrollLeft$.subscribe(scrollLeft => {
+      this.scrollLeft = scrollLeft;
+      this.cdr.detectChanges();
+    });
   }
   ngAfterContentInit() {
     this.resetTable();

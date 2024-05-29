@@ -31,6 +31,7 @@ export class VxeTableHeadComponent {
   @ViewChild('tableHead') tableHead: ElementRef<HTMLDivElement>;
   scrollWidth: number;
   scrollable: boolean;
+  scrollLeft: number
   get gutterWidth() {
     return this.gutterConfig.width;
   }
@@ -59,9 +60,6 @@ export class VxeTableHeadComponent {
         this.updateDom();
       });
     }
-  }
-  get componentHeight() {
-    return this.elementRef.nativeElement.getBoundingClientRect().height;
   }
   /**层级遍历 展开树形结构group */
   transformTree(root: VxeColumnGroups) {
@@ -123,14 +121,12 @@ export class VxeTableHeadComponent {
     return count;
   }
   ngAfterViewInit() {
-  }
-  get scrollLeft() {
-    const scrollLeft = this.parent.scrollLeft
-    if (!this.fixed) {
-      this.transformX = -scrollLeft;
-      console.log('===')
-    }
-    return scrollLeft;
+    this.vxeService.scrollLeft$.subscribe(scrollLeft => {
+      if (!this.fixed) {
+        this.transformX = -scrollLeft;
+      }
+      this.scrollLeft = scrollLeft;
+    })
   }
   updateDom() {
     const tableEl = this.tableRef?.nativeElement;
@@ -141,8 +137,7 @@ export class VxeTableHeadComponent {
     this.scrollWidth = width;
     this.scrollable = headWidth < width;
     if (this.fixed == 'right') {
-      this.transformX = headWidth - this.scrollWidth + this.gutterConfig.width;
-      this.cdr.markForCheck();
+      this.transformX = headWidth - this.scrollWidth - this.gutterConfig.width;
     }
     if (!this.fixed) {
       this.vxeService.headHeight$.next(headHeight);

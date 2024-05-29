@@ -23,10 +23,10 @@ export class TableDemoComponent {
   ngAfterViewInit() {
     setTimeout(() => {
       this.hidden = true;
-      // new Array(1000).fill(1).forEach(() => {
-      //   this.data.push({ id: '123', name: '张三', 'age': 18, 'address': '北京市朝阳区', 'sex': '男', num: '1', date: '2024-02-21', role:'管理' })
-      // })
-      // this.data = [...this.data]
+      new Array(1000).fill(1).forEach(() => {
+        this.data.push({ id: '123', name: '张三', 'age': 18, 'address': '北京市朝阳区', 'sex': '男', num: '1', date: '2024-02-21', role:'管理' })
+      })
+      this.data = [...this.data]
     }, 3000);
   }
   onCheckChange($event) {
