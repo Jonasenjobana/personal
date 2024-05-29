@@ -27,6 +27,8 @@ import {
 } from '../vxe-model';
 import { VxeColgroupComponent } from '../vxe-colgroup/vxe-colgroup.component';
 import { fromEvent } from 'rxjs';
+import { group } from '@angular/animations';
+import { VxeColumnGroupBase } from '../vxe-base/vxe-column-group';
 
 @Component({
   selector: 'vxe-table',
@@ -57,8 +59,16 @@ export class VxeTableComponent {
     height: 6
   };
   /**列 */
-  @ContentChildren(VxeColumnComponent) columnComponents?: QueryList<VxeColumnComponent>;
-  @ContentChildren(VxeColgroupComponent) colgroupComponents?: QueryList<VxeColgroupComponent>;
+  @ContentChildren(VxeColumnComponent) set columnComponents(column: QueryList<VxeColumnComponent>) {
+    this.columnComponentList = column.toArray();
+    this.resetTable();
+  };
+  @ContentChildren(VxeColgroupComponent) set colgroupComponents(colgroup: QueryList<VxeColgroupComponent>) {
+    this.colgroupComponentList = colgroup.toArray();
+    this.resetTable();
+  }
+  columnComponentList: VxeColumnComponent[]
+  colgroupComponentList: VxeColgroupComponent[]
   /**页脚 含分页 等 */
   @ViewChild('tableFooter') tableFooter: ElementRef<HTMLDivElement>;
   @Output() checkChange: EventEmitter<any> = new EventEmitter();
@@ -104,26 +114,17 @@ export class VxeTableComponent {
     });
   }
   ngAfterContentInit() {
-    this.resetTable();
-    this.columnComponents.changes.subscribe((observer: QueryList<VxeColumnComponent>) => {
-      this.resetTable();
-    });
-    this.colgroupComponents.changes.subscribe((observer: QueryList<VxeColgroupComponent>) => {
-      this.resetTable();
-    });
   }
   onColumnChange(columns: VxeColumnGroups) {
-    this.contenCol = columns.filter(el => el.VXETYPE == 'vxe-column') as VxeColumnComponent[];
+    this.contenCol = columns.filter(el => el.VXETYPE == 'vxe-column' && !el.hidden) as VxeColumnComponent[];
   }
   resetTable() {
-    requestAnimationFrame(() => {
-      const groups = this.colgroupComponents.toArray() || [];
-      const columns = this.columnComponents.toArray() || [];
-      // 保证节点顺序
-      this.headCol = this.vxeService.getDomFlow([...groups, ...columns]);
-      this.vxeService.allColumn = this.headCol;
-      this.vxeService.tableColumn$.next(this.headCol);
-      this.cdr.detectChanges();
-    });
+    const groups = this.colgroupComponentList || [];
+    const columns = this.columnComponentList || [];
+    // 保证节点顺序
+    this.headCol = this.vxeService.getDomFlow([...groups, ...columns]);
+    console.log(this.headCol)
+    this.vxeService.allColumn = this.headCol;
+    this.vxeService.tableColumn$.next(this.headCol);
   }
 }

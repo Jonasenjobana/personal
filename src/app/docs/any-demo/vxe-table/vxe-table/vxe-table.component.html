@@ -1,21 +1,21 @@
 <div class="vxe-table-wrapper" #tableWrapper>
   <vxe-table-head [headCol]="headCol" (columnChange)="onColumnChange($event)"></vxe-table-head>
   <vxe-table-content
+    #tableContent
     [vxeWraperHeight]="tableHeight"
     [inData]="inData"
-    #tableContent
     [contentCol]="contenCol"
     [rowConfig]="rowConfig"
     [virtualConfig]="virtualConfig"
   ></vxe-table-content>
 </div>
 <!-- 冻结列 -->
-<vxe-fixed-column
-  [vxeWraperHeight]="tableHeight"
+<!-- <vxe-fixed-column
+  [vxeWraperHeight]="tableHeight" 
   [inData]="inData"
   [rowConfig]="rowConfig"
   [virtualConfig]="virtualConfig"
-></vxe-fixed-column>
+></vxe-fixed-column> -->
 <div class="vxe-table-footer" #tableFooter>
   <!-- 页脚 合计 TODO -->
   <!-- 分页 -->

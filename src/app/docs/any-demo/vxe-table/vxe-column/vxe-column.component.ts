@@ -40,7 +40,7 @@ export class VxeColumnComponent extends VxeColumnGroupBase {
     });
   }
   ngOnChanges(changes: SimpleChanges) {
-    const { fixed, width } = changes;
+    const { fixed, width, hidden } = changes;
     if (fixed) {
       requestAnimationFrame(() => {
         this.setFixedColumn();
@@ -48,6 +48,9 @@ export class VxeColumnComponent extends VxeColumnGroupBase {
     }
     if (width) {
       this.setWidth();
+    }
+    if (hidden) {
+      this.vxeService.headUpdate$.next();
     }
   }
   sortStatusChange() {

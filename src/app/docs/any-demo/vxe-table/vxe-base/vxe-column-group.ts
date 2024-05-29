@@ -11,6 +11,7 @@ export abstract class VxeColumnGroupBase {
   @Input() fixed: 'left' | 'right';
   @Input() title: string;
   @Input() align: 'left' | 'right' | 'center' = 'center';
+  @Input() hidden: boolean = false;
   @ViewChild('vxeTemplate') vxeColumnTemplate: TemplateRef<any>;
   parentComponent?: VxeColumnGroupBase;
   children: VxeColumnGroupBase[] = [];

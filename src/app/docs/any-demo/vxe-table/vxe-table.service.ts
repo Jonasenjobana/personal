@@ -28,6 +28,7 @@ export class VxeTableService {
     width: 8,
     height: 6
   }
+  public headUpdate$: Subject<void> = new Subject();
   set data(value: any) {
     this._data = value;
     this.dataChange$.next(value);
@@ -63,12 +64,12 @@ class FixedColumn {
     return this.left.length > 0 || this.right.length > 0
   }
   get rightWidth() {
-    return this.right.reduce((width, el) => {
+    return this.right.filter(el => !el.hidden).reduce((width, el) => {
       return (el.width || el.element.nativeElement.getBoundingClientRect().width) + width
     }, 0)
   }
   get leftWidth() {
-    return this.left.reduce((width, el) => {
+    return this.left.filter(el => !el.hidden).reduce((width, el) => {
       return (el.width || el.element.nativeElement.getBoundingClientRect().width) + width
     }, 0)
   }

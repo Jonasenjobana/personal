@@ -1,15 +1,18 @@
 <div class="container">
   <form #form="ngForm"> </form>
+  <button (click)="shows[0] = !shows[0]">隐藏2列</button>
+  <button (click)="shows[1] = !shows[1]">隐藏3列</button>
+  <button (click)="shows[2] = !shows[2]">隐藏4列</button>
   <vxe-table [inData]="data" [maxHeight]="300" (checkChange)="onCheckChange($event)" [rowConfig]="{ isHover: true }" [virtualConfig]="{itemHeight: 33}">
-    <vxe-colgroup title="基本信息" [width]="150" align="center" fixed="left">
-      <vxe-column type="seq" [width]="100"></vxe-column>
-      <vxe-column title="Name" field="name"[width]="50">
+    <vxe-column type="seq" [width]="100"></vxe-column>
+    <vxe-colgroup [hidden]="!shows[0]" title="基本信息" [width]="150" align="center" fixed="left">
+      <vxe-column title="Name" field="name"[width]="100">
         <ng-template let-row="row" let-col="col">
-          <input type="text" nz-input [(ngModel)]="row[col.field]"  />
+          <input type="text" nz-input [(ngModel)]="row[col.field]"/>
         </ng-template>
       </vxe-column>
     </vxe-colgroup>
-    <vxe-colgroup title="更多信息">
+    <vxe-colgroup [hidden]="!shows[1]" title="更多信息">
       <vxe-column title="Role" [width]="333" field="role"></vxe-column>
       <vxe-column title="Age" [width]="66" field="age"></vxe-column>
       <vxe-colgroup title="详细信息">
@@ -17,7 +20,7 @@
         <vxe-column title="Num" [width]="123" field="num"></vxe-column>
       </vxe-colgroup>
     </vxe-colgroup>
-    <vxe-colgroup title="额外信息" [width]="150" fixed="right">
+    <vxe-colgroup [hidden]="!shows[2]" title="额外信息" [width]="150" fixed="right">
       <vxe-column title="Date" field="date" [width]="50"></vxe-column>
       <vxe-column title="Address" [width]="100" field="address"></vxe-column>
     </vxe-colgroup>

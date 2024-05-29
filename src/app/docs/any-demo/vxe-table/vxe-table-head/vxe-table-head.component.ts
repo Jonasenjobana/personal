@@ -31,7 +31,7 @@ export class VxeTableHeadComponent {
   @ViewChild('tableHead') tableHead: ElementRef<HTMLDivElement>;
   scrollWidth: number;
   scrollable: boolean;
-  scrollLeft: number
+  scrollLeft: number;
   get gutterWidth() {
     return this.gutterConfig.width;
   }
@@ -48,18 +48,24 @@ export class VxeTableHeadComponent {
   ngOnChanges(changes: SimpleChanges) {
     const { headCol, fixed } = changes;
     if (headCol && headCol.currentValue) {
-      this.tableHeaders = [];
-      this.transformTree(this.headCol);
-      this.colgroupLeaf = this.tableHeaders
-        .flat(1)
-        .filter(el => el._isLeaf)
-        .sort((a, b) => a._sortIndex - b._sortIndex);
-      this.vxeService.tableHeaderColumn$.next(this.colgroupLeaf);
-      this.columnChange.emit(this.colgroupLeaf);
       requestAnimationFrame(() => {
-        this.updateDom();
+        this.initHeadColumns();
       });
     }
+  }
+  initHeadColumns() {
+    this.tableHeaders = [];
+    this.transformTree(this.headCol);
+    this.colgroupLeaf = this.tableHeaders
+      .flat(1)
+      .filter(el => el._isLeaf)
+      .sort((a, b) => a._sortIndex - b._sortIndex);
+    this.vxeService.tableHeaderColumn$.next(this.colgroupLeaf);
+    this.columnChange.emit(this.colgroupLeaf);
+    console.log(this.colgroupLeaf)
+    requestAnimationFrame(() => {
+      this.updateDom();
+    });
   }
   /**层级遍历 展开树形结构group */
   transformTree(root: VxeColumnGroups) {
@@ -74,13 +80,15 @@ export class VxeTableHeadComponent {
       const levelCount: number = queue.length;
       for (let i = 0; i < levelCount; i++) {
         const column = queue.shift();
-        sortIndex = this.updateSortIndex(column, sortIndex);
+        !column.hidden && (sortIndex = this.updateSortIndex(column, sortIndex));
         if (column.VXETYPE == 'vxe-colgroup' && column.children.length > 0) {
           (column.children as VxeColumnGroups).forEach(el => {
             el.fixed = column.fixed;
+            el.hidden = column.hidden;
           });
           queue.push(...column.children);
         }
+        if (column.hidden) continue;
         levelRoot.push({
           ...(column as any),
           _level: currentLevel,
@@ -116,6 +124,7 @@ export class VxeTableHeadComponent {
     if (column.VXETYPE == 'vxe-column') return 1;
     let count = 0;
     column.children.forEach(el => {
+      if (el.hidden) return;
       count += this.getLeafCount(el);
     });
     return count;
@@ -126,6 +135,9 @@ export class VxeTableHeadComponent {
         this.transformX = -scrollLeft;
       }
       this.scrollLeft = scrollLeft;
+    });
+    this.vxeService.headUpdate$.subscribe(() => {
+      this.initHeadColumns();
     })
   }
   updateDom() {
@@ -135,7 +147,7 @@ export class VxeTableHeadComponent {
     const { width } = tableEl.getBoundingClientRect();
     const { width: headWidth, height: headHeight } = headEl.getBoundingClientRect();
     this.scrollWidth = width;
-    this.scrollable = headWidth < width;
+    this.scrollable = headWidth <= width;
     if (this.fixed == 'right') {
       this.transformX = headWidth - this.scrollWidth - this.gutterConfig.width;
     }

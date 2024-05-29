@@ -39,12 +39,15 @@ export class VxeColgroupComponent extends VxeColumnGroupBase {
     if (!vxeService) Error('error: vxeService is null');
   }
   ngOnChanges(changes: SimpleChanges) {
-    const { fixed, width } = changes;
+    const { fixed, width, hidden } = changes;
     if (fixed && !fixed.isFirstChange()) {
       this.setFixedColumn();
     }
     if (width) {
       this.setWidth(this.width);
+    }
+    if (hidden) {
+      this.vxeService.headUpdate$.next();
     }
   }
   ngAfterContentInit() {
