@@ -1,0 +1,45 @@
+:host {
+    &.vxe-table-content {
+        overflow: auto;
+        display: block;
+    }
+    &.vxe-fixed-content {
+        position: relative;
+        overflow: auto; /* 确保内容可滚动 */
+    }
+    &.vxe-content-left {
+        scrollbar-width: none; /* Firefox 隐藏滚动条 */
+        -ms-overflow-style: none; /* IE 10+ 隐藏滚动条 */
+        &::-webkit-scrollbar {
+            display: none; /* Chrome, Safari, Opera 隐藏滚动条 */
+        }
+        
+        :not(.vxe-virtual-content) table {
+            position: absolute;
+            z-index: 1;
+            top: 0;
+            left: 0;
+        }
+        .vxe-virtual-content {
+            scrollbar-width: none; /* Firefox 隐藏滚动条 */
+            -ms-overflow-style: none; /* IE 10+ 隐藏滚动条 */
+            &::-webkit-scrollbar {
+                display: none; /* Chrome, Safari, Opera 隐藏滚动条 */
+            }
+        }
+    }
+    &.vxe-content-right {
+        
+        overflow-x: hidden;
+        :not(.vxe-virtual-content) table {
+            position: absolute;
+            z-index: 1;
+            top: 0;
+            right: 0;
+        }
+        .vxe-virtual-content {
+            overflow-y: auto;
+            overflow-x: hidden;
+        }
+    }
+}

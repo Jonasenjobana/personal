@@ -1,7 +1,30 @@
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, ContentChildren, ElementRef, EventEmitter, Input, Output, QueryList, Renderer2, SimpleChanges, ViewChild, forwardRef } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
+  Component,
+  ContentChildren,
+  ElementRef,
+  EventEmitter,
+  Input,
+  Output,
+  QueryList,
+  Renderer2,
+  SimpleChanges,
+  ViewChild,
+  forwardRef
+} from '@angular/core';
 import { VxeTableService } from '../vxe-table.service';
 import { VxeColumnComponent } from '../vxe-column/vxe-column.component';
-import { VxeColumnConfig, VxeColumnGroups, VxePageConfig, VxeRowConfig, VxeTreeConfig, VxeVirtualConfig } from '../vxe-model';
+import {
+  VxeColumnConfig,
+  VxeColumnGroups,
+  VxeGutterConfig,
+  VxePageConfig,
+  VxeRowConfig,
+  VxeTableConfig,
+  VxeTreeConfig,
+  VxeVirtualConfig
+} from '../vxe-model';
 import { VxeColgroupComponent } from '../vxe-colgroup/vxe-colgroup.component';
 import { fromEvent } from 'rxjs';
 
@@ -9,13 +32,12 @@ import { fromEvent } from 'rxjs';
   selector: 'vxe-table',
   templateUrl: './vxe-table.component.html',
   styleUrls: ['./vxe-table.component.less'],
-  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class VxeTableComponent {
   /**表格数据 */
   @Input() inData: any[] = [];
   /**接口 */
-  @Input() inApi: string
+  @Input() inApi: string;
   @Input() columnConfig: Partial<VxeColumnConfig>;
   @Input() treeConfig: Partial<VxeTreeConfig>;
   @Input() mergeCell: any;
@@ -28,71 +50,66 @@ export class VxeTableComponent {
   @Input() pageConfig: Partial<VxePageConfig>;
   // 虚拟滚动
   @Input() virtualConfig: Partial<VxeVirtualConfig>;
+  /**配置写法 动态生成vxe-column vxe-colgroup*/
+  @Input() tableConfig: Partial<VxeTableConfig>;
+  @Input() gutterConfig: VxeGutterConfig = {
+    width: 8,
+    height: 6
+  }
   /**列 */
   @ContentChildren(VxeColumnComponent) columnComponents?: QueryList<VxeColumnComponent>;
   @ContentChildren(VxeColgroupComponent) colgroupComponents?: QueryList<VxeColgroupComponent>;
-  /**表主体 */
-  @ViewChild('tableWrapper') tableWrapper: ElementRef<HTMLDivElement>;
-  /**表头 */
-  @ViewChild('tableHeader') tableHeader: ElementRef<HTMLDivElement>;
-  /**内容 除去表头 */
-  @ViewChild('tableContent') tableContent: ElementRef<HTMLDivElement>;
   /**页脚 含分页 等 */
   @ViewChild('tableFooter') tableFooter: ElementRef<HTMLDivElement>;
   @Output() checkChange: EventEmitter<any> = new EventEmitter();
-  /**垂直滚动距离 */
-  scrollHeight: number = 0;
-  /**水平滚动距离 */
-  scrollLeft: number = 0;
-  public containerHeight: number
-  public headCol: VxeColumnGroups
-  public contenCol: VxeColumnComponent[]
-  contentHeight: number
-  public tableHeight: number
-  constructor(private elementRef: ElementRef<HTMLDivElement>, public vxeService: VxeTableService, private renderer: Renderer2, private cdr: ChangeDetectorRef) {  
+  public headCol: VxeColumnGroups;
+  public contenCol: VxeColumnComponent[];
+  public tableHeight: number;
+  public headHeight: number;
+  public headWidth: number;
+  public scrollLeft: number;
+  constructor(
+    private elementRef: ElementRef<HTMLDivElement>,
+    public vxeService: VxeTableService,
+    private renderer: Renderer2,
+    private cdr: ChangeDetectorRef
+  ) {
+    this.vxeService.headHeight$.subscribe((height) => {
+      if (!height) return;
+      this.setTableHeight();
+      this.cdr.markForCheck();
+    })
+    this.vxeService.headWidth$.subscribe(width => {
+      this.headWidth = width;
+    })
+    this.vxeService.scrollLeft$.subscribe(scrollLeft => {
+      this.scrollLeft = scrollLeft;
+    })
   }
   ngOnChanges(changes: SimpleChanges) {
-    const {inData, rowConfig, minHeight, maxHeight} = changes;
+    const { inData, rowConfig, minHeight, maxHeight, gutterConfig } = changes;
     if (inData) {
       this.vxeService.data = this.inData;
     }
-    if (minHeight || maxHeight) {
+    if (minHeight && !minHeight.isFirstChange() || maxHeight && !maxHeight.isFirstChange()) {
       this.setTableHeight();
     }
   }
   setTableHeight() {
-    const {minHeight, maxHeight, tableHeight} = this;
-    const {height, width} = this.elementRef.nativeElement.getBoundingClientRect();
+    const { minHeight, maxHeight } = this;
+    const { height } = this.elementRef.nativeElement.getBoundingClientRect();
     this.tableHeight = Math.max(height, minHeight);
-    this.tableHeight = maxHeight && Math.min(maxHeight, this.tableHeight) || this.tableHeight;
-    this.renderer.setStyle(this.elementRef.nativeElement, 'height', this.tableHeight+'px')
+    this.tableHeight = (maxHeight && Math.min(maxHeight, this.tableHeight)) || this.tableHeight;
+    this.renderer.setStyle(this.elementRef.nativeElement, 'height', this.tableHeight + 'px');
   }
   ngAfterContentInit() {
     this.resetTable();
     this.columnComponents.changes.subscribe((observer: QueryList<VxeColumnComponent>) => {
       this.resetTable();
-    })
+    });
     this.colgroupComponents.changes.subscribe((observer: QueryList<VxeColgroupComponent>) => {
       this.resetTable();
-    })
-  }
-  ngAfterViewInit() {
-    const wraper = this.tableWrapper.nativeElement;
-    const content = this.tableContent.nativeElement;
-    const header = this.tableHeader.nativeElement;
-    const {width: headerWidth} = header.getBoundingClientRect();
-    const {height: wraperHeight} = wraper.getBoundingClientRect();
-    const {height: contentHeight} = content.getBoundingClientRect();
-    console.log(headerWidth)
-    this.setTableHeight();
-    this.vxeService.tableWrapperHeight = wraperHeight;
-    this.containerHeight = wraperHeight;
-    this.contentHeight = contentHeight;
-    fromEvent(content, 'scroll').subscribe((event: MouseEvent) => {
-      const {scrollLeft} = content;
-      this.scrollLeft = scrollLeft;
-      this.cdr.markForCheck();
-    })
+    });
   }
   onColumnChange(columns: VxeColumnGroups) {
     this.contenCol = columns.filter(el => el.VXETYPE == 'vxe-column') as VxeColumnComponent[];
@@ -106,6 +123,6 @@ export class VxeTableComponent {
       this.vxeService.allColumn = this.headCol;
       this.vxeService.tableColumn$.next(this.headCol);
       this.cdr.detectChanges();
-    })
+    });
   }
 }

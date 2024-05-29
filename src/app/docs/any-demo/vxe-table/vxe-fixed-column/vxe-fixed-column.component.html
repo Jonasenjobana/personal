@@ -1,19 +1,35 @@
 <!-- 冻结列 -->
-<div class="vxe-table-fixed-wraper" #fixedWraper *ngIf="fixedColumn.hasFixed">
-    <div class="vxe-fixed-left" *ngIf="fixedColumn.left.length>0" [hidden]="scrollLeft == 0" [style.width.px]="fixedColumn.leftWidth">
-        <div class="vxe-fixed-header" [style.height.px]="leftHeadRef.componentHeight">
-            <vxe-table-head #leftHeadRef [headCol]="columns" [fixed]="'left'"></vxe-table-head>
-        </div>
-        <div class="vxe-fixed-content" [style.height.px]="leftContentRef.componentHeight">
-            <vxe-table-content #leftContentRef [contentCol]="content" [rowConfig]="rowConfig" [virtualConfig]="virtualConfig"></vxe-table-content>
-        </div>
-    </div>
-    <div class="vxe-fixed-right" *ngIf="fixedColumn.right.length>0" [hidden]="scrollLeft == fixedHead.maxWidth - fixedWraper.getBoundingClientRect().width" [style.width.px]="fixedColumn.rightWidth">
-        <div class="vxe-fixed-header" [style.height.px]="rightHeadRef.componentHeight">
-            <vxe-table-head #rightHeadRef [headCol]="columns" [fixed]="'right'" #fixedHead></vxe-table-head>
-        </div>
-        <div class="vxe-fixed-content" [style.height.px]="rightContentRef.componentHeight">
-            <vxe-table-content #rightContentRef [contentCol]="content" [rowConfig]="rowConfig" [virtualConfig]="virtualConfig"></vxe-table-content>
-        </div>
-    </div>
+<div class="vxe-table-fixed-wraper" *ngIf="fixedColumn.hasFixed && vxeWraperHeight">
+  <div class="vxe-fixed-left" [style.width.px]="fixedColumn.leftWidth">
+    <vxe-table-head #leftHeadRef [headCol]="columns" [fixed]="'left'"></vxe-table-head>
+    <vxe-table-content
+      #leftFixedContent
+      [vxeWraperHeight]="vxeWraperHeight"
+      [inData]="inData"
+      [fixed]="'left'"
+      [style.height.px]="contentHeight"
+      [contentCol]="content"
+      [rowConfig]="rowConfig"
+      [virtualConfig]="virtualConfig"
+    ></vxe-table-content>
+  </div>
+  <div
+    class="vxe-fixed-right"
+    *ngIf="fixedColumn.right.length > 0"
+    [hidden]="scrollLeft == rightHeadRef.scrollWidth - headWidth"
+    [style.width.px]="fixedColumn.rightWidth"
+  >
+  {{rightHeadRef.scrollWidth - headWidth}}{{scrollLeft}}
+    <vxe-table-head #rightHeadRef [headCol]="columns" [fixed]="'right'"></vxe-table-head>
+    <vxe-table-content
+      #rightFixedContent
+      [inData]="inData"
+      [vxeWraperHeight]="vxeWraperHeight"
+      [fixed]="'right'"
+      [style.height.px]="contentHeight"
+      [contentCol]="content"
+      [rowConfig]="rowConfig"
+      [virtualConfig]="virtualConfig"
+    ></vxe-table-content>
+  </div>
 </div>

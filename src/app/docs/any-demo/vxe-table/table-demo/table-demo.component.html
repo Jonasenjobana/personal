@@ -1,11 +1,11 @@
 <div class="container">
   <form #form="ngForm"> </form>
-  <vxe-table [inData]="data" (checkChange)="onCheckChange($event)" [rowConfig]="{ isHover: true }">
+  <vxe-table [inData]="data" [maxHeight]="300" (checkChange)="onCheckChange($event)" [rowConfig]="{ isHover: true }">
     <vxe-colgroup title="基本信息" [width]="150" align="center" fixed="left">
       <vxe-column type="seq" [width]="100"></vxe-column>
-      <vxe-column title="Name" field="name">
+      <vxe-column title="Name" field="name"[width]="50">
         <ng-template let-row="row" let-col="col">
-          <input type="text" nz-input [(ngModel)]="row[col.field]" />
+          <input type="text" nz-input [(ngModel)]="row[col.field]"  />
         </ng-template>
       </vxe-column>
     </vxe-colgroup>
@@ -21,7 +21,7 @@
       <vxe-column title="Date" field="date" [width]="50"></vxe-column>
       <vxe-column title="Address" [width]="100" field="address"></vxe-column>
     </vxe-colgroup>
-    <vxe-column title="Address" [width]="100" field="address" fixed="right"></vxe-column>
+    <vxe-column title="Address" [width]="100" field="address"></vxe-column>
   </vxe-table>
-  <button nz-button (click)="onSubmit(form)">提交</button>
+  <!-- <button nz-button (click)="onSubmit(form)">提交</button> -->
 </div>

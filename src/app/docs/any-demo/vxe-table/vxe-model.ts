@@ -10,6 +10,8 @@ export interface VxeRowConfig {
     height: number
     /**移入高亮 */
     isHover: boolean
+    /**TODO 移入显示详情 上右下左*/
+    toolBar: boolean
 }
 export interface VxePageConfig {
     pageSize: number
@@ -47,4 +49,12 @@ export type VxeColumnGroup = VxeColumnGroupBase & {
     _isLeaf?: boolean,
     /**列排序 */
     _sortIndex?: number
+}
+export interface VxeTableConfig {
+    
+}
+
+export interface VxeGutterConfig {
+    width: number
+    height: number
 }

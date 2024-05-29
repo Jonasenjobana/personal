@@ -1,15 +1,23 @@
 <div class="vxe-table-wrapper" #tableWrapper>
-    <div class="vxe-table-head" #tableHeader>
-        <vxe-table-head [headCol]="headCol" (columnChange)="onColumnChange($event)" [transformX]="-scrollLeft"></vxe-table-head>
-    </div>
-    <div class="vxe-table-content" #tableContent style="height: 215px;">
-        <vxe-table-content [contentCol]="contenCol" [rowConfig]="rowConfig" [virtualConfig]="virtualConfig"></vxe-table-content>
-    </div>
+  <vxe-table-head [headCol]="headCol" (columnChange)="onColumnChange($event)"></vxe-table-head>
+  <vxe-table-content
+    [vxeWraperHeight]="tableHeight"
+    [inData]="inData"
+    #tableContent
+    [contentCol]="contenCol"
+    [rowConfig]="rowConfig"
+    [virtualConfig]="virtualConfig"
+  ></vxe-table-content>
 </div>
 <!-- 冻结列 -->
-<vxe-fixed-column [rowConfig]="rowConfig" [scrollLeft]="scrollLeft" [virtualConfig]="virtualConfig"></vxe-fixed-column>
+<vxe-fixed-column
+  [vxeWraperHeight]="tableHeight"
+  [inData]="inData"
+  [rowConfig]="rowConfig"
+  [virtualConfig]="virtualConfig"
+></vxe-fixed-column>
 <div class="vxe-table-footer" #tableFooter>
-    <!-- 页脚 合计 TODO -->
-    <!-- 分页 -->
-    <ng-content select="page"></ng-content>
+  <!-- 页脚 合计 TODO -->
+  <!-- 分页 -->
+  <ng-content select="page"></ng-content>
 </div>

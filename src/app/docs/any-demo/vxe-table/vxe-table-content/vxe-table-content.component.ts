@@ -1,44 +1,134 @@
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, Input, Optional, SimpleChanges } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
+  Component,
+  ElementRef,
+  Input,
+  Optional,
+  Renderer2,
+  SimpleChanges,
+  ViewChild
+} from '@angular/core';
 import { VxeColumnComponent } from '../vxe-column/vxe-column.component';
 import { VxeTableService } from '../vxe-table.service';
-import { VxeColumnGroups, VxeRowConfig, VxeVirtualConfig } from '../vxe-model';
+import { VxeColumnGroups, VxeGutterConfig, VxeRowConfig, VxeVirtualConfig } from '../vxe-model';
 import { VxeTableComponent } from '../vxe-table/vxe-table.component';
+import { fromEvent } from 'rxjs';
+import { CdkVirtualScrollViewport } from '@angular/cdk/scrolling';
 
 @Component({
   selector: 'vxe-table-content',
   templateUrl: './vxe-table-content.component.html',
   styleUrls: ['./vxe-table-content.component.less'],
-  changeDetection: ChangeDetectionStrategy.OnPush
+  host: {
+    '[class.vxe-table-content]': 'true',
+    '[class.vxe-fixed-content]': `fixed == 'left' || fixed == 'right'`,
+    '[class.vxe-content-left]': `fixed == 'left'`,
+    '[class.vxe-content-right]': `fixed == 'right'`
+  }
 })
 export class VxeTableContentComponent {
-  inData: any
-  @Input() contentCol: VxeColumnComponent[]
-  @Input() rowConfig: Partial<VxeRowConfig>
-  @Input() virtualConfig: Partial<VxeVirtualConfig>
-  @Input() transformX: number = 0
-  isHover: boolean = false
-  hoverIndex: number = -1;
-  constructor(private vxeService: VxeTableService, @Optional() private parent: VxeTableComponent, private elementRef: ElementRef<HTMLDivElement>, private cdr: ChangeDetectorRef) {
-    this.inData = vxeService.data
-    vxeService.dataObserve.subscribe((data) => {
-      this.inData = data;
-    })
-    this.vxeService.hoverIndex$.subscribe((idx) => {
-      this.hoverIndex = idx;
-      this.cdr.markForCheck();
-    })
-    // vxeService.tableHeaderColumn$.subscribe(columns => {
-    //   this.columns = columns.filter(el => el.VXETYPE == 'vxe-column') as VxeColumnComponent[];
-    // })
+  @Input() fixed: 'left' | 'right';
+  @Input() contentCol: VxeColumnComponent[];
+  @Input() rowConfig: Partial<VxeRowConfig>;
+  @Input() virtualConfig: Partial<VxeVirtualConfig>;
+  @Input() transformX: number = 0;
+  @Input() inData: any;
+  @Input() vxeWraperHeight: number;
+  @Input() minHeight: number
+  @Input() maxHeight: number
+  @ViewChild('virtualContent') virtualContent: CdkVirtualScrollViewport;
+  @ViewChild('vxeTable') vxeTable: ElementRef<HTMLTableElement>;
+  get gutterConfig(): VxeGutterConfig {
+    return this.vxeService.gutterConfig;
   }
-  get componentHeight() {
-    return this.elementRef.nativeElement.getBoundingClientRect().height;
+  isHover: boolean = false;
+  get isVirtual() {
+    return !!this.virtualConfig;
+  }
+  hoverIndex: number = -1;
+  headHeight: number = 0;
+  headWidth: number = 0;
+  gutterHeight: number = 0;
+  contentHeight: number = 0;
+  constructor(
+    private vxeService: VxeTableService,
+    @Optional() private parent: VxeTableComponent,
+    private elementRef: ElementRef<HTMLDivElement>,
+    private cdr: ChangeDetectorRef,
+    private renderer: Renderer2
+  ) {
+    this.vxeService.hoverIndex$.subscribe(idx => {
+      this.hoverIndex = idx;
+    });
+    this.vxeService.headHeight$.subscribe(height => {
+      this.headHeight = height;
+    });
+    this.vxeService.headWidth$.subscribe(width => {
+      this.headWidth = width;
+    });
+    this.vxeService.scrollTop$.subscribe(scrollTop => {
+      this.onScroll(scrollTop);
+    });
   }
   ngOnChanges(changes: SimpleChanges) {
-    const {rowConfig, virtualConfig} = changes;
+    const { rowConfig, virtualConfig, inData, vxeWraperHeight } = changes;
     if (rowConfig && rowConfig.currentValue) {
-      const {isHover = false} = this.rowConfig
+      const { isHover = false } = this.rowConfig;
       this.isHover = isHover;
+    }
+    if (inData && !inData.firstChange) {
+      this.initVirtual();
+    }
+    if (vxeWraperHeight && this.vxeWraperHeight) {
+      this.updateDom();
+    }
+  }
+  /**滚动同步处理 */
+  listenScroll() {
+    /**非虚拟滚动监听 */
+    if (!this.isVirtual) {
+      const el = this.elementRef.nativeElement;
+      fromEvent(el, 'scroll').subscribe(() => {
+        const { scrollLeft, scrollTop } = el;
+        this.vxeService.scrollTop$.next(scrollTop);
+        !this.fixed && this.vxeService.scrollLeft$.next(scrollLeft);
+      });
+    } else {
+      this.virtualContent.elementScrolled().subscribe(e => {
+        const { scrollLeft, scrollTop } = e.target as HTMLElement;
+        !this.fixed && this.vxeService.scrollLeft$.next(scrollLeft);
+        this.vxeService.scrollTop$.next(scrollTop);
+      });
+    }
+  }
+  onScroll(scrollTop: number) {
+    /**非虚拟滚动监听 */
+    if (!this.isVirtual) {
+      const el = this.elementRef.nativeElement;
+      el.scrollTo({ top: scrollTop });
+    } else {
+      this.virtualContent.scrollTo({ top: scrollTop });
+    }
+  }
+  ngAfterViewInit() {
+    requestAnimationFrame(() => {
+      this.listenScroll();
+      this.initVirtual();
+    });
+  }
+  updateDom() {
+    const {height} = this.gutterConfig
+    const el = this.elementRef.nativeElement;
+    const gutter = this.fixed ? height : 0;
+    this.contentHeight = this.vxeWraperHeight - this.headHeight - gutter;
+    this.renderer.setStyle(el, 'height', this.contentHeight + 'px');
+  }
+  initVirtual() {
+    if (!this.isVirtual) return;
+    if (this.fixed == 'right') {
+      const virtualEl = this.virtualContent.elementRef.nativeElement;
+      virtualEl.scrollLeft = virtualEl.scrollWidth - virtualEl.clientWidth;
     }
   }
   onMouseEnter(idx: number) {

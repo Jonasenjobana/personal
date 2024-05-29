@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Subject } from 'rxjs';
 import { VxeColumnComponent } from './vxe-column/vxe-column.component';
-import { VxeColumnGroup, VxeColumnGroups } from './vxe-model';
+import { VxeColumnGroup, VxeColumnGroups, VxeGutterConfig } from './vxe-model';
 import { isNotEmpty } from 'src/app/shared/utils/common.util';
 
 /** */
@@ -13,10 +13,21 @@ export class VxeTableService {
   // 固定列
   public fixedColumn: FixedColumn = new FixedColumn();
   public allColumn: VxeColumnGroups = [];
-  public tableWrapperHeight: number
   public tableHeaderColumn$: BehaviorSubject<VxeColumnGroups> = new BehaviorSubject([]);
+  /**列变化 */
   public tableColumn$: BehaviorSubject<VxeColumnGroups> = new BehaviorSubject([]);
-  public hoverIndex$: Subject<number> = new Subject();
+  /**鼠标悬浮列索引 */
+  public hoverIndex$: BehaviorSubject<number> = new BehaviorSubject(-1);
+  /**滚动距离 */
+  public scrollTop$: BehaviorSubject<number> = new BehaviorSubject(0);
+  public scrollLeft$: BehaviorSubject<number> = new BehaviorSubject(0);
+  /**表头 */
+  public headWidth$: BehaviorSubject<number> = new BehaviorSubject(0);
+  public headHeight$: BehaviorSubject<number> = new BehaviorSubject(0);
+  public gutterConfig: VxeGutterConfig = {
+    width: 8,
+    height: 6
+  }
   set data(value: any) {
     this._data = value;
     this.dataChange$.next(value);
@@ -27,7 +38,6 @@ export class VxeTableService {
   get dataObserve() {
     return this.dataChange$.asObservable();
   }
-
   constructor() {
   }
   addFixed(dir: 'left' | 'right', vxeCol: VxeColumnGroup) {

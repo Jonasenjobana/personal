@@ -11,13 +11,14 @@ export abstract class VxeColumnGroupBase {
   @Input() fixed: 'left' | 'right';
   @Input() title: string;
   @Input() align: 'left' | 'right' | 'center' = 'center';
-  @ViewChild('vxeTemplate') vxeColumnTemplate: TemplateRef<any>
+  @ViewChild('vxeTemplate') vxeColumnTemplate: TemplateRef<any>;
   parentComponent?: VxeColumnGroupBase;
   children: VxeColumnGroupBase[] = [];
-  componentWidth: number
+  componentWidth: number;
   constructor(@Optional() protected vxeService: VxeTableService, public element: ElementRef) {}
   setFixedColumn() {
     this.fixed && this.vxeService.addFixed(this.fixed, this);
   }
-  abstract setWidth()
+  /** */
+  abstract setWidth();
 }

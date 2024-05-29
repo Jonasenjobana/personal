@@ -1,8 +1,16 @@
-import { Component, ElementRef, EventEmitter, Input, Optional, Output, SimpleChanges, ViewChild } from '@angular/core';
+import {
+  ChangeDetectorRef,
+  Component,
+  ElementRef,
+  EventEmitter,
+  Input,
+  Optional,
+  Output,
+  SimpleChanges,
+  ViewChild
+} from '@angular/core';
 import { VxeTableService } from '../vxe-table.service';
-import { VxeColumnComponent } from '../vxe-column/vxe-column.component';
-import { VxeColumnGroup, VxeColumnGroups } from '../vxe-model';
-import { VxeColgroupComponent } from '../vxe-colgroup/vxe-colgroup.component';
+import { VxeColumnGroup, VxeColumnGroups, VxeGutterConfig } from '../vxe-model';
 import { VxeColumnGroupBase } from '../vxe-base/vxe-column-group';
 import { VxeTableComponent } from '../vxe-table/vxe-table.component';
 
@@ -14,24 +22,42 @@ import { VxeTableComponent } from '../vxe-table/vxe-table.component';
 export class VxeTableHeadComponent {
   @Input() headCol: VxeColumnGroups;
   @Input() fixed: 'left' | 'right';
-  @Input() transformX: number = 0
+  transformX: number = 0;
   tableHeaders: VxeColumnGroups[] = [];
   colgroupLeaf: VxeColumnGroups;
   /**列头变化 */
   @Output() columnChange: EventEmitter<VxeColumnGroups> = new EventEmitter();
   @ViewChild('tableRef') tableRef: ElementRef<HTMLTableElement>;
-  maxWidth: number
-  constructor(private vxeService: VxeTableService, @Optional() private parent: VxeTableComponent, private elementRef: ElementRef<HTMLDivElement>) {
+  @ViewChild('tableHead') tableHead: ElementRef<HTMLDivElement>;
+  scrollWidth: number;
+  scrollable: boolean;
+  get gutterWidth() {
+    return this.gutterConfig.width;
   }
+  get gutterConfig(): VxeGutterConfig {
+    return this.vxeService.gutterConfig;
+  }
+  constructor(
+    private vxeService: VxeTableService,
+    private elementRef: ElementRef<HTMLDivElement>,
+    private cdr: ChangeDetectorRef,
+    @Optional() private parent: VxeTableComponent
+  ) {}
+
   ngOnChanges(changes: SimpleChanges) {
     const { headCol, fixed } = changes;
     if (headCol && headCol.currentValue) {
       this.tableHeaders = [];
       this.transformTree(this.headCol);
-      this.colgroupLeaf = this.tableHeaders.flat(1).filter(el => el._isLeaf).sort((a, b) => a._sortIndex - b._sortIndex);
+      this.colgroupLeaf = this.tableHeaders
+        .flat(1)
+        .filter(el => el._isLeaf)
+        .sort((a, b) => a._sortIndex - b._sortIndex);
       this.vxeService.tableHeaderColumn$.next(this.colgroupLeaf);
       this.columnChange.emit(this.colgroupLeaf);
-      console.log(this.tableHeaders, this.colgroupLeaf,'leaf')
+      requestAnimationFrame(() => {
+        this.updateDom();
+      });
     }
   }
   get componentHeight() {
@@ -84,7 +110,7 @@ export class VxeTableHeadComponent {
       } else if (el._sortIndex == undefined) {
         el._sortIndex = temp++;
       }
-    })
+    });
     return temp;
   }
   /**获取节点下叶子总数 */
@@ -97,13 +123,30 @@ export class VxeTableHeadComponent {
     return count;
   }
   ngAfterViewInit() {
-    this.updateDom();
+  }
+  get scrollLeft() {
+    const scrollLeft = this.parent.scrollLeft
+    if (!this.fixed) {
+      this.transformX = -scrollLeft;
+      console.log('===')
+    }
+    return scrollLeft;
   }
   updateDom() {
-    const tableEl = this.tableRef.nativeElement;
-    requestAnimationFrame(() => {
-      const {width} = tableEl.getBoundingClientRect()
-      this.maxWidth = width
-    })
+    const tableEl = this.tableRef?.nativeElement;
+    const headEl = this.tableHead?.nativeElement;
+    if (!tableEl || !headEl) return;
+    const { width } = tableEl.getBoundingClientRect();
+    const { width: headWidth, height: headHeight } = headEl.getBoundingClientRect();
+    this.scrollWidth = width;
+    this.scrollable = headWidth < width;
+    if (this.fixed == 'right') {
+      this.transformX = headWidth - this.scrollWidth + this.gutterConfig.width;
+      this.cdr.markForCheck();
+    }
+    if (!this.fixed) {
+      this.vxeService.headHeight$.next(headHeight);
+      this.vxeService.headWidth$.next(headWidth);
+    }
   }
 }
