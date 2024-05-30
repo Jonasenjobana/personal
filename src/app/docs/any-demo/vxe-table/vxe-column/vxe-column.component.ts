@@ -41,7 +41,7 @@ export class VxeColumnComponent extends VxeColumnGroupBase {
   ngOnChanges(changes: SimpleChanges) {
     const { fixed, width, hidden } = changes;
     if (fixed) {
-      requestAnimationFrame(() => {
+      setTimeout(() => {
         this.setFixedColumn();
       });
     }

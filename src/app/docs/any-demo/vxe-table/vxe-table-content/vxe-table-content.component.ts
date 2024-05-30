@@ -13,7 +13,7 @@ import { VxeColumnComponent } from '../vxe-column/vxe-column.component';
 import { VxeTableService } from '../vxe-table.service';
 import { VxeColumnGroups, VxeGutterConfig, VxeRowConfig, VxeTableModel, VxeVirtualConfig } from '../vxe-model';
 import { VxeTableComponent } from '../vxe-table/vxe-table.component';
-import { fromEvent } from 'rxjs';
+import { Subject, fromEvent, takeUntil } from 'rxjs';
 import { CdkVirtualScrollViewport } from '@angular/cdk/scrolling';
 
 @Component({
@@ -34,11 +34,16 @@ export class VxeTableContentComponent {
   @Input() virtualConfig: Partial<VxeVirtualConfig>;
   @Input() inData: any;
   @Input() vxeWraperHeight: number;
-  @Input() minHeight: number
-  @Input() maxHeight: number
-  @Input() tableModel: VxeTableModel
-  @ViewChild('virtualContent') virtualContentRef: CdkVirtualScrollViewport
-  @ViewChild('vxeTable') vxeTable: ElementRef<HTMLTableElement>;
+  @Input() minHeight: number;
+  @Input() maxHeight: number;
+  @Input() tableModel: VxeTableModel;
+  @ViewChild('virtualContent', { static: false }) set virtualContent(ref: CdkVirtualScrollViewport) {
+    if (!ref) return;
+    this.virtualContentRef = ref;
+    this.addScrollEvent();
+    this.handleFixed();
+  }
+  @ViewChild('vxeTable', { static: false }) vxeTable: ElementRef<HTMLTableElement>;
   get gutterConfig(): VxeGutterConfig {
     return this.vxeService.gutterConfig;
   }
@@ -46,12 +51,14 @@ export class VxeTableContentComponent {
   get isVirtual() {
     return !!this.virtualConfig;
   }
+  virtualContentRef: CdkVirtualScrollViewport;
   hoverIndex: number = -1;
   headHeight: number = 0;
   headWidth: number = 0;
   gutterHeight: number = 0;
   contentHeight: number = 0;
   transformX: number = 0;
+  destroy$: Subject<void> = new Subject();
   constructor(
     private vxeService: VxeTableService,
     @Optional() private parent: VxeTableComponent,
@@ -87,20 +94,26 @@ export class VxeTableContentComponent {
   }
   /**滚动同步处理 */
   addScrollEvent() {
+    this.destroy$.next();
     /**非虚拟滚动监听 */
     if (!this.isVirtual) {
       const el = this.elementRef.nativeElement;
-      fromEvent(el, 'scroll').subscribe(() => {
-        const { scrollLeft, scrollTop } = el;
-        this.vxeService.scrollTop$.next(scrollTop);
-        !this.fixed && this.vxeService.scrollLeft$.next(scrollLeft);
-      });
+      fromEvent(el, 'scroll')
+        .pipe(takeUntil(this.destroy$))
+        .subscribe(() => {
+          const { scrollLeft, scrollTop } = el;
+          this.vxeService.scrollTop$.next(scrollTop);
+          !this.fixed && this.vxeService.scrollLeft$.next(scrollLeft);
+        });
     } else {
-      this.virtualContentRef.elementScrolled().subscribe(e => {
-        const { scrollLeft, scrollTop } = e.target as HTMLElement;
-        !this.fixed && this.vxeService.scrollLeft$.next(scrollLeft);
-        this.vxeService.scrollTop$.next(scrollTop);
-      });
+      this.virtualContentRef
+        ?.elementScrolled()
+        .pipe(takeUntil(this.destroy$))
+        .subscribe(e => {
+          const { scrollLeft, scrollTop } = e.target as HTMLElement;
+          !this.fixed && this.vxeService.scrollLeft$.next(scrollLeft);
+          this.vxeService.scrollTop$.next(scrollTop);
+        });
     }
   }
   onScroll(scrollTop: number) {
@@ -116,10 +129,10 @@ export class VxeTableContentComponent {
     setTimeout(() => {
       this.addScrollEvent();
       this.handleFixed();
-    }, 100)
+    }, 100);
   }
   updateDom() {
-    const {height} = this.gutterConfig
+    const { height } = this.gutterConfig;
     const el = this.elementRef.nativeElement;
     const gutter = this.fixed ? height : 0;
     this.contentHeight = this.vxeWraperHeight - this.headHeight - gutter;
@@ -128,8 +141,8 @@ export class VxeTableContentComponent {
   handleFixed() {
     if (this.fixed != 'right') return;
     if (!this.isVirtual) {
-      const {width} = this.vxeTable.nativeElement.getBoundingClientRect();
-      const {width: containerWidth} = this.elementRef.nativeElement.getBoundingClientRect();
+      const { width } = this.vxeTable.nativeElement.getBoundingClientRect();
+      const { width: containerWidth } = this.elementRef.nativeElement.getBoundingClientRect();
       this.transformX = containerWidth - width;
     } else {
       const virtualEl = this.virtualContentRef.elementRef.nativeElement;
@@ -143,5 +156,9 @@ export class VxeTableContentComponent {
   onMouseLeave() {
     this.vxeService.hoverIndex$.next(-1);
     this.hoverIndex = -1;
+  }
+  ngOnDestroy() {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 }

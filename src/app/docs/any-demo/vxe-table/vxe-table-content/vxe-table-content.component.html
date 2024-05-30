@@ -1,7 +1,7 @@
-<ng-container *ngIf="vxeWraperHeight">
+<ng-container *ngIf="vxeWraperHeight"> 
   <!-- 虚拟滚动表格 树形表不支持虚拟滚动 -->
   <cdk-virtual-scroll-viewport
-    *ngIf="virtualConfig"
+    *ngIf="isVirtual"
     #virtualContent
     class="vxe-virtual-content"
     [style.height.px]="contentHeight"
@@ -41,7 +41,7 @@
       </tbody>
     </table>
   </cdk-virtual-scroll-viewport>
-  <table *ngIf="!virtualConfig" #vxeTable class="vxe-table" [style.transform]="'translateX(' + transformX + 'px)'">
+  <table *ngIf="!isVirtual" #vxeTable class="vxe-table" [style.transform]="'translateX(' + transformX + 'px)'">
     <colgroup>
       <col *ngFor="let item of contentCol" [style.width.px]="item.width || 50" />
     </colgroup>

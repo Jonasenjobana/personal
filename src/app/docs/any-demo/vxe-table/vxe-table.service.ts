@@ -4,7 +4,10 @@ import { VxeColumnComponent } from './vxe-column/vxe-column.component';
 import { VxeColumnGroup, VxeColumnGroups, VxeGutterConfig } from './vxe-model';
 import { isNotEmpty } from 'src/app/shared/utils/common.util';
 
-/** */
+/**
+ * vxe 跨组件通讯必备服务
+ * 2、可通过注入父组件通讯 缺点无法获取监听。维护困难
+ */
 @Injectable()
 export class VxeTableService {
   public dataChange$: Subject<any[]> = new Subject();
@@ -37,6 +40,10 @@ export class VxeTableService {
     this.fixedColumn[dir].push(vxeCol);
     this.fixedChange$.next();
   }
+  removeFixed(dir: 'left' | 'right', vxeCol: VxeColumnGroup) {
+    const delIdx = this.fixedColumn[dir].findIndex(el => el == vxeCol);
+    this.fixedColumn[dir].splice(delIdx, 1);
+  }
   destroy() {
     this.fixedColumn = new FixedColumn();
   }
@@ -65,6 +72,7 @@ class FixedColumn {
       return (el.width || el.element.nativeElement.getBoundingClientRect().width) + width
     }, 0)
   }
+
   constructor() {
     this.left = [];
     this.right = [];

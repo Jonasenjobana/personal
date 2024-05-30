@@ -85,10 +85,9 @@ export class VxeTableHeadComponent {
       .filter(el => el._isLeaf)
       .sort((a, b) => a._sortIndex - b._sortIndex);
     !this.fixed && this.vxeService.tableHeaderLeafColumns$.next(this.colgroupLeaf);
-    console.log(this.tableHeaders, 'tableHeaders');
-    console.log(this.colgroupLeaf, 'colgroupLeaf');
+    console.log(this.colgroupLeaf, this.headCol, this.tableHeaders)
     this.columnChange.emit(this.colgroupLeaf);
-    requestAnimationFrame(() => {
+    setTimeout(() => {
       this.updateDom();
     });
   }
@@ -110,17 +109,23 @@ export class VxeTableHeadComponent {
       // 当前层级数量 标识每一层级的数量
       const levelCount: number = queue.length;
       for (let i = 0; i < levelCount; i++) {
+        let hiddenColumn: boolean = false;
         const column = queue.shift();
         !column.hidden && (sortIndex = this.updateSortIndex(column, sortIndex));
         if (column.VXETYPE == 'vxe-colgroup' && column.children.length > 0) {
           const width = column.width;
-          (column.children as VxeColumnGroups).forEach(el => {
+          const children = (column.children as VxeColumnGroups)
+          children.forEach(el => {
             el.fixed = column.fixed;
-            el.hidden = column.hidden;
+            el._hidden = el.hidden || column.hidden;
           });
-          queue.push(...column.children);
+          const filterChildren = children.filter(el => !el._hidden);
+          /**子项总宽度 */
+          const total = filterChildren.reduce((width, child) => child.width + width, 0)
+          hiddenColumn = filterChildren.length == 0;
+          queue.push(...filterChildren);
         }
-        if (column.hidden) continue;
+        if (column.hidden || hiddenColumn) continue;
         levelRoot.push({
           ...(column as any),
           _level: currentLevel,
@@ -133,8 +138,10 @@ export class VxeTableHeadComponent {
       currentLevel++;
     }
   }
-  /**更新子节点宽度 */
-  updateChildWidth() {}
+  /**更新子节点*/
+  updateChild() {
+
+  }
   /**
    * 叶节点正确的顺序
    * 处理合并表头带来的顺序差异
@@ -157,7 +164,7 @@ export class VxeTableHeadComponent {
   getLeafCount(column: VxeColumnGroupBase) {
     if (column.VXETYPE == 'vxe-column') return 1;
     let count = 0;
-    column.children.forEach(el => {
+    column.children.filter(el => !el.hidden).forEach(el => {
       count += this.getLeafCount(el);
     });
     return count;
@@ -170,7 +177,6 @@ export class VxeTableHeadComponent {
       this.scrollLeft = scrollLeft;
     });
     this.vxeService.headUpdate$.subscribe(() => {
-      console.log('wtf');
       this.initHeadColumns();
     });
   }
@@ -183,7 +189,7 @@ export class VxeTableHeadComponent {
     this.scrollWidth = width;
     this.scrollable = headWidth <= width;
     // 滚动槽后续colgroup添加了 导致宽度变化不需要手动加上插槽宽度
-    requestAnimationFrame(() => {
+    setTimeout(() => {
       if (this.scrollable) {
         const { width } = tableEl.getBoundingClientRect();
         this.scrollWidth = width;

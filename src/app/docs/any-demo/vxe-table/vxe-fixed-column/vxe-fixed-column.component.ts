@@ -19,12 +19,12 @@ export class VxeFixedColumnComponent {
   @Input() contentHeight: number;
   @Input() inData: any;
   @Input() vxeWraperHeight: number;
-  scrollTop: number;
+  @Input() headCol: VxeColumnGroupBase[] = [];
   @ViewChild('leftFixedContent') leftFixedContentRef: ElementRef<HTMLDivElement>;
   @ViewChild('rightFixedContent') rightFixedContentRef: ElementRef<HTMLDivElement>;
   @ViewChild('rightHeadRef') rightHeadRef: VxeTableHeadComponent;
-  headCol: VxeColumnGroupBase[] = [];
   content: VxeColumnComponent[] = [];
+  scrollTop: number;
   scrollLeft: number;
   headWidth: number;
   get fixedColumn() {
@@ -45,9 +45,6 @@ export class VxeFixedColumnComponent {
     });
     this.vxeService.headWidth$.subscribe(width => {
       this.headWidth = width;
-    });
-    this.vxeService.tableInnerColumn$.subscribe(columns => {
-      this.headCol = columns;
     });
     this.vxeService.tableHeaderLeafColumns$.subscribe(columns => {
       this.content = columns as VxeColumnComponent[];

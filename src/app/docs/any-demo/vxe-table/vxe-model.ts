@@ -49,6 +49,8 @@ export type VxeColumnGroup = VxeColumnGroupBase & {
     _isLeaf?: boolean,
     /**列排序 */
     _sortIndex?: number
+    /**隐藏 */
+    _hidden?: boolean
 }
 export interface VxeTableConfig {
     
