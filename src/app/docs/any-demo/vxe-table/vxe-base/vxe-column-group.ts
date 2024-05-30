@@ -13,6 +13,8 @@ export abstract class VxeColumnGroupBase {
   @Input() align: 'left' | 'right' | 'center' = 'center';
   @Input() hidden: boolean = false;
   @ViewChild('vxeTemplate') vxeColumnTemplate: TemplateRef<any>;
+  /**自动计算宽度 */
+  autoWidth: number
   parentComponent?: VxeColumnGroupBase;
   children: VxeColumnGroupBase[] = [];
   componentWidth: number;

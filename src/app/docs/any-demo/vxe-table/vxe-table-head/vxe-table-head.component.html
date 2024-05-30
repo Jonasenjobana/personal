@@ -5,11 +5,11 @@
           <col *ngIf="scrollable" [style.width.px]="gutterWidth">
       </colgroup>
     <thead class="vxe-head">
-      <tr *ngFor="let header of tableHeaders">
+      <tr *ngFor="let header of tableHeaders;let idx = index">
           <td *ngFor="let item of header" [attr.rowspan]="item.VXETYPE == 'vxe-colgroup' ? 1 : tableHeaders.length - item._level" [attr.colspan]="item._colspan || 1">
             <ng-template [ngTemplateOutlet]="item.vxeColumnTemplate"></ng-template>
           </td>
-          <td *ngIf="scrollable" [attr.rowspan]="tableHeaders.length"></td>
+          <td *ngIf="scrollable && idx == 0" [attr.rowspan]="tableHeaders.length"></td>
       </tr>
     </thead>
   </table>

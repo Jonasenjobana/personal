@@ -13,6 +13,7 @@ import { VxeTableService } from '../vxe-table.service';
 import { VxeColumnGroup, VxeColumnGroups, VxeGutterConfig } from '../vxe-model';
 import { VxeColumnGroupBase } from '../vxe-base/vxe-column-group';
 import { VxeTableComponent } from '../vxe-table/vxe-table.component';
+import { combineLatest } from 'rxjs';
 
 @Component({
   selector: 'vxe-table-head',
@@ -32,8 +33,17 @@ export class VxeTableHeadComponent {
   scrollWidth: number;
   scrollable: boolean;
   scrollLeft: number;
+  /**预设宽度 */
+  colWidth: number;
+  /**实际宽度 */
+  headWidth: number;
   get gutterWidth() {
-    return this.gutterConfig.width;
+    const { width } = this.gutterConfig;
+    if (!this.colWidth) return width;
+    if (this.colWidth < this.headWidth) {
+      return width / (this.headWidth / this.colWidth);
+    }
+    return width;
   }
   get gutterConfig(): VxeGutterConfig {
     return this.vxeService.gutterConfig;
@@ -43,14 +53,28 @@ export class VxeTableHeadComponent {
     private elementRef: ElementRef<HTMLDivElement>,
     private cdr: ChangeDetectorRef,
     @Optional() private parent: VxeTableComponent
-  ) {}
+  ) {
+    const { headWidth$, tableHeaderLeafColumns$ } = this.vxeService;
+    combineLatest([tableHeaderLeafColumns$, headWidth$]).subscribe(([columns, width]) => {
+      // 自动分配宽度
+      if (width !== 0) {
+        this.headWidth = width;
+        this.colWidth = columns.reduce((width, col) => col.width + width, 0);
+        if (this.colWidth < width) {
+          columns.forEach(col => {
+            col.autoWidth = col.width * (width / this.colWidth);
+          });
+        }
+      }
+    });
+  }
 
   ngOnChanges(changes: SimpleChanges) {
     const { headCol, fixed } = changes;
     if (headCol && headCol.currentValue) {
-      requestAnimationFrame(() => {
+      setTimeout(() => {
         this.initHeadColumns();
-      });
+      }, 50);
     }
   }
   initHeadColumns() {
@@ -60,13 +84,20 @@ export class VxeTableHeadComponent {
       .flat(1)
       .filter(el => el._isLeaf)
       .sort((a, b) => a._sortIndex - b._sortIndex);
-    this.vxeService.tableHeaderColumn$.next(this.colgroupLeaf);
+    !this.fixed && this.vxeService.tableHeaderLeafColumns$.next(this.colgroupLeaf);
+    console.log(this.tableHeaders, 'tableHeaders');
+    console.log(this.colgroupLeaf, 'colgroupLeaf');
     this.columnChange.emit(this.colgroupLeaf);
-    console.log(this.colgroupLeaf)
     requestAnimationFrame(() => {
       this.updateDom();
     });
   }
+  /**
+   * 1、 无宽度按比例分配
+   * 2、 父节点有宽度 子无 从剩余父分配
+   * 3、 父节点无宽度 子有 则父宽度等于子宽度
+   *
+   */
   /**层级遍历 展开树形结构group */
   transformTree(root: VxeColumnGroups) {
     const queue = [...root];
@@ -82,6 +113,7 @@ export class VxeTableHeadComponent {
         const column = queue.shift();
         !column.hidden && (sortIndex = this.updateSortIndex(column, sortIndex));
         if (column.VXETYPE == 'vxe-colgroup' && column.children.length > 0) {
+          const width = column.width;
           (column.children as VxeColumnGroups).forEach(el => {
             el.fixed = column.fixed;
             el.hidden = column.hidden;
@@ -96,11 +128,13 @@ export class VxeTableHeadComponent {
           _isLeaf: column.VXETYPE == 'vxe-column'
         });
       }
-      this.tableHeaders.push(levelRoot);
+      levelRoot.length > 0 && this.tableHeaders.push(levelRoot);
       levelRoot = [];
       currentLevel++;
     }
   }
+  /**更新子节点宽度 */
+  updateChildWidth() {}
   /**
    * 叶节点正确的顺序
    * 处理合并表头带来的顺序差异
@@ -124,7 +158,6 @@ export class VxeTableHeadComponent {
     if (column.VXETYPE == 'vxe-column') return 1;
     let count = 0;
     column.children.forEach(el => {
-      if (el.hidden) return;
       count += this.getLeafCount(el);
     });
     return count;
@@ -137,8 +170,9 @@ export class VxeTableHeadComponent {
       this.scrollLeft = scrollLeft;
     });
     this.vxeService.headUpdate$.subscribe(() => {
+      console.log('wtf');
       this.initHeadColumns();
-    })
+    });
   }
   updateDom() {
     const tableEl = this.tableRef?.nativeElement;
@@ -148,12 +182,19 @@ export class VxeTableHeadComponent {
     const { width: headWidth, height: headHeight } = headEl.getBoundingClientRect();
     this.scrollWidth = width;
     this.scrollable = headWidth <= width;
-    if (this.fixed == 'right') {
-      this.transformX = headWidth - this.scrollWidth - this.gutterConfig.width;
-    }
-    if (!this.fixed) {
-      this.vxeService.headHeight$.next(headHeight);
-      this.vxeService.headWidth$.next(headWidth);
-    }
+    // 滚动槽后续colgroup添加了 导致宽度变化不需要手动加上插槽宽度
+    requestAnimationFrame(() => {
+      if (this.scrollable) {
+        const { width } = tableEl.getBoundingClientRect();
+        this.scrollWidth = width;
+      }
+      if (this.fixed == 'right') {
+        this.transformX = headWidth - this.scrollWidth;
+      }
+      if (!this.fixed) {
+        this.vxeService.headHeight$.next(headHeight);
+        this.vxeService.headWidth$.next(headWidth);
+      }
+    });
   }
 }

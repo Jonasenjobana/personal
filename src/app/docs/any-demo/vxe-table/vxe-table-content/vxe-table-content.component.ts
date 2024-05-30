@@ -11,7 +11,7 @@ import {
 } from '@angular/core';
 import { VxeColumnComponent } from '../vxe-column/vxe-column.component';
 import { VxeTableService } from '../vxe-table.service';
-import { VxeColumnGroups, VxeGutterConfig, VxeRowConfig, VxeVirtualConfig } from '../vxe-model';
+import { VxeColumnGroups, VxeGutterConfig, VxeRowConfig, VxeTableModel, VxeVirtualConfig } from '../vxe-model';
 import { VxeTableComponent } from '../vxe-table/vxe-table.component';
 import { fromEvent } from 'rxjs';
 import { CdkVirtualScrollViewport } from '@angular/cdk/scrolling';
@@ -32,19 +32,13 @@ export class VxeTableContentComponent {
   @Input() contentCol: VxeColumnComponent[];
   @Input() rowConfig: Partial<VxeRowConfig>;
   @Input() virtualConfig: Partial<VxeVirtualConfig>;
-  @Input() transformX: number = 0;
   @Input() inData: any;
   @Input() vxeWraperHeight: number;
   @Input() minHeight: number
   @Input() maxHeight: number
-  @ViewChild('virtualContent') set virtualContent(ref: CdkVirtualScrollViewport) {
-    if (!ref) return;
-    this.virtualContentRef = ref;
-    this.addScrollEvent();
-    this.initVirtual();
-  };
+  @Input() tableModel: VxeTableModel
+  @ViewChild('virtualContent') virtualContentRef: CdkVirtualScrollViewport
   @ViewChild('vxeTable') vxeTable: ElementRef<HTMLTableElement>;
-  private virtualContentRef: CdkVirtualScrollViewport
   get gutterConfig(): VxeGutterConfig {
     return this.vxeService.gutterConfig;
   }
@@ -57,6 +51,7 @@ export class VxeTableContentComponent {
   headWidth: number = 0;
   gutterHeight: number = 0;
   contentHeight: number = 0;
+  transformX: number = 0;
   constructor(
     private vxeService: VxeTableService,
     @Optional() private parent: VxeTableComponent,
@@ -78,13 +73,13 @@ export class VxeTableContentComponent {
     });
   }
   ngOnChanges(changes: SimpleChanges) {
-    const { rowConfig, virtualConfig, inData, vxeWraperHeight } = changes;
+    const { rowConfig, virtualConfig, inData, vxeWraperHeight, contentCol } = changes;
     if (rowConfig && rowConfig.currentValue) {
       const { isHover = false } = this.rowConfig;
       this.isHover = isHover;
     }
     if (inData && !inData.firstChange) {
-      this.initVirtual();
+      this.handleFixed();
     }
     if (vxeWraperHeight && this.vxeWraperHeight) {
       this.updateDom();
@@ -118,6 +113,10 @@ export class VxeTableContentComponent {
     }
   }
   ngAfterViewInit() {
+    setTimeout(() => {
+      this.addScrollEvent();
+      this.handleFixed();
+    }, 100)
   }
   updateDom() {
     const {height} = this.gutterConfig
@@ -126,9 +125,13 @@ export class VxeTableContentComponent {
     this.contentHeight = this.vxeWraperHeight - this.headHeight - gutter;
     this.renderer.setStyle(el, 'height', this.contentHeight + 'px');
   }
-  initVirtual() {
-    if (!this.isVirtual) return;
-    if (this.fixed == 'right') {
+  handleFixed() {
+    if (this.fixed != 'right') return;
+    if (!this.isVirtual) {
+      const {width} = this.vxeTable.nativeElement.getBoundingClientRect();
+      const {width: containerWidth} = this.elementRef.nativeElement.getBoundingClientRect();
+      this.transformX = containerWidth - width;
+    } else {
       const virtualEl = this.virtualContentRef.elementRef.nativeElement;
       virtualEl.scrollLeft = virtualEl.scrollWidth - virtualEl.clientWidth;
     }

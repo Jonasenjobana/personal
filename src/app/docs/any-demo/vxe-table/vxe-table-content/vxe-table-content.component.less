@@ -13,7 +13,7 @@
         &::-webkit-scrollbar {
             display: none; /* Chrome, Safari, Opera 隐藏滚动条 */
         }
-        
+        overflow-x: hidden;
         :not(.vxe-virtual-content) table {
             position: absolute;
             z-index: 1;
@@ -26,6 +26,8 @@
             &::-webkit-scrollbar {
                 display: none; /* Chrome, Safari, Opera 隐藏滚动条 */
             }
+            overflow-y: auto;
+            overflow-x: hidden;
         }
     }
     &.vxe-content-right {

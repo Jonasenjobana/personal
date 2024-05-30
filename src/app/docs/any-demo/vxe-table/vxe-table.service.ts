@@ -7,38 +7,30 @@ import { isNotEmpty } from 'src/app/shared/utils/common.util';
 /** */
 @Injectable()
 export class VxeTableService {
-  private dataChange$: Subject<any[]> = new Subject();
+  public dataChange$: Subject<any[]> = new Subject();
   private fixedChange$: Subject<void> = new Subject();
   private _data: any[] = [];
   // 固定列
   public fixedColumn: FixedColumn = new FixedColumn();
-  public allColumn: VxeColumnGroups = [];
-  public tableHeaderColumn$: BehaviorSubject<VxeColumnGroups> = new BehaviorSubject([]);
-  /**列变化 */
-  public tableColumn$: BehaviorSubject<VxeColumnGroups> = new BehaviorSubject([]);
+  /**表格表头的投影内容 未处理的原始投影 */
+  public tableInnerColumn$: BehaviorSubject<VxeColumnGroups> = new BehaviorSubject([]);
+  /**展开多层级表头后渲染顺序 并且已经处理了*/
+  public tableHeaderLeafColumns$: BehaviorSubject<VxeColumnGroups> = new BehaviorSubject([]);
   /**鼠标悬浮列索引 */
   public hoverIndex$: BehaviorSubject<number> = new BehaviorSubject(-1);
   /**滚动距离 */
   public scrollTop$: BehaviorSubject<number> = new BehaviorSubject(0);
   public scrollLeft$: BehaviorSubject<number> = new BehaviorSubject(0);
-  /**表头 */
+  /**表头 长宽属性 */
   public headWidth$: BehaviorSubject<number> = new BehaviorSubject(0);
   public headHeight$: BehaviorSubject<number> = new BehaviorSubject(0);
+  /**滚动槽默认长宽 */
   public gutterConfig: VxeGutterConfig = {
     width: 8,
     height: 6
   }
+  /**表头更新通知 */
   public headUpdate$: Subject<void> = new Subject();
-  set data(value: any) {
-    this._data = value;
-    this.dataChange$.next(value);
-  }
-  get data() {
-    return this._data;
-  }
-  get dataObserve() {
-    return this.dataChange$.asObservable();
-  }
   constructor() {
   }
   addFixed(dir: 'left' | 'right', vxeCol: VxeColumnGroup) {

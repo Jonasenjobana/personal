@@ -22,13 +22,11 @@ import {
   VxePageConfig,
   VxeRowConfig,
   VxeTableConfig,
+  VxeTableModel,
   VxeTreeConfig,
   VxeVirtualConfig
 } from '../vxe-model';
 import { VxeColgroupComponent } from '../vxe-colgroup/vxe-colgroup.component';
-import { fromEvent } from 'rxjs';
-import { group } from '@angular/animations';
-import { VxeColumnGroupBase } from '../vxe-base/vxe-column-group';
 
 @Component({
   selector: 'vxe-table',
@@ -58,6 +56,7 @@ export class VxeTableComponent {
     width: 8,
     height: 6
   };
+  tableModel: VxeTableModel = 'normal';
   /**列 */
   @ContentChildren(VxeColumnComponent) set columnComponents(column: QueryList<VxeColumnComponent>) {
     this.columnComponentList = column.toArray();
@@ -85,12 +84,15 @@ export class VxeTableComponent {
     private cdr: ChangeDetectorRef
   ) {}
   ngOnChanges(changes: SimpleChanges) {
-    const { inData, rowConfig, minHeight, maxHeight, gutterConfig } = changes;
+    const { inData, rowConfig, minHeight, maxHeight, gutterConfig, treeConfig } = changes;
     if (inData) {
-      this.vxeService.data = this.inData;
+      this.vxeService.dataChange$.next(this.inData);
     }
     if ((minHeight && !minHeight.isFirstChange()) || (maxHeight && !maxHeight.isFirstChange())) {
       this.setTableHeight();
+    }
+    if (treeConfig) {
+      this.tableModel = 'tree';
     }
   }
   setTableHeight() {
@@ -123,8 +125,7 @@ export class VxeTableComponent {
     const columns = this.columnComponentList || [];
     // 保证节点顺序
     this.headCol = this.vxeService.getDomFlow([...groups, ...columns]);
-    console.log(this.headCol)
-    this.vxeService.allColumn = this.headCol;
-    this.vxeService.tableColumn$.next(this.headCol);
+    this.vxeService.tableInnerColumn$.next(this.headCol);
+    // this.cdr.markForCheck();
   }
 }

@@ -35,8 +35,7 @@ export class VxeColumnComponent extends VxeColumnGroupBase {
   ) {
     super(vxeService, element);
     if (!vxeService) Error('error: vxeService is null');
-    vxeService.dataObserve.subscribe(data => {
-      this.cdr.markForCheck();
+    vxeService.dataChange$.subscribe(data => {
     });
   }
   ngOnChanges(changes: SimpleChanges) {

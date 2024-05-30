@@ -1,6 +1,11 @@
 <!-- 冻结列 -->
 <div class="vxe-table-fixed-wraper" *ngIf="fixedColumn.hasFixed && vxeWraperHeight">
-  <div class="vxe-fixed-left" [style.width.px]="fixedColumn.leftWidth" *ngIf="fixedColumn.left.length > 0" [hidden]="scrollLeft == 0">
+  <div
+    class="vxe-fixed-left"
+    [style.width.px]="fixedColumn.leftWidth"
+    *ngIf="fixedColumn.left.length > 0"
+    [style.visibility]="scrollLeft == 0 ? 'hidden' : 'visible'"
+  >
     <vxe-table-head #leftHeadRef [headCol]="headCol" [fixed]="'left'"></vxe-table-head>
     <vxe-table-content
       #leftFixedContent
@@ -16,7 +21,7 @@
   <div
     class="vxe-fixed-right"
     *ngIf="fixedColumn.right.length > 0"
-    [hidden]="scrollLeft >= rightHeadRef.scrollWidth - headWidth + gutterWidth"
+    [style.visibility]="scrollLeft >= rightHeadRef.scrollWidth - headWidth ? 'hidden' : 'visible'"
     [style.width.px]="fixedColumn.rightWidth"
   >
     <vxe-table-head #rightHeadRef [headCol]="headCol" [fixed]="'right'"></vxe-table-head>

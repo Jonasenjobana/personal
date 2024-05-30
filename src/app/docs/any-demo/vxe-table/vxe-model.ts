@@ -53,7 +53,7 @@ export type VxeColumnGroup = VxeColumnGroupBase & {
 export interface VxeTableConfig {
     
 }
-
+export type VxeTableModel = 'tree' | 'normal'
 export interface VxeGutterConfig {
     width: number
     height: number

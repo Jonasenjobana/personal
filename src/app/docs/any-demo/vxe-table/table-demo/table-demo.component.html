@@ -1,12 +1,15 @@
 <div class="container">
   <form #form="ngForm"> </form>
-  <button (click)="shows[0] = !shows[0]">隐藏2列</button>
-  <button (click)="shows[1] = !shows[1]">隐藏3列</button>
-  <button (click)="shows[2] = !shows[2]">隐藏4列</button>
+  <button (click)="shows[0] = !shows[0]">{{shows[0] ? '隐藏' : '显示'}}2列</button>
+  <button (click)="shows[1] = !shows[1]">{{shows[1] ? '隐藏' : '显示'}}3列</button>
+  <button (click)="shows[2] = !shows[2]">{{shows[2] ? '隐藏' : '显示'}}4列</button>
+  <button (click)="shows[3] = !shows[3]">{{shows[3] ? '隐藏' : '显示'}}5列</button>
+  <button (click)="shows[4] = !shows[4]">{{shows[4] ? '隐藏' : '显示'}}6列</button>
+  <button (click)="shows[5] = !shows[5]">{{shows[5] ? '隐藏' : '显示'}}7列</button>
   <vxe-table [inData]="data" [maxHeight]="300" (checkChange)="onCheckChange($event)" [rowConfig]="{ isHover: true }" [virtualConfig]="{itemHeight: 33}">
-    <vxe-column type="seq" [width]="100"></vxe-column>
-    <vxe-colgroup [hidden]="!shows[0]" title="基本信息" [width]="150" align="center" fixed="left">
-      <vxe-column title="Name" field="name"[width]="100">
+    <vxe-column type="seq" [width]="100" fixed="left"></vxe-column>
+    <vxe-colgroup [hidden]="!shows[0]" title="基本信息" [width]="100" align="center" fixed="left">
+      <vxe-column [hidden]="!shows[4]" title="Name" field="name"[width]="100">
         <ng-template let-row="row" let-col="col">
           <input type="text" nz-input [(ngModel)]="row[col.field]"/>
         </ng-template>
@@ -16,7 +19,7 @@
       <vxe-column title="Role" [width]="333" field="role"></vxe-column>
       <vxe-column title="Age" [width]="66" field="age"></vxe-column>
       <vxe-colgroup title="详细信息">
-        <vxe-column title="Sex" [width]="66" field="sex"></vxe-column>
+        <vxe-column [hidden]="!shows[5]" title="Sex" [width]="66" field="sex"></vxe-column>
         <vxe-column title="Num" [width]="123" field="num"></vxe-column>
       </vxe-colgroup>
     </vxe-colgroup>
@@ -24,7 +27,7 @@
       <vxe-column title="Date" field="date" [width]="50"></vxe-column>
       <vxe-column title="Address" [width]="100" field="address"></vxe-column>
     </vxe-colgroup>
-    <vxe-column title="Address" [width]="100" field="address"></vxe-column>
+    <vxe-column [hidden]="!shows[3]" title="Address" [width]="100" field="address"></vxe-column>
   </vxe-table>
   <!-- <button nz-button (click)="onSubmit(form)">提交</button> -->
 </div>

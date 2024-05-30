@@ -5,6 +5,7 @@ import { VxeRowConfig, VxeVirtualConfig } from '../vxe-model';
 import { VxeTableComponent } from '../vxe-table/vxe-table.component';
 import { VxeTableService } from './../vxe-table.service';
 import { ChangeDetectorRef, Component, ElementRef, Input, Optional, SimpleChanges, ViewChild } from '@angular/core';
+import { VxeTableHeadComponent } from '../vxe-table-head/vxe-table-head.component';
 
 /**不建议单独使用 捆绑vxe-table*/
 @Component({
@@ -21,6 +22,7 @@ export class VxeFixedColumnComponent {
   scrollTop: number;
   @ViewChild('leftFixedContent') leftFixedContentRef: ElementRef<HTMLDivElement>;
   @ViewChild('rightFixedContent') rightFixedContentRef: ElementRef<HTMLDivElement>;
+  @ViewChild('rightHeadRef') rightHeadRef: VxeTableHeadComponent;
   headCol: VxeColumnGroupBase[] = [];
   content: VxeColumnComponent[] = [];
   scrollLeft: number;
@@ -31,9 +33,6 @@ export class VxeFixedColumnComponent {
   get gutterWidth() {
     return this.parent.gutterConfig.width;
   }
-  ngOnChanges(changes: SimpleChanges) {
-    const { scrollLeft, scrollTop } = changes;
-  }
   constructor(
     private vxeService: VxeTableService,
     private cdr: ChangeDetectorRef,
@@ -43,18 +42,15 @@ export class VxeFixedColumnComponent {
   ngAfterViewInit() {
     this.vxeService.scrollLeft$.subscribe(scrollLeft => {
       this.scrollLeft = scrollLeft;
-      this.cdr.detectChanges();
     });
     this.vxeService.headWidth$.subscribe(width => {
       this.headWidth = width;
     });
-    this.vxeService.tableColumn$.subscribe(columns => {
+    this.vxeService.tableInnerColumn$.subscribe(columns => {
       this.headCol = columns;
-      this.cdr.detectChanges();
     });
-    this.vxeService.tableHeaderColumn$.subscribe(columns => {
+    this.vxeService.tableHeaderLeafColumns$.subscribe(columns => {
       this.content = columns as VxeColumnComponent[];
-      this.cdr.detectChanges();
     });
     this.asyncScroll();
   }
