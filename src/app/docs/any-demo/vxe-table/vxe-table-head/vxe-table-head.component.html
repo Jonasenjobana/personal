@@ -1,7 +1,7 @@
 <div class="vxe-table-head" #tableHead>
   <table class="vxe-table" #tableRef [style.transform]="'translateX(' + transformX + 'px)'">
     <colgroup>
-          <col *ngFor="let item of colgroupLeaf" [style.width.px]="item.width || 50">
+          <col *ngFor="let item of colgroupLeaf" [style.width.px]="item.autoWidth || 50">
           <col *ngIf="scrollable" [style.width.px]="gutterWidth">
       </colgroup>
     <thead class="vxe-head">

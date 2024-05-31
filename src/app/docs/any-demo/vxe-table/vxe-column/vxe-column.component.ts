@@ -61,6 +61,5 @@ export class VxeColumnComponent extends VxeColumnGroupBase {
   override setWidth(width: number = 0) {
     // const currentWidth = this.vxeColumnTemplate?.elementRef.nativeElement.getBoundingClientRect().width || 0
     this.componentWidth = Math.max(width, 1);
-    this.cdr.markForCheck();
   }
 }

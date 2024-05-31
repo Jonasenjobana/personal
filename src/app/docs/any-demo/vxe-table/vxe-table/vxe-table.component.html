@@ -1,5 +1,5 @@
 <div class="vxe-table-wrapper" #tableWrapper>
-  <vxe-table-head [headCol]="headCol" (columnChange)="onColumnChange($event)"></vxe-table-head>
+  <vxe-table-head [wraperWidth]="wraperWidth" [headCol]="headCol" (columnChange)="onColumnChange($event)"></vxe-table-head>
   <vxe-table-content
     #tableContent
     [vxeWraperHeight]="tableHeight"
@@ -11,6 +11,7 @@
 </div>
 <!-- 冻结列 -->
 <vxe-fixed-column
+  [wraperWidth]="wraperWidth"
   [headCol]="headCol"
   [vxeWraperHeight]="tableHeight" 
   [inData]="inData"

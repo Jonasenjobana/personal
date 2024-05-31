@@ -78,6 +78,5 @@ export class VxeColgroupComponent extends VxeColumnGroupBase {
     });
     const currentWidth = this.vxeColumnTemplate?.elementRef.nativeElement.getBoundingClientRect().width || 0;
     this.componentWidth = Math.max(childWidth, width, currentWidth);
-    this.cdr.markForCheck();
   }
 }

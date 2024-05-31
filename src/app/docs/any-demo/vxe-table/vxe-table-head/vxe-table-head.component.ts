@@ -1,3 +1,4 @@
+import { group } from '@angular/animations';
 import {
   ChangeDetectorRef,
   Component,
@@ -14,15 +15,19 @@ import { VxeColumnGroup, VxeColumnGroups, VxeGutterConfig } from '../vxe-model';
 import { VxeColumnGroupBase } from '../vxe-base/vxe-column-group';
 import { VxeTableComponent } from '../vxe-table/vxe-table.component';
 import { combineLatest } from 'rxjs';
+import { head } from 'lodash';
 
+/**含表头合并处理 */
 @Component({
   selector: 'vxe-table-head',
   templateUrl: './vxe-table-head.component.html',
   styleUrls: ['./vxe-table-head.component.less']
 })
 export class VxeTableHeadComponent {
+  @Input() wraperWidth: number;
   @Input() headCol: VxeColumnGroups;
   @Input() fixed: 'left' | 'right';
+  /**同步滚动 */
   transformX: number = 0;
   tableHeaders: VxeColumnGroups[] = [];
   colgroupLeaf: VxeColumnGroups;
@@ -53,50 +58,31 @@ export class VxeTableHeadComponent {
     private elementRef: ElementRef<HTMLDivElement>,
     private cdr: ChangeDetectorRef,
     @Optional() private parent: VxeTableComponent
-  ) {
-    const { headWidth$, tableHeaderLeafColumns$ } = this.vxeService;
-    combineLatest([tableHeaderLeafColumns$, headWidth$]).subscribe(([columns, width]) => {
-      // 自动分配宽度
-      if (width !== 0) {
-        this.headWidth = width;
-        this.colWidth = columns.reduce((width, col) => col.width + width, 0);
-        if (this.colWidth < width) {
-          columns.forEach(col => {
-            col.autoWidth = col.width * (width / this.colWidth);
-          });
-        }
-      }
-    });
-  }
+  ) {}
 
   ngOnChanges(changes: SimpleChanges) {
-    const { headCol, fixed } = changes;
+    const { headCol, wraperWidth } = changes;
     if (headCol && headCol.currentValue) {
-      setTimeout(() => {
+      requestAnimationFrame(() => {
         this.initHeadColumns();
-      }, 50);
+      });
     }
   }
   initHeadColumns() {
     this.tableHeaders = [];
     this.transformTree(this.headCol);
+    this.updateAutoWidth(this.tableHeaders[0], this.wraperWidth);
     this.colgroupLeaf = this.tableHeaders
       .flat(1)
       .filter(el => el._isLeaf)
       .sort((a, b) => a._sortIndex - b._sortIndex);
     !this.fixed && this.vxeService.tableHeaderLeafColumns$.next(this.colgroupLeaf);
-    console.log(this.colgroupLeaf, this.headCol, this.tableHeaders)
+    console.log(this.tableHeaders, this.fixed);
     this.columnChange.emit(this.colgroupLeaf);
     setTimeout(() => {
       this.updateDom();
     });
   }
-  /**
-   * 1、 无宽度按比例分配
-   * 2、 父节点有宽度 子无 从剩余父分配
-   * 3、 父节点无宽度 子有 则父宽度等于子宽度
-   *
-   */
   /**层级遍历 展开树形结构group */
   transformTree(root: VxeColumnGroups) {
     const queue = [...root];
@@ -114,33 +100,61 @@ export class VxeTableHeadComponent {
         !column.hidden && (sortIndex = this.updateSortIndex(column, sortIndex));
         if (column.VXETYPE == 'vxe-colgroup' && column.children.length > 0) {
           const width = column.width;
-          const children = (column.children as VxeColumnGroups)
+          const children = column.children as VxeColumnGroups;
           children.forEach(el => {
             el.fixed = column.fixed;
             el._hidden = el.hidden || column.hidden;
           });
           const filterChildren = children.filter(el => !el._hidden);
           /**子项总宽度 */
-          const total = filterChildren.reduce((width, child) => child.width + width, 0)
+          const total = filterChildren.reduce((width, child) => child.width + width, 0);
           hiddenColumn = filterChildren.length == 0;
           queue.push(...filterChildren);
         }
         if (column.hidden || hiddenColumn) continue;
-        levelRoot.push({
-          ...(column as any),
+        Object.assign(column, {
           _level: currentLevel,
           _colspan: this.getLeafCount(column),
           _isLeaf: column.VXETYPE == 'vxe-column'
         });
+        levelRoot.push(column);
       }
       levelRoot.length > 0 && this.tableHeaders.push(levelRoot);
       levelRoot = [];
       currentLevel++;
     }
   }
-  /**更新子节点*/
-  updateChild() {
-
+  /**
+   * 1、 无宽度按比例分配
+   * 2、 父节点有宽度 子无 从剩余父分配
+   * 3、 父节点无宽度 子有 则父宽度等于子宽度
+   *
+   * 更新自动宽度
+   * @param header 表头
+   * @param wraperWidth 表头宽
+   */
+  updateAutoWidth(header: VxeColumnGroups, wraperWidth: number) {
+    if (header.length == 0) return 0;
+    // assign 已经分配了宽度的header
+    const assignChild = header.filter(el => el.width);
+    const assigWidth = assignChild.reduce((width, el) => el.width + width, 0);
+    const diff = wraperWidth - assigWidth;
+    // 当前集合的平均宽度 已经分配则是剩余宽度 若不够剩余宽度则仍然默认平均宽度
+    const avgWidth = (diff > 0 ? diff : wraperWidth) / (diff > 0 ?  header.length - assignChild.length : header.length);
+    header.forEach(td => {
+      td.autoWidth = td.width || avgWidth;
+      if (td.VXETYPE == 'vxe-colgroup') {
+        const childWidth = this.updateAutoWidth(td.children, td.autoWidth || avgWidth);
+        td.autoWidth = Math.min(childWidth, td.autoWidth);
+      }
+    });
+    return header.reduce((width, el) => el.autoWidth + width, 0);
+  }
+  updateLevelTreeWidth() {
+    this.tableHeaders.forEach((el, idx) => {
+      if (idx > 0) {
+      }
+    });
   }
   /**
    * 叶节点正确的顺序
@@ -164,9 +178,11 @@ export class VxeTableHeadComponent {
   getLeafCount(column: VxeColumnGroupBase) {
     if (column.VXETYPE == 'vxe-column') return 1;
     let count = 0;
-    column.children.filter(el => !el.hidden).forEach(el => {
-      count += this.getLeafCount(el);
-    });
+    column.children
+      .filter(el => !el.hidden)
+      .forEach(el => {
+        count += this.getLeafCount(el);
+      });
     return count;
   }
   ngAfterViewInit() {

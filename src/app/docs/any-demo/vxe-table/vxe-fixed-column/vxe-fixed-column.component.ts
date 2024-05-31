@@ -20,6 +20,7 @@ export class VxeFixedColumnComponent {
   @Input() inData: any;
   @Input() vxeWraperHeight: number;
   @Input() headCol: VxeColumnGroupBase[] = [];
+  @Input() wraperWidth: number
   @ViewChild('leftFixedContent') leftFixedContentRef: ElementRef<HTMLDivElement>;
   @ViewChild('rightFixedContent') rightFixedContentRef: ElementRef<HTMLDivElement>;
   @ViewChild('rightHeadRef') rightHeadRef: VxeTableHeadComponent;

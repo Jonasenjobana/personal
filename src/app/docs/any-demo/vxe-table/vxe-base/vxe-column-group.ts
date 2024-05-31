@@ -15,6 +15,8 @@ export abstract class VxeColumnGroupBase {
   @Input() hidden: boolean = false;
   /**列排序 同层级比较 */
   @Input() sortNumber: number
+  /**树节点 */
+  @Input() treeNode: boolean
   @ViewChild('vxeTemplate') vxeColumnTemplate: TemplateRef<any>;
   /**自动计算宽度 */
   autoWidth: number

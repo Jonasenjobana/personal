@@ -9,19 +9,19 @@
   <button (click)="shows[6] = !shows[6]">{{shows[6] ? '隐藏' : '显示'}}详细信息列</button>
   <vxe-table [inData]="data" [maxHeight]="300" (checkChange)="onCheckChange($event)" [rowConfig]="{ isHover: true }" [virtualConfig]="{itemHeight: 33}">
     <vxe-column type="seq" [width]="100" fixed="left"></vxe-column>
-    <vxe-colgroup [hidden]="!shows[0]" title="基本信息" [width]="100" align="center" fixed="left">
-      <vxe-column [hidden]="!shows[4]" title="Name" field="name"[width]="100">
+    <vxe-colgroup [hidden]="!shows[0]" title="基本信息" align="center" fixed="left">
+      <vxe-column [hidden]="!shows[4]" title="Name" field="name" [width]="233">
         <ng-template let-row="row" let-col="col">
           <input type="text" nz-input [(ngModel)]="row[col.field]"/>
         </ng-template>
       </vxe-column>
     </vxe-colgroup>
-    <vxe-colgroup [hidden]="!shows[1]" title="更多信息">
-      <vxe-column title="Role" [width]="333" field="role"></vxe-column>
-      <vxe-column title="Age" [width]="66" field="age"></vxe-column>
-      <vxe-colgroup [hidden]="!shows[6]" title="详细信息">
-        <vxe-column [hidden]="!shows[5]" title="Sex" [width]="66" field="sex"></vxe-column>
-        <vxe-column title="Num" [width]="123" field="num"></vxe-column>
+    <vxe-colgroup [hidden]="!shows[1]" title="更多信息" [width]="500">
+      <vxe-column title="Role"  field="role"></vxe-column>
+      <vxe-column title="Age"  field="age"></vxe-column>
+      <vxe-colgroup [hidden]="!shows[6]" title="详细信息"  [width]="100">
+        <vxe-column [hidden]="!shows[5]" title="Sex" field="sex" [width]="60"></vxe-column>
+        <vxe-column title="Num" field="num"></vxe-column>
       </vxe-colgroup>
     </vxe-colgroup>
     <vxe-colgroup [hidden]="!shows[2]" title="额外信息" [width]="150" fixed="right">

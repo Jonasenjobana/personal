@@ -66,23 +66,23 @@ export class VxeTableComponent {
     this.colgroupComponentList = colgroup.toArray();
     this.resetTable();
   }
-  columnComponentList: VxeColumnComponent[]
-  colgroupComponentList: VxeColgroupComponent[]
+  columnComponentList: VxeColumnComponent[];
+  colgroupComponentList: VxeColgroupComponent[];
+  wraperWidth: number = 0;
   /**页脚 含分页 等 */
   @ViewChild('tableFooter') tableFooter: ElementRef<HTMLDivElement>;
   @Output() checkChange: EventEmitter<any> = new EventEmitter();
   public headCol: VxeColumnGroups;
   public contenCol: VxeColumnComponent[];
   public tableHeight: number;
-  public headHeight: number;
-  public headWidth: number;
   public scrollLeft: number;
   constructor(
     private elementRef: ElementRef<HTMLDivElement>,
     public vxeService: VxeTableService,
     private renderer: Renderer2,
     private cdr: ChangeDetectorRef
-  ) {}
+  ) {
+  }
   ngOnChanges(changes: SimpleChanges) {
     const { inData, rowConfig, minHeight, maxHeight, gutterConfig, treeConfig } = changes;
     if (inData) {
@@ -103,12 +103,11 @@ export class VxeTableComponent {
     this.renderer.setStyle(this.elementRef.nativeElement, 'height', this.tableHeight + 'px');
   }
   ngAfterViewInit() {
+    const el = this.elementRef.nativeElement;
+    this.wraperWidth = el.offsetWidth
     this.vxeService.headHeight$.subscribe(height => {
       if (!height) return;
       this.setTableHeight();
-    });
-    this.vxeService.headWidth$.subscribe(width => {
-      this.headWidth = width;
     });
     this.vxeService.scrollLeft$.subscribe(scrollLeft => {
       this.scrollLeft = scrollLeft;
@@ -126,6 +125,5 @@ export class VxeTableComponent {
     // 保证节点顺序
     this.headCol = this.vxeService.getDomFlow([...groups, ...columns]);
     this.vxeService.tableInnerColumn$.next(this.headCol);
-    // this.cdr.markForCheck();
   }
 }

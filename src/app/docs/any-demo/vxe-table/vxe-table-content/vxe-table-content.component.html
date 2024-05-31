@@ -11,7 +11,7 @@
   >
     <table class="vxe-table" #vxeTable>
       <colgroup>
-        <col *ngFor="let item of contentCol" [style.width.px]="item.width || 50" />
+        <col *ngFor="let item of contentCol" [style.width.px]="item.autoWidth || 50" />
       </colgroup>
       <tbody class="vxe-body">
         <!-- 基础表格 -->
@@ -43,7 +43,7 @@
   </cdk-virtual-scroll-viewport>
   <table *ngIf="!isVirtual" #vxeTable class="vxe-table" [style.transform]="'translateX(' + transformX + 'px)'">
     <colgroup>
-      <col *ngFor="let item of contentCol" [style.width.px]="item.width || 50" />
+      <col *ngFor="let item of contentCol" [style.width.px]="item.autoWidth || 50" />
     </colgroup>
     <tbody class="vxe-body" *ngIf="!virtualConfig">
       <!-- 基础表格 -->
