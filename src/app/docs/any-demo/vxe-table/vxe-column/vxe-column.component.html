@@ -4,7 +4,7 @@
     <span>
       <ng-container [ngSwitch]="type">
         <ng-container *ngSwitchCase="'checkbox'">
-          <label nz-checkbox [(ngModel)]="isCheck"></label>
+          <label nz-checkbox [(ngModel)]="isCheck" (ngModelChange)="checkboxChange($event)"></label>
         </ng-container>
         <ng-container *ngSwitchCase="'radio'"> </ng-container>
         <ng-container *ngSwitchCase="'expand'"> </ng-container>

@@ -13,6 +13,7 @@ import {
 import { VxeTableService } from '../vxe-table.service';
 import { VxeColgroupComponent } from '../vxe-colgroup/vxe-colgroup.component';
 import { VxeColumnGroupBase } from '../vxe-base/vxe-column-group';
+import { VxeTableComponent } from '../vxe-table/vxe-table.component';
 
 @Component({
   selector: 'vxe-column',
@@ -31,12 +32,11 @@ export class VxeColumnComponent extends VxeColumnGroupBase {
     @Optional() protected override vxeService: VxeTableService,
     public override element: ElementRef,
     @Optional() public parent: VxeColgroupComponent,
+    @Optional() public table: VxeTableComponent,
     private cdr: ChangeDetectorRef
   ) {
     super(vxeService, element);
     if (!vxeService) Error('error: vxeService is null');
-    vxeService.dataChange$.subscribe(data => {
-    });
   }
   ngOnChanges(changes: SimpleChanges) {
     const { fixed, width, hidden } = changes;
@@ -57,6 +57,10 @@ export class VxeColumnComponent extends VxeColumnGroupBase {
   }
   ngAfterViewInit() {
     this.setWidth();
+  }
+  checkboxChange($event) {
+    const {columnConfig = {}} = this.table, {} = columnConfig
+    this.vxeService.headEvent$.next({type: 'checkbox', column: this, event: $event})
   }
   override setWidth(width: number = 0) {
     // const currentWidth = this.vxeColumnTemplate?.elementRef.nativeElement.getBoundingClientRect().width || 0

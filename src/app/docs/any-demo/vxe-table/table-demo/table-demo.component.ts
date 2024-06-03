@@ -34,7 +34,7 @@ export class TableDemoComponent {
     }, 3000);
   }
   onCheckChange($event) {
-    
+    console.log('外部',$event)
   }
   onButtonClick(row, col) {
     console.log(row, col);

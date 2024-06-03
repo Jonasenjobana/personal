@@ -41,6 +41,11 @@ const icons: IconDefinition[] = [ SortAscendingOutline, SortDescendingOutline ];
     NzInputModule,
     NzButtonModule,
     NzIconModule.forRoot(icons)
+  ],
+  exports: [
+    VxeColumnComponent,
+    VxeTableComponent,
+    VxeColgroupComponent,
   ]
 })
 export class VxeTableModule { }

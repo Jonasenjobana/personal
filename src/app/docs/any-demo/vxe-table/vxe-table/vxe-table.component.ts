@@ -1,5 +1,4 @@
 import {
-  ChangeDetectionStrategy,
   ChangeDetectorRef,
   Component,
   ContentChildren,
@@ -11,13 +10,13 @@ import {
   Renderer2,
   SimpleChanges,
   ViewChild,
-  forwardRef
 } from '@angular/core';
 import { VxeTableService } from '../vxe-table.service';
 import { VxeColumnComponent } from '../vxe-column/vxe-column.component';
 import {
   VxeColumnConfig,
   VxeColumnGroups,
+  VxeContentEvent,
   VxeGutterConfig,
   VxePageConfig,
   VxeRowConfig,
@@ -73,7 +72,7 @@ export class VxeTableComponent {
   @ViewChild('tableFooter') tableFooter: ElementRef<HTMLDivElement>;
   @Output() checkChange: EventEmitter<any> = new EventEmitter();
   public headCol: VxeColumnGroups;
-  public contenCol: VxeColumnComponent[];
+  public contentCol: VxeColumnComponent[];
   public tableHeight: number;
   public scrollLeft: number;
   constructor(
@@ -82,6 +81,9 @@ export class VxeTableComponent {
     private renderer: Renderer2,
     private cdr: ChangeDetectorRef
   ) {
+    this.vxeService.contentEvent$.subscribe(($event: VxeContentEvent) => {
+      this.contentEvent($event);
+    })
   }
   ngOnChanges(changes: SimpleChanges) {
     const { inData, rowConfig, minHeight, maxHeight, gutterConfig, treeConfig } = changes;
@@ -114,10 +116,17 @@ export class VxeTableComponent {
       this.cdr.detectChanges();
     });
   }
-  ngAfterContentInit() {
+  contentEvent($event: VxeContentEvent) {
+    const {type, event, row} = $event;
+    switch(type) {
+      case 'checkbox':
+        this.checkChange.emit([event, row, this.inData.filter(el => el._check)]);
+        break;
+    }
   }
   onColumnChange(columns: VxeColumnGroups) {
-    this.contenCol = columns.filter(el => el.VXETYPE == 'vxe-column' && !el.hidden) as VxeColumnComponent[];
+    this.contentCol = columns.filter(el => el.VXETYPE == 'vxe-column' && !el.hidden) as VxeColumnComponent[];
+    this.cdr.markForCheck();
   }
   resetTable() {
     const groups = this.colgroupComponentList || [];

@@ -15,61 +15,49 @@
       </colgroup>
       <tbody class="vxe-body">
         <!-- 基础表格 -->
-        <tr
-          *cdkVirtualFor="let item of inData; let index = index"
-          [class.hover]="isHover && index == hoverIndex"
-          (mouseenter)="onMouseEnter(index)"
-          (mouseleave)="onMouseLeave()"
-        >
-          <td *ngFor="let col of contentCol" [style.text-align]="col.align">
-            <ng-container [ngSwitch]="col.type">
-              <ng-container *ngSwitchCase="'checkbox'"></ng-container>
-              <ng-container *ngSwitchCase="'seq'"
-                ><span>{{ index + 1 }}</span></ng-container
-              >
-              <ng-container *ngSwitchDefault>
-                <ng-template
-                  *ngIf="col.template"
-                  [ngTemplateOutlet]="col.template"
-                  [ngTemplateOutletContext]="{ row: item, col: col }"
-                ></ng-template>
-                <span *ngIf="!col.template">{{ item[col.field] }}</span>
-              </ng-container>
-            </ng-container>
-          </td>
-        </tr>
+        <ng-template *cdkVirtualFor="let item of inData; let index = index" [ngTemplateOutlet]="baseTableTemplate" [ngTemplateOutletContext]="{item, index}"></ng-template>
       </tbody>
     </table>
   </cdk-virtual-scroll-viewport>
-  <table *ngIf="!isVirtual" #vxeTable class="vxe-table" [style.transform]="'translateX(' + transformX + 'px)'">
-    <colgroup>
-      <col *ngFor="let item of contentCol" [style.width.px]="item.autoWidth || 50" />
-    </colgroup>
-    <tbody class="vxe-body" *ngIf="!virtualConfig">
-      <!-- 基础表格 -->
-      <tr
-        *ngFor="let item of inData; let index = index"
-        [class.hover]="isHover && index == hoverIndex"
-        (mouseenter)="onMouseEnter(index)"
-        (mouseleave)="onMouseLeave()"
-      >
-        <td *ngFor="let col of contentCol" [style.text-align]="col.align">
-          <ng-container [ngSwitch]="col.type">
-            <ng-container *ngSwitchCase="'checkbox'"></ng-container>
-            <ng-container *ngSwitchCase="'seq'"
-              ><span>{{ index + 1 }}</span></ng-container
-            >
-            <ng-container *ngSwitchDefault>
-              <ng-template
-                *ngIf="col.template"
-                [ngTemplateOutlet]="col.template"
-                [ngTemplateOutletContext]="{ row: item, col: col }"
-              ></ng-template>
-              <span *ngIf="!col.template">{{ item[col.field] }}</span>
-            </ng-container>
-          </ng-container>
-        </td>
-      </tr>
-    </tbody>
-  </table>
+  <ng-container *ngIf="!isVirtual">
+    <table *ngIf="tableModel == 'normal'" #vxeTable class="vxe-table" [style.transform]="'translateX(' + transformX + 'px)'">
+      <colgroup>
+        <col *ngFor="let item of contentCol" [style.width.px]="item.autoWidth || 50" />
+      </colgroup>
+      <tbody class="vxe-body" *ngIf="!virtualConfig">
+        <!-- 基础表格 -->
+        <ng-template *ngFor="let item of inData; let index = index" [ngTemplateOutlet]="baseTableTemplate" [ngTemplateOutletContext]="{item, index}"></ng-template>
+      </tbody>
+    </table>
+    <!-- 树形表格 -->
+    <vxe-tree-table *ngIf="tableModel == 'tree'"></vxe-tree-table>
+  </ng-container>
 </ng-container>
+<ng-template #baseTableTemplate let-item="item" let-index="index">
+   <!-- 基础表格 -->
+   <tr
+   [class.hover]="isHover && index == hoverIndex"
+   [class.selected]="item._check"
+   (mouseenter)="onMouseEnter(index)"
+   (mouseleave)="onMouseLeave()"
+ >
+   <td *ngFor="let col of contentCol" [style.text-align]="col.align">
+     <ng-container [ngSwitch]="col.type">
+       <ng-container *ngSwitchCase="'checkbox'">
+         <label nz-checkbox [(ngModel)]="item._check" (ngModelChange)="checkboxChange($event, col, item)"></label>
+       </ng-container>
+       <ng-container *ngSwitchCase="'seq'"
+         ><span>{{ index + 1 }}</span></ng-container
+       >
+       <ng-container *ngSwitchDefault>
+         <ng-template
+           *ngIf="col.template"
+           [ngTemplateOutlet]="col.template"
+           [ngTemplateOutletContext]="{ row: item, col: col }"
+         ></ng-template>
+         <span *ngIf="!col.template">{{ item[col.field] }}</span>
+       </ng-container>
+     </ng-container>
+   </td>
+ </tr>
+</ng-template>

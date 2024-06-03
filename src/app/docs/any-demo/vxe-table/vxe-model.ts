@@ -60,3 +60,14 @@ export interface VxeGutterConfig {
     width: number
     height: number
 }
+export interface VxeHeadEvent {
+    type: 'checkbox' | 'radio' | 'expand' | 'sort'
+    column: VxeColumnGroup
+    event: any;
+}
+export interface VxeContentEvent {
+    type: 'checkbox' | 'radio' | 'expand' | 'sort'
+    column: VxeColumnGroup
+    event: any;
+    row: any;
+}

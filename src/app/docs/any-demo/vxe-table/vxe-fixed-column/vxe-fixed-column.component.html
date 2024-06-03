@@ -1,37 +1,39 @@
 <!-- 冻结列 -->
-<div class="vxe-table-fixed-wraper" *ngIf="fixedColumn.hasFixed && vxeWraperHeight">
+<div class="vxe-table-fixed-wraper" *ngIf="(fixedRightWidth || fixedLeftWidth) && vxeWraperHeight">
   <div
     class="vxe-fixed-left"
-    [style.width.px]="fixedColumn.leftWidth"
-    *ngIf="fixedColumn.left.length > 0"
+    [style.width.px]="fixedLeftWidth"
+    *ngIf="fixedLeftWidth > 0"
     [style.visibility]="scrollLeft == 0 ? 'hidden' : 'visible'"
   >
     <vxe-table-head #leftHeadRef [wraperWidth]="wraperWidth" [headCol]="headCol" [fixed]="'left'"></vxe-table-head>
     <vxe-table-content
       #leftFixedContent
+      [tableModel]="tableModel"
       [vxeWraperHeight]="vxeWraperHeight"
       [inData]="inData"
       [fixed]="'left'"
       [style.height.px]="contentHeight"
-      [contentCol]="content"
+      [contentCol]="contentCol"
       [rowConfig]="rowConfig"
       [virtualConfig]="virtualConfig"
     ></vxe-table-content>
   </div>
   <div
     class="vxe-fixed-right"
-    *ngIf="fixedColumn.right.length > 0"
+    *ngIf="fixedRightWidth > 0"
     [style.visibility]="scrollLeft >= rightHeadRef.scrollWidth - headWidth ? 'hidden' : 'visible'"
-    [style.width.px]="fixedColumn.rightWidth"
+    [style.width.px]="fixedRightWidth"
   >
     <vxe-table-head #rightHeadRef [wraperWidth]="wraperWidth" [headCol]="headCol" [fixed]="'right'"></vxe-table-head>
     <vxe-table-content
       #rightFixedContent
       [inData]="inData"
+      [tableModel]="tableModel"
+      [contentCol]="contentCol"
       [vxeWraperHeight]="vxeWraperHeight"
       [fixed]="'right'"
       [style.height.px]="contentHeight"
-      [contentCol]="content"
       [rowConfig]="rowConfig"
       [virtualConfig]="virtualConfig"
     ></vxe-table-content>

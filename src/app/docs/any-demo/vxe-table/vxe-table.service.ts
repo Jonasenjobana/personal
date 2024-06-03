@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Subject } from 'rxjs';
 import { VxeColumnComponent } from './vxe-column/vxe-column.component';
-import { VxeColumnGroup, VxeColumnGroups, VxeGutterConfig } from './vxe-model';
+import { VxeColumnGroup, VxeColumnGroups, VxeContentEvent, VxeGutterConfig, VxeHeadEvent } from './vxe-model';
 import { isNotEmpty } from 'src/app/shared/utils/common.util';
 
 /**
@@ -27,6 +27,10 @@ export class VxeTableService {
   /**表头 长宽属性 */
   public headWidth$: BehaviorSubject<number> = new BehaviorSubject(0);
   public headHeight$: BehaviorSubject<number> = new BehaviorSubject(0);
+  /**表头事件 */
+  public headEvent$: Subject<VxeHeadEvent> = new Subject();
+  /**内容事件 */
+  public contentEvent$: Subject<VxeContentEvent> = new Subject();
   /**滚动槽默认长宽 */
   public gutterConfig: VxeGutterConfig = {
     width: 8,
@@ -64,12 +68,12 @@ class FixedColumn {
   }
   get rightWidth() {
     return this.right.filter(el => !el.hidden).reduce((width, el) => {
-      return (el.width || el.element.nativeElement.getBoundingClientRect().width) + width
+      return el.autoWidth + width
     }, 0)
   }
   get leftWidth() {
     return this.left.filter(el => !el.hidden).reduce((width, el) => {
-      return (el.width || el.element.nativeElement.getBoundingClientRect().width) + width
+      return el.autoWidth + width
     }, 0)
   }
 

@@ -11,7 +11,7 @@ import {
 } from '@angular/core';
 import { VxeColumnComponent } from '../vxe-column/vxe-column.component';
 import { VxeTableService } from '../vxe-table.service';
-import { VxeColumnGroups, VxeGutterConfig, VxeRowConfig, VxeTableModel, VxeVirtualConfig } from '../vxe-model';
+import { VxeColumnGroups, VxeGutterConfig, VxeHeadEvent, VxeRowConfig, VxeTableModel, VxeVirtualConfig } from '../vxe-model';
 import { VxeTableComponent } from '../vxe-table/vxe-table.component';
 import { Subject, fromEvent, takeUntil } from 'rxjs';
 import { CdkVirtualScrollViewport } from '@angular/cdk/scrolling';
@@ -49,7 +49,7 @@ export class VxeTableContentComponent {
   }
   isHover: boolean = false;
   get isVirtual() {
-    return !!this.virtualConfig;
+    return !!this.virtualConfig && this.tableModel !== 'tree';
   }
   virtualContentRef: CdkVirtualScrollViewport;
   hoverIndex: number = -1;
@@ -72,12 +72,27 @@ export class VxeTableContentComponent {
     this.vxeService.headHeight$.subscribe(height => {
       this.headHeight = height;
     });
-    this.vxeService.headWidth$.subscribe(width => {
-      this.headWidth = width;
-    });
     this.vxeService.scrollTop$.subscribe(scrollTop => {
       this.onScroll(scrollTop);
     });
+    this.vxeService.headEvent$.subscribe(($event: VxeHeadEvent) => {
+      if (!this.fixed) {
+        this.onHeadEvent($event)
+      }
+    })
+  }
+  onHeadEvent($event: VxeHeadEvent) {
+    const {type, event, column} = $event;
+    switch(type) {
+      case 'checkbox':
+        this.inData.forEach(element => {
+          element._check = event
+        });
+        this.vxeService.contentEvent$.next({
+          type: 'checkbox', column, event, row: column
+        });
+        break;
+    }
   }
   ngOnChanges(changes: SimpleChanges) {
     const { rowConfig, virtualConfig, inData, vxeWraperHeight, contentCol } = changes;
@@ -148,6 +163,15 @@ export class VxeTableContentComponent {
       const virtualEl = this.virtualContentRef.elementRef.nativeElement;
       virtualEl.scrollLeft = virtualEl.scrollWidth - virtualEl.clientWidth;
     }
+  }
+  checkboxChange($event, col, item) {
+    col.isCheck = false;
+    this.vxeService.contentEvent$.next({
+      type: 'checkbox',
+      column: col,
+      row: item,
+      event: $event
+    })
   }
   onMouseEnter(idx: number) {
     this.vxeService.hoverIndex$.next(idx);

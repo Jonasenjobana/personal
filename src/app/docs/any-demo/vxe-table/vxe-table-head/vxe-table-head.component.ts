@@ -38,18 +38,9 @@ export class VxeTableHeadComponent {
   scrollWidth: number;
   scrollable: boolean;
   scrollLeft: number;
-  /**预设宽度 */
-  colWidth: number;
   /**实际宽度 */
   headWidth: number;
-  get gutterWidth() {
-    const { width } = this.gutterConfig;
-    if (!this.colWidth) return width;
-    if (this.colWidth < this.headWidth) {
-      return width / (this.headWidth / this.colWidth);
-    }
-    return width;
-  }
+  gutterWidth: number
   get gutterConfig(): VxeGutterConfig {
     return this.vxeService.gutterConfig;
   }
@@ -58,7 +49,8 @@ export class VxeTableHeadComponent {
     private elementRef: ElementRef<HTMLDivElement>,
     private cdr: ChangeDetectorRef,
     @Optional() private parent: VxeTableComponent
-  ) {}
+  ) {
+  }
 
   ngOnChanges(changes: SimpleChanges) {
     const { headCol, wraperWidth } = changes;
@@ -76,12 +68,21 @@ export class VxeTableHeadComponent {
       .flat(1)
       .filter(el => el._isLeaf)
       .sort((a, b) => a._sortIndex - b._sortIndex);
-    !this.fixed && this.vxeService.tableHeaderLeafColumns$.next(this.colgroupLeaf);
-    console.log(this.tableHeaders, this.fixed);
     this.columnChange.emit(this.colgroupLeaf);
     setTimeout(() => {
       this.updateDom();
+      this.setGutterWidth();
     });
+  }
+  /**滚动槽 宽度 */
+  setGutterWidth() {
+    const { width } = this.gutterConfig;
+    this.gutterWidth = width;
+    if (!this.colgroupLeaf) return;
+    const colWidth = this.colgroupLeaf.reduce((width, el) => el.autoWidth + width, 0);
+    if (colWidth !== 0 && colWidth < this.headWidth) {
+      this.gutterWidth =  width / (this.headWidth / colWidth);
+    }
   }
   /**层级遍历 展开树形结构group */
   transformTree(root: VxeColumnGroups) {
@@ -99,15 +100,12 @@ export class VxeTableHeadComponent {
         const column = queue.shift();
         !column.hidden && (sortIndex = this.updateSortIndex(column, sortIndex));
         if (column.VXETYPE == 'vxe-colgroup' && column.children.length > 0) {
-          const width = column.width;
           const children = column.children as VxeColumnGroups;
           children.forEach(el => {
             el.fixed = column.fixed;
             el._hidden = el.hidden || column.hidden;
           });
           const filterChildren = children.filter(el => !el._hidden);
-          /**子项总宽度 */
-          const total = filterChildren.reduce((width, child) => child.width + width, 0);
           hiddenColumn = filterChildren.length == 0;
           queue.push(...filterChildren);
         }
@@ -217,6 +215,8 @@ export class VxeTableHeadComponent {
         this.vxeService.headHeight$.next(headHeight);
         this.vxeService.headWidth$.next(headWidth);
       }
+      this.headWidth = headWidth;
+      this.setGutterWidth();
     });
   }
 }

@@ -7,11 +7,12 @@ export abstract class VxeColumnGroupBase {
   abstract readonly VXETYPE: 'vxe-column' | 'vxe-colgroup';
   @Input() field: string;
   @Input() width: number;
+  @Input() maxWidth: number;
   /**固定列位置需要在首尾 */
   @Input() fixed: 'left' | 'right';
   @Input() title: string;
   @Input() align: 'left' | 'right' | 'center' = 'center';
-  /**控制是否隐藏 不建议使用*ngif进行控制 会导致vxe-table读取投影顺序出现错误 hidden仍然保留dom结构 */
+  /**控制是否隐藏 不使用*ngIf进行控制 会导致vxe-table读取投影顺序出现错误 hidden仍然保留dom结构 */
   @Input() hidden: boolean = false;
   /**列排序 同层级比较 */
   @Input() sortNumber: number

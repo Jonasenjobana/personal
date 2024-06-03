@@ -4,8 +4,9 @@
     #tableContent
     [vxeWraperHeight]="tableHeight"
     [inData]="inData"
-    [contentCol]="contenCol"
+    [contentCol]="contentCol"
     [rowConfig]="rowConfig"
+    [tableModel]="tableModel"
     [virtualConfig]="virtualConfig"
   ></vxe-table-content>
 </div>
@@ -13,9 +14,11 @@
 <vxe-fixed-column
   [wraperWidth]="wraperWidth"
   [headCol]="headCol"
+  [contentCol]="contentCol"
   [vxeWraperHeight]="tableHeight" 
   [inData]="inData"
   [rowConfig]="rowConfig"
+  [tableModel]="tableModel"
   [virtualConfig]="virtualConfig"
 ></vxe-fixed-column>
 <div class="vxe-table-footer" #tableFooter>

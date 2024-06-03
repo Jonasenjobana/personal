@@ -1,13 +1,9 @@
-:host {
-    position: relative;
-    display: block;
-    height: 100%;
-    width: 100%;
-}
+
 .vxe-table-wrapper {
     position: relative;
 }
 .vxe-table {
+    
     table-layout: fixed;
     .vxe-head {
         background-color: #f8f8f9;
@@ -30,7 +26,7 @@
     }
     .vxe-body {
         overflow: auto;
-        tr.hover {
+        tr.hover,tr.selected {
             td {
                 background-color: #f5f7fa;
             }
