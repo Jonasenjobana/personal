@@ -11,14 +11,13 @@
       #leftFixedContent
       [tableModel]="tableModel"
       [vxeWraperHeight]="vxeWraperHeight"
-      [inData]="inData"
+      [vData]="vData"
       [fixed]="'left'"
       [style.height.px]="contentHeight"
       [contentCol]="contentCol"
       [rowConfig]="rowConfig"
       [virtualConfig]="virtualConfig"
       [treeConfig]="treeConfig"
-      [treeData]="treeData"
     ></vxe-table-content>
   </div>
   <div
@@ -30,7 +29,7 @@
     <vxe-table-head #rightHeadRef [wraperWidth]="wraperWidth" [headCol]="headCol" [fixed]="'right'"></vxe-table-head>
     <vxe-table-content
       #rightFixedContent
-      [inData]="inData"
+      [vData]="vData"
       [tableModel]="tableModel"
       [contentCol]="contentCol"
       [vxeWraperHeight]="vxeWraperHeight"
@@ -39,7 +38,6 @@
       [rowConfig]="rowConfig"
       [virtualConfig]="virtualConfig"
       [treeConfig]="treeConfig"
-      [treeData]="treeData"
     ></vxe-table-content>
   </div>
 </div>

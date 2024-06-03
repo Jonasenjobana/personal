@@ -11,7 +11,7 @@ import {
 } from '@angular/core';
 import { VxeColumnComponent } from '../vxe-column/vxe-column.component';
 import { VxeTableService } from '../vxe-table.service';
-import { VxeColumnGroup, VxeColumnGroups, VxeContentEvent, VxeGutterConfig, VxeHeadEvent, VxeRowConfig, VxeTableModel, VxeTreeConfig, VxeVirtualConfig } from '../vxe-model';
+import { VxeColumnGroup, VxeColumnGroups, VxeContentEvent, VxeData, VxeGutterConfig, VxeHeadEvent, VxeRowConfig, VxeTableModel, VxeTreeConfig, VxeVirtualConfig } from '../vxe-model';
 import { VxeTableComponent } from '../vxe-table/vxe-table.component';
 import { Subject, fromEvent, takeUntil, filter } from 'rxjs';
 import { CdkVirtualScrollViewport } from '@angular/cdk/scrolling';
@@ -33,8 +33,7 @@ export class VxeTableContentComponent {
   @Input() rowConfig: Partial<VxeRowConfig>;
   @Input() virtualConfig: Partial<VxeVirtualConfig>;
   @Input() treeConfig: Partial<VxeTreeConfig>;
-  @Input() inData: any;
-  @Input() treeData: any;
+  @Input() vData: VxeData[];
   @Input() vxeWraperHeight: number;
   @Input() minHeight: number;
   @Input() maxHeight: number;
@@ -51,7 +50,7 @@ export class VxeTableContentComponent {
   }
   isHover: boolean = false;
   get isVirtual() {
-    return !!this.virtualConfig && this.tableModel !== 'tree';
+    return !!this.virtualConfig;
   }
   virtualContentRef: CdkVirtualScrollViewport;
   hoverIndex: number = -1;
@@ -60,6 +59,8 @@ export class VxeTableContentComponent {
   gutterHeight: number = 0;
   contentHeight: number = 0;
   transformX: number = 0;
+  /**vData 过滤后的树形数据 */
+  treeData: VxeData[];
   destroy$: Subject<void> = new Subject();
   constructor(
     private vxeService: VxeTableService,
@@ -82,12 +83,18 @@ export class VxeTableContentComponent {
         this.onHeadEvent($event)
       }
     })
+    this.vxeService.contentEvent$.subscribe(($event: VxeContentEvent) => {
+      const {type} = $event;
+      if (type == 'expand') {
+        this.treeData = this.vData.filter(item => item._parent ? item._parent._expanded && !item._parent._hidden : true);
+      }
+    })
   }
   onHeadEvent($event: VxeHeadEvent) {
     const {type, event, column} = $event;
     switch(type) {
       case 'checkbox':
-        this.inData.forEach(element => {
+        this.vData.forEach(element => {
           element._check = event
         });
         this.vxeService.contentEvent$.next({
@@ -97,13 +104,14 @@ export class VxeTableContentComponent {
     }
   }
   ngOnChanges(changes: SimpleChanges) {
-    const { rowConfig, virtualConfig, inData, vxeWraperHeight, contentCol, treeConfig } = changes;
+    const { rowConfig, virtualConfig, vData, vxeWraperHeight, contentCol, treeConfig } = changes;
     if (rowConfig && rowConfig.currentValue) {
       const { isHover = false } = this.rowConfig;
       this.isHover = isHover;
     }
-    if (inData) {
-      !inData.firstChange && this.handleFixed();
+    if (vData) {
+      !vData.firstChange && this.handleFixed();
+      this.treeData = this.vData.filter(item => item._parent ? item._parent._expanded && !item._parent._hidden : true);
     }
     if (vxeWraperHeight && this.vxeWraperHeight) {
       this.updateDom();
@@ -118,6 +126,7 @@ export class VxeTableContentComponent {
   }
   expandNode(item: any, col: VxeColumnGroup) {
     item._expanded = !item._expanded;
+    item._children.forEach(el => el._hidden = !item._expanded);
     this.vxeService.contentEvent$.next({
       type: 'expand',
       column: col,
@@ -148,6 +157,9 @@ export class VxeTableContentComponent {
           this.vxeService.scrollTop$.next(scrollTop);
         });
     }
+  }
+  trackByFn(index: number, item: VxeData) {
+    return item['id'];
   }
   onScroll(scrollTop: number) {
     /**非虚拟滚动监听 */

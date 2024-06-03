@@ -31,8 +31,6 @@ export class VxeColumnComponent extends VxeColumnGroupBase {
   constructor(
     @Optional() protected override vxeService: VxeTableService,
     public override element: ElementRef,
-    @Optional() public parent: VxeColgroupComponent,
-    @Optional() public table: VxeTableComponent,
     private cdr: ChangeDetectorRef
   ) {
     super(vxeService, element);
@@ -59,7 +57,6 @@ export class VxeColumnComponent extends VxeColumnGroupBase {
     this.setWidth();
   }
   checkboxChange($event) {
-    const {columnConfig = {}} = this.table, {} = columnConfig
     this.vxeService.headEvent$.next({type: 'checkbox', column: this, event: $event})
   }
   override setWidth(width: number = 0) {

@@ -5,7 +5,7 @@
     #virtualContent
     class="vxe-virtual-content"
     [style.height.px]="contentHeight"
-    [minBufferPx]="virtualConfig.minBuffer || 600"
+    [minBufferPx]="virtualConfig.minBuffer || 300"
     [maxBufferPx]="virtualConfig.maxBuffer || 600"
     [itemSize]="virtualConfig.itemHeight || 30"
   >
@@ -15,11 +15,21 @@
       </colgroup>
       <tbody class="vxe-body">
         <!-- 基础表格 -->
-        <ng-template
-          *cdkVirtualFor="let item of inData; let index = index"
-          [ngTemplateOutlet]="baseTableTemplate"
-          [ngTemplateOutletContext]="{item, index}"
-        ></ng-template>
+        <ng-container *ngIf="tableModel == 'normal'">
+          <ng-template
+            *cdkVirtualFor="let item of vData; let index = index"
+            [ngTemplateOutlet]="baseTableTemplate"
+            [ngTemplateOutletContext]="{item, index}"
+          ></ng-template>
+        </ng-container>
+        <!-- 树形表格 -->
+        <ng-container *ngIf="tableModel == 'tree'">
+          <ng-template
+            *cdkVirtualFor="let item of treeData; let index = index; trackBy: trackByFn"
+            [ngTemplateOutlet]="baseTableTemplate"
+            [ngTemplateOutletContext]="{ item, index, level: item._level }"
+          ></ng-template>
+        </ng-container>
       </tbody>
     </table>
   </cdk-virtual-scroll-viewport>
@@ -32,7 +42,7 @@
         <!-- 基础表格 -->
         <ng-container *ngIf="tableModel == 'normal'">
           <ng-template
-            *ngFor="let item of inData; let index = index"
+            *ngFor="let item of vData; let index = index"
             [ngTemplateOutlet]="baseTableTemplate"
             [ngTemplateOutletContext]="{item, index}"
           ></ng-template>
@@ -40,8 +50,9 @@
         <!-- 树形表格 -->
         <ng-container *ngIf="tableModel == 'tree'">
           <ng-template
-            [ngTemplateOutlet]="treeTableTemplate"
-            [ngTemplateOutletContext]="{ data: treeData, level: 0 }"
+            *ngFor="let item of treeData; let index = index; trackBy: trackByFn"
+            [ngTemplateOutlet]="baseTableTemplate"
+            [ngTemplateOutletContext]="{ item, index, level: item._level }"
           ></ng-template>
         </ng-container>
       </tbody>
@@ -61,10 +72,10 @@
       <div
         class="tree-node"
         *ngIf="tableModel == 'tree' && col.treeNode"
-        [style.padding-left.px]="item.children.length > 0 ? level * 20 : level * 20 + 14"
+        [style.padding-left.px]="item._children.length > 0 ? level * 20 : level * 20 + 14"
       >
         <span
-          *ngIf="item.children.length > 0"
+          *ngIf="item._children.length > 0"
           nz-icon
           [nzType]="item._expanded ? 'caret-down' : 'caret-right'"
           nzTheme="outline"
@@ -96,19 +107,18 @@
   </tr>
 </ng-template>
 <!-- 树形表格 -->
-<ng-template #treeTableTemplate let-data="data" let-level="level">
+<!-- <ng-template #treeTableTemplate let-data="data">
   <ng-container *ngFor="let item of data; let index = index">
     <ng-container>
       <ng-template
         [ngTemplateOutlet]="baseTableTemplate"
-        [ngTemplateOutletContext]="{item, index, level }"
+        [ngTemplateOutletContext]="{item, index, level: item._level }"
       ></ng-template>
-      <!-- 子节点 -->
       <ng-template
         *ngIf="item._expanded"
         [ngTemplateOutlet]="treeTableTemplate"
-        [ngTemplateOutletContext]="{ data: item.children, level: level + 1 }"
+        [ngTemplateOutletContext]="{ data: item._children, level: item._level + 1 }"
       ></ng-template>
     </ng-container>
   </ng-container>
-</ng-template>
+</ng-template> -->

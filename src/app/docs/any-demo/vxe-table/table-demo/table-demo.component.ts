@@ -40,6 +40,7 @@ export class TableDemoComponent {
     { id: 24566, parentId: 24555, name: 'Test17', type: 'js', size: 1024, date: '2021-06-01' },
     { id: 24577, parentId: 24555, name: 'Test18', type: 'js', size: 1024, date: '2021-06-01' }
   ]
+  data3: any[] = []
   shows: boolean[] = [true, true, true, true, true, true, true,]
   ngAfterViewInit() {
     setTimeout(() => {
@@ -49,6 +50,39 @@ export class TableDemoComponent {
       })
       this.data = [...this.data]
     }, 3000);
+    setTimeout(() => {
+      this.data3 = [];
+      for (let i = 0; i < 1000; i++) {
+        let data: any = {
+          id: i,
+          collectionTime: 'detail' + i,
+          aidsName: '站点' + (100 - i),
+          ifAlarm: ((Math.random() + 0.5) | 0).toString(),
+          ifBind: ((Math.random() + 0.5) | 0).toString(),
+          ifMark: i % 3 == 0 ? 'success' : i % 3 == 1 ? 'defeated' : 'asdasd',
+          commModeCode: '北斗',
+          functionCode: ((Math.random() * 3 + 0.5) | 0).toString(),
+        };
+        if (i % 10 == 0) {
+          let c: any[] = [];
+          for (let j = 0; j < 3; j++) {
+            c.push({
+              id: j,
+              collectionTime: 'children' + j,
+              aidsName: 100 - i + '站点children' + j,
+              ifAlarm: ((Math.random() + 0.5) | 0).toString(),
+              ifBind: ((Math.random() + 0.5) | 0).toString(),
+              ifMark: j % 3 == 0 ? 'success' : j % 3 == 1 ? 'defeated' : 'asdasd',
+              commModeCode: '北斗',
+              functionCode: ((Math.random() * 3 + 0.5) | 0).toString(),
+            });
+          }
+          data.children = c;
+          data._showChild = true;
+        }
+        this.data3.push(data);
+      }
+    }, 2000);
   }
   onCheckChange($event) {
     console.log('外部',$event)

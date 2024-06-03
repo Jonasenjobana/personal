@@ -1,4 +1,4 @@
-import { filter } from 'rxjs';
+import { Subject, filter, takeUntil } from 'rxjs';
 import {
   ChangeDetectorRef,
   Component,
@@ -10,7 +10,7 @@ import {
   QueryList,
   Renderer2,
   SimpleChanges,
-  ViewChild,
+  ViewChild
 } from '@angular/core';
 import { VxeTableService } from '../vxe-table.service';
 import { VxeColumnComponent } from '../vxe-column/vxe-column.component';
@@ -18,6 +18,7 @@ import {
   VxeColumnConfig,
   VxeColumnGroups,
   VxeContentEvent,
+  VxeData,
   VxeGutterConfig,
   VxePageConfig,
   VxeRowConfig,
@@ -27,6 +28,8 @@ import {
   VxeVirtualConfig
 } from '../vxe-model';
 import { VxeColgroupComponent } from '../vxe-colgroup/vxe-colgroup.component';
+import { NavigationEnd, Router } from '@angular/router';
+import * as _ from 'lodash';
 
 @Component({
   selector: 'vxe-table',
@@ -64,7 +67,7 @@ export class VxeTableComponent {
   @ContentChildren(VxeColumnComponent) set columnComponents(column: QueryList<VxeColumnComponent>) {
     this.columnComponentList = column.toArray();
     this.resetTable();
-  };
+  }
   @ContentChildren(VxeColgroupComponent) set colgroupComponents(colgroup: QueryList<VxeColgroupComponent>) {
     this.colgroupComponentList = colgroup.toArray();
     this.resetTable();
@@ -79,59 +82,105 @@ export class VxeTableComponent {
   public contentCol: VxeColumnComponent[];
   public tableHeight: number;
   public scrollLeft: number;
-  public treeData: any;
+  /**深拷贝inData 防止污染原数据 */
+  public vData: VxeData[] = [];
+  private destroy$: Subject<void> = new Subject();
   constructor(
     private elementRef: ElementRef<HTMLDivElement>,
     public vxeService: VxeTableService,
     private renderer: Renderer2,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    private router: Router
   ) {
     this.vxeService.contentEvent$.subscribe(($event: VxeContentEvent) => {
       this.contentEvent($event);
-    })
+    });
+    //切换路由时，滚动到上次位置
+    this.router.events
+      .pipe(
+        filter(event => event instanceof NavigationEnd),
+        takeUntil(this.destroy$)
+      )
+      .subscribe(evt => {});
   }
   ngOnChanges(changes: SimpleChanges) {
     const { inData, rowConfig, minHeight, maxHeight, gutterConfig, treeConfig } = changes;
-    if (inData) {
-      this.vxeService.dataChange$.next(this.inData);
-    }
     if ((minHeight && !minHeight.isFirstChange()) || (maxHeight && !maxHeight.isFirstChange())) {
       this.setTableHeight();
     }
     if (treeConfig && treeConfig.currentValue) {
       this.tableModel = 'tree';
-      Object.assign({
-        rowField: 'id',
-        parentField: 'parentId',
-        transform: true,
-      }, this.treeConfig)
+      Object.assign(
+        {
+          rowField: 'id',
+          parentField: 'parentId',
+          transform: true
+        },
+        this.treeConfig
+      );
     }
     if (inData) {
+      this.vData = _.cloneDeep(this.inData);
       if (this.tableModel == 'tree') {
-        const {transform} = this.treeConfig;
+        const { transform } = this.treeConfig;
         if (transform) {
-          this.treeData = this.transformTree(this.inData);
+          this.transformTree(this.vData);
+        } else {
+          // 本身就是树节点
+          this.handleTree(this.vData);
+          this.vData = this.flatTree(this.vData);
         }
       }
     }
   }
-    /**自动根据parentId转树结构 */
-    transformTree(data: any, parentIndex: string = '', children?: any) {
-      const {rowField, parentField, expandAll = true, expandRowKeys = [], treeSeq} = this.treeConfig;
-      const iterate = children || data.filter(el => !el[parentField]);
-      return iterate.map((el, index) => {
-        const id = el[rowField];
-        let children = data.filter(item => item[parentField] == id);
-        let treeIndex = parentIndex ? `${parentIndex}.${index + 1}` : `${index + 1}`
-        children = this.transformTree(data, treeIndex,children);
-        return {
-          ...el,
-          children,
-          _expanded: expandAll || expandRowKeys.includes(el[rowField]),
-          _index: treeIndex
-        }
+  /**自动根据parentId转树结构 */
+  transformTree(data: VxeData[], parentIndex: string = '', level: number = 0, children?: VxeData[]) {
+    const { rowField, parentField, expandAll = true, expandRowKeys = [], treeSeq } = this.treeConfig;
+    const iterate = children || data.filter(el => !el[parentField]);
+    return iterate.map((el, index) => {
+      const id = el[rowField];
+      let children = data.filter(item => item[parentField] == id);
+      let treeIndex = parentIndex ? `${parentIndex}.${index + 1}` : `${index + 1}`;
+      children = this.transformTree(data, treeIndex, level + 1, children);
+      Object.assign(el, {
+        _children: children.map(child => {
+          child._parent = el;
+          return child
+        }),
+        _level: level,
+        _treeIndex: treeIndex,
+        _expanded: expandAll || expandRowKeys.includes(el[rowField]),
       });
-    }
+      return el;
+    });
+  }
+  /**树转树 并扁平化为数组 */
+  handleTree(data: VxeData[], parentIndex: string = '', level: number = 0, parent?: VxeData) {
+    const { childrenField = 'children', rowField = 'id', parentField = 'parentId', expandAll = true, expandRowKeys = [], treeSeq } = this.treeConfig;
+    return data.map((el, index) => {
+      const children = el[childrenField];
+      let treeIndex = parentIndex ? `${parentIndex}.${index + 1}` : `${index + 1}`
+      Object.assign(el, {
+        _treeIndex: treeIndex,
+        _expanded: expandAll || expandRowKeys.includes(el[rowField]),
+        _level: level,
+        _parent: parent,
+        _children: children ? this.handleTree(children, treeIndex, level + 1, el) : []
+      })
+      return el;
+    })
+  }
+  /**扁平化树 */
+  flatTree(data: VxeData[]) {
+    let result: VxeData[] = [];
+    data.forEach(el => {
+      result.push(el);
+      if (el._children) {
+        result = result.concat(this.flatTree(el._children));
+      }
+    });
+    return result;
+  }
   setTableHeight() {
     const { minHeight, maxHeight } = this;
     const { height } = this.elementRef.nativeElement.getBoundingClientRect();
@@ -141,7 +190,7 @@ export class VxeTableComponent {
   }
   ngAfterViewInit() {
     const el = this.elementRef.nativeElement;
-    this.wraperWidth = el.offsetWidth
+    this.wraperWidth = el.offsetWidth;
     this.vxeService.headHeight$.subscribe(height => {
       if (!height) return;
       this.setTableHeight();
@@ -152,10 +201,12 @@ export class VxeTableComponent {
     });
   }
   contentEvent($event: VxeContentEvent) {
-    const {type, event, row} = $event;
-    switch(type) {
+    const { type, event, row } = $event;
+    switch (type) {
       case 'checkbox':
-        this.checkChange.emit([event, row, this.inData.filter(el => el._check)]);
+        this.checkChange.emit([event, row, this.vData.filter(el => el._check)]);
+        break;
+      case 'expand':
         break;
     }
   }
@@ -169,5 +220,9 @@ export class VxeTableComponent {
     // 保证节点顺序
     this.headCol = this.vxeService.getDomFlow([...groups, ...columns]);
     this.vxeService.tableInnerColumn$.next(this.headCol);
+  }
+  ngOnDestroy() {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 }

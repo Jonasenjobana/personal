@@ -32,7 +32,6 @@ export class VxeColgroupComponent extends VxeColumnGroupBase {
   constructor(
     @Optional() protected override vxeService: VxeTableService,
     public override element: ElementRef,
-    @Optional() @SkipSelf() public parent: VxeColgroupComponent,
     private cdr: ChangeDetectorRef
   ) {
     super(vxeService, element);

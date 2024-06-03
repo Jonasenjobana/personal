@@ -3,13 +3,12 @@
   <vxe-table-content
     #tableContent
     [vxeWraperHeight]="tableHeight"
-    [inData]="inData"
+    [vData]="vData"
     [contentCol]="contentCol"
     [rowConfig]="rowConfig"
     [tableModel]="tableModel"
     [virtualConfig]="virtualConfig"
     [treeConfig]="treeConfig"
-    [treeData]="treeData"
   ></vxe-table-content>
 </div>
 <!-- 冻结列 -->
@@ -18,12 +17,11 @@
   [headCol]="headCol"
   [contentCol]="contentCol"
   [vxeWraperHeight]="tableHeight" 
-  [inData]="inData"
+  [vData]="vData"
   [rowConfig]="rowConfig"
   [tableModel]="tableModel"
   [virtualConfig]="virtualConfig"
   [treeConfig]="treeConfig"
-  [treeData]="treeData"
 ></vxe-fixed-column>
 <div class="vxe-table-footer" #tableFooter>
   <!-- 页脚 合计 TODO -->

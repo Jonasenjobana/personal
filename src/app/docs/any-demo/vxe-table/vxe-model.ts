@@ -23,6 +23,8 @@ export interface VxeTreeConfig {
     transform: boolean
     /**节点字段吗 默认id*/
     rowField: string
+    /**如果不需要自动转树结构本身就是树结构  默认children*/
+    childrenField: string
     /**父节点字段名 默认parentId*/
     parentField: string
     /**连接线 */
@@ -77,11 +79,16 @@ export interface VxeContentEvent {
     event: any;
     row: any;
 }
-export interface VxeData {
-    children: VxeData[],
-    _expanded: boolean,
-    _check: boolean
-}
+export type VxeData = {
+    _parent?: VxeData | null
+    _children?: VxeData[],
+    _expanded?: boolean,
+    _index?: number
+    _treeIndex?: number
+    _hidden?: boolean
+    _check?: boolean
+    _level?: number
+} & {[key in string]: any}
 // 自定义样式
 export type VxeRowStyle = (param: {row: any, col: VxeColumnGroup, rowIndex: number, columnIndex: number}) => Object
 export type VxeCellStyle = (param: {row: any, col: VxeColumnGroup, rowIndex: number, columnIndex: number}) => Object
