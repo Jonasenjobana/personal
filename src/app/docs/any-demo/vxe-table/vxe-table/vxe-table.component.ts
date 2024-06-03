@@ -1,3 +1,4 @@
+import { filter } from 'rxjs';
 import {
   ChangeDetectorRef,
   Component,
@@ -30,7 +31,8 @@ import { VxeColgroupComponent } from '../vxe-colgroup/vxe-colgroup.component';
 @Component({
   selector: 'vxe-table',
   templateUrl: './vxe-table.component.html',
-  styleUrls: ['./vxe-table.component.less']
+  styleUrls: ['./vxe-table.component.less'],
+  providers: [VxeTableService]
 })
 export class VxeTableComponent {
   /**表格数据 */
@@ -55,6 +57,8 @@ export class VxeTableComponent {
     width: 8,
     height: 6
   };
+  @Input() rowStyle: any;
+  @Input() cellStyle: any;
   tableModel: VxeTableModel = 'normal';
   /**列 */
   @ContentChildren(VxeColumnComponent) set columnComponents(column: QueryList<VxeColumnComponent>) {
@@ -75,6 +79,7 @@ export class VxeTableComponent {
   public contentCol: VxeColumnComponent[];
   public tableHeight: number;
   public scrollLeft: number;
+  public treeData: any;
   constructor(
     private elementRef: ElementRef<HTMLDivElement>,
     public vxeService: VxeTableService,
@@ -93,10 +98,40 @@ export class VxeTableComponent {
     if ((minHeight && !minHeight.isFirstChange()) || (maxHeight && !maxHeight.isFirstChange())) {
       this.setTableHeight();
     }
-    if (treeConfig) {
+    if (treeConfig && treeConfig.currentValue) {
       this.tableModel = 'tree';
+      Object.assign({
+        rowField: 'id',
+        parentField: 'parentId',
+        transform: true,
+      }, this.treeConfig)
+    }
+    if (inData) {
+      if (this.tableModel == 'tree') {
+        const {transform} = this.treeConfig;
+        if (transform) {
+          this.treeData = this.transformTree(this.inData);
+        }
+      }
     }
   }
+    /**自动根据parentId转树结构 */
+    transformTree(data: any, parentIndex: string = '', children?: any) {
+      const {rowField, parentField, expandAll = true, expandRowKeys = [], treeSeq} = this.treeConfig;
+      const iterate = children || data.filter(el => !el[parentField]);
+      return iterate.map((el, index) => {
+        const id = el[rowField];
+        let children = data.filter(item => item[parentField] == id);
+        let treeIndex = parentIndex ? `${parentIndex}.${index + 1}` : `${index + 1}`
+        children = this.transformTree(data, treeIndex,children);
+        return {
+          ...el,
+          children,
+          _expanded: expandAll || expandRowKeys.includes(el[rowField]),
+          _index: treeIndex
+        }
+      });
+    }
   setTableHeight() {
     const { minHeight, maxHeight } = this;
     const { height } = this.elementRef.nativeElement.getBoundingClientRect();

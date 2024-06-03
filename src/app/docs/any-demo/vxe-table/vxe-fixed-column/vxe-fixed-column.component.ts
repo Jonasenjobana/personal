@@ -1,7 +1,7 @@
 import { fromEvent } from 'rxjs';
 import { VxeColumnGroupBase } from '../vxe-base/vxe-column-group';
 import { VxeColumnComponent } from '../vxe-column/vxe-column.component';
-import { VxeRowConfig, VxeTableModel, VxeVirtualConfig } from '../vxe-model';
+import { VxeRowConfig, VxeTableModel, VxeTreeConfig, VxeVirtualConfig } from '../vxe-model';
 import { VxeTableComponent } from '../vxe-table/vxe-table.component';
 import { VxeTableService } from './../vxe-table.service';
 import { ChangeDetectorRef, Component, ElementRef, Input, Optional, SimpleChanges, ViewChild } from '@angular/core';
@@ -23,6 +23,8 @@ export class VxeFixedColumnComponent {
   @Input() wraperWidth: number;
   @Input() contentCol: VxeColumnComponent[];
   @Input() tableModel: VxeTableModel
+  @Input() treeConfig: Partial<VxeTreeConfig>
+  @Input() treeData: any;
   @ViewChild('leftFixedContent') leftFixedContentRef: ElementRef<HTMLDivElement>;
   @ViewChild('rightFixedContent') rightFixedContentRef: ElementRef<HTMLDivElement>;
   @ViewChild('rightHeadRef') rightHeadRef: VxeTableHeadComponent;

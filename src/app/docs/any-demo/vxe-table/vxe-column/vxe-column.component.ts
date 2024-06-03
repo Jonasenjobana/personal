@@ -22,11 +22,11 @@ import { VxeTableComponent } from '../vxe-table/vxe-table.component';
 })
 export class VxeColumnComponent extends VxeColumnGroupBase {
   readonly VXETYPE = 'vxe-column';
-  @Input() type: 'checkbox' | 'seq' | 'radio' | 'expand';
+  @Input() type: 'checkbox' | 'seq' | 'radio';
   @Input() sortable: boolean;
   @Input() sortRuleCb?: (field: string, data: any) => number;
-  asce: boolean = true; // 升序 true 降序 false
   @ContentChild(TemplateRef) template: TemplateRef<any>;
+  asce: boolean = true; // 升序 true 降序 false
   isCheck: boolean = false;
   constructor(
     @Optional() protected override vxeService: VxeTableService,
@@ -39,7 +39,7 @@ export class VxeColumnComponent extends VxeColumnGroupBase {
     if (!vxeService) Error('error: vxeService is null');
   }
   ngOnChanges(changes: SimpleChanges) {
-    const { fixed, width, hidden } = changes;
+    const { fixed, width, hidden, treeNode } = changes;
     if (fixed) {
       setTimeout(() => {
         this.setFixedColumn();

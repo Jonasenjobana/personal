@@ -1,6 +1,4 @@
 import { VxeColumnGroupBase } from "./vxe-base/vxe-column-group"
-import { VxeColgroupComponent } from "./vxe-colgroup/vxe-colgroup.component"
-import { VxeColumnComponent } from "./vxe-column/vxe-column.component"
 
 export interface VxeColumnConfig {
     
@@ -21,12 +19,20 @@ export interface VxePageConfig {
     auto: boolean
 }
 export interface VxeTreeConfig {
-    /**自动转树结构 */
+    /**自动转树结构 默认true*/
     transform: boolean
     /**节点字段吗 默认id*/
     rowField: string
     /**父节点字段名 默认parentId*/
     parentField: string
+    /**连接线 */
+    showLine: boolean
+    /**默认展开所有子孙节点 */
+    expandAll: boolean
+    /**默认展开指定树节点 */
+    expandRowKeys: string[]
+    /**树形序号 层级关系 1.1.1 ... 默认 按索引顺序*/
+    treeSeq: boolean
 }
 export interface VxeVirtualConfig {
     /**是否开启虚拟滚动 */
@@ -70,4 +76,15 @@ export interface VxeContentEvent {
     column: VxeColumnGroup
     event: any;
     row: any;
+}
+export interface VxeData {
+    children: VxeData[],
+    _expanded: boolean,
+    _check: boolean
+}
+// 自定义样式
+export type VxeRowStyle = (param: {row: any, col: VxeColumnGroup, rowIndex: number, columnIndex: number}) => Object
+export type VxeCellStyle = (param: {row: any, col: VxeColumnGroup, rowIndex: number, columnIndex: number}) => Object
+export interface MergeCell {
+    
 }

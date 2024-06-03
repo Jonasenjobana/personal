@@ -11,9 +11,9 @@ import {
 } from '@angular/core';
 import { VxeColumnComponent } from '../vxe-column/vxe-column.component';
 import { VxeTableService } from '../vxe-table.service';
-import { VxeColumnGroups, VxeGutterConfig, VxeHeadEvent, VxeRowConfig, VxeTableModel, VxeVirtualConfig } from '../vxe-model';
+import { VxeColumnGroup, VxeColumnGroups, VxeContentEvent, VxeGutterConfig, VxeHeadEvent, VxeRowConfig, VxeTableModel, VxeTreeConfig, VxeVirtualConfig } from '../vxe-model';
 import { VxeTableComponent } from '../vxe-table/vxe-table.component';
-import { Subject, fromEvent, takeUntil } from 'rxjs';
+import { Subject, fromEvent, takeUntil, filter } from 'rxjs';
 import { CdkVirtualScrollViewport } from '@angular/cdk/scrolling';
 
 @Component({
@@ -32,7 +32,9 @@ export class VxeTableContentComponent {
   @Input() contentCol: VxeColumnComponent[];
   @Input() rowConfig: Partial<VxeRowConfig>;
   @Input() virtualConfig: Partial<VxeVirtualConfig>;
+  @Input() treeConfig: Partial<VxeTreeConfig>;
   @Input() inData: any;
+  @Input() treeData: any;
   @Input() vxeWraperHeight: number;
   @Input() minHeight: number;
   @Input() maxHeight: number;
@@ -95,17 +97,33 @@ export class VxeTableContentComponent {
     }
   }
   ngOnChanges(changes: SimpleChanges) {
-    const { rowConfig, virtualConfig, inData, vxeWraperHeight, contentCol } = changes;
+    const { rowConfig, virtualConfig, inData, vxeWraperHeight, contentCol, treeConfig } = changes;
     if (rowConfig && rowConfig.currentValue) {
       const { isHover = false } = this.rowConfig;
       this.isHover = isHover;
     }
-    if (inData && !inData.firstChange) {
-      this.handleFixed();
+    if (inData) {
+      !inData.firstChange && this.handleFixed();
     }
     if (vxeWraperHeight && this.vxeWraperHeight) {
       this.updateDom();
     }
+  }
+  getSeqNumber(index: number, item: any) {
+    if (this.tableModel == 'tree') {
+      return index + 1;
+    } else {
+      return index + 1;
+    }
+  }
+  expandNode(item: any, col: VxeColumnGroup) {
+    item._expanded = !item._expanded;
+    this.vxeService.contentEvent$.next({
+      type: 'expand',
+      column: col,
+      row: item,
+      event: item._expanded
+    })
   }
   /**滚动同步处理 */
   addScrollEvent() {
