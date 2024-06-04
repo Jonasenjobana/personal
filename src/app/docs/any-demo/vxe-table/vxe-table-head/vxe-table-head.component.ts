@@ -1,4 +1,3 @@
-import { group } from '@angular/animations';
 import {
   ChangeDetectorRef,
   Component,
@@ -14,8 +13,6 @@ import { VxeTableService } from '../vxe-table.service';
 import { VxeColumnGroup, VxeColumnGroups, VxeGutterConfig } from '../vxe-model';
 import { VxeColumnGroupBase } from '../vxe-base/vxe-column-group';
 import { VxeTableComponent } from '../vxe-table/vxe-table.component';
-import { combineLatest } from 'rxjs';
-import { head } from 'lodash';
 
 /**含表头合并处理 */
 @Component({
@@ -36,11 +33,11 @@ export class VxeTableHeadComponent {
   @ViewChild('tableRef') tableRef: ElementRef<HTMLTableElement>;
   @ViewChild('tableHead') tableHead: ElementRef<HTMLDivElement>;
   scrollWidth: number;
-  scrollable: boolean;
+  scrollable: boolean = false;
   scrollLeft: number;
   /**实际宽度 */
   headWidth: number;
-  gutterWidth: number
+  gutterWidth: number;
   get gutterConfig(): VxeGutterConfig {
     return this.vxeService.gutterConfig;
   }
@@ -50,6 +47,14 @@ export class VxeTableHeadComponent {
     private cdr: ChangeDetectorRef,
     @Optional() private parent: VxeTableComponent
   ) {
+    /**滚动槽 */
+    this.vxeService.gutterChange$.subscribe(({type, size}) => {
+      if (type == 'vertical' && this.scrollable != size > 0) {
+        this.scrollable = size > 0;
+        this.cdr.detectChanges();
+        this.updateDom();
+      }
+    })
   }
 
   ngOnChanges(changes: SimpleChanges) {
@@ -60,6 +65,7 @@ export class VxeTableHeadComponent {
       });
     }
   }
+  /**重置表头 */
   initHeadColumns() {
     this.tableHeaders = [];
     this.transformTree(this.headCol);
@@ -71,8 +77,7 @@ export class VxeTableHeadComponent {
     this.columnChange.emit(this.colgroupLeaf);
     setTimeout(() => {
       this.updateDom();
-      this.setGutterWidth();
-    });
+    }, 50);
   }
   /**滚动槽 宽度 */
   setGutterWidth() {
@@ -185,6 +190,7 @@ export class VxeTableHeadComponent {
   }
   ngAfterViewInit() {
     this.vxeService.scrollLeft$.subscribe(scrollLeft => {
+      if (this.scrollLeft == scrollLeft) return;
       if (!this.fixed) {
         this.transformX = -scrollLeft;
       }
@@ -201,8 +207,6 @@ export class VxeTableHeadComponent {
     const { width } = tableEl.getBoundingClientRect();
     const { width: headWidth, height: headHeight } = headEl.getBoundingClientRect();
     this.scrollWidth = width;
-    this.scrollable = headWidth <= width;
-    // 滚动槽后续colgroup添加了 导致宽度变化不需要手动加上插槽宽度
     setTimeout(() => {
       if (this.scrollable) {
         const { width } = tableEl.getBoundingClientRect();

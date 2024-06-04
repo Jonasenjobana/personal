@@ -31,11 +31,17 @@ export class VxeTableService {
   public headEvent$: Subject<VxeHeadEvent> = new Subject();
   /**内容事件 */
   public contentEvent$: Subject<VxeContentEvent> = new Subject();
+  /**虚拟滚动上一个位置 */
+  public virtualScrollLastTop: number;
+  /**虚拟滚动缓存位置更新 */
+  public virtualScrolReset$: Subject<void> = new Subject();
   /**滚动槽默认长宽 */
   public gutterConfig: VxeGutterConfig = {
     width: 8,
     height: 6
   }
+  /**滚动槽变化 */
+  public gutterChange$: Subject<{type: 'horizen' | 'vertical', size: number}> = new Subject();
   /**表头更新通知 */
   public headUpdate$: Subject<void> = new Subject();
   constructor() {

@@ -34,11 +34,19 @@ export class VxeFixedColumnComponent {
   fixedLeftWidth: number;
   fixedRightWidth: number;
   hasFixed: boolean
+  gutterWidth: number = 0
   constructor(
     private vxeService: VxeTableService,
     private cdr: ChangeDetectorRef,
     @Optional() private parent: VxeTableComponent
-  ) {}
+  ) {
+    this.vxeService.gutterChange$.subscribe(({type, size}) => {
+      if (type == 'vertical' && this.gutterWidth != size) {
+        this.gutterWidth = size;
+        this.cdr.detectChanges();
+      }
+    })
+  }
   ngOnChanges(changes: SimpleChanges) {
     const { contentCol } = changes;
     if (contentCol && contentCol.currentValue) {
@@ -55,26 +63,9 @@ export class VxeFixedColumnComponent {
     this.vxeService.tableHeaderLeafColumns$.subscribe(columns => {
       this.content = columns as VxeColumnComponent[];
     });
-    this.asyncScroll();
   }
   setFixedColumn() {
     this.fixedLeftWidth = this.contentCol.filter(col => col.fixed == 'left').reduce((width, el) => width + el.autoWidth, 0);
     this.fixedRightWidth = this.contentCol.filter(col => col.fixed == 'right').reduce((width, el) => width + el.autoWidth, 0);
-    console.log(this.contentCol)
-  }
-  /**同步滚动 */
-  asyncScroll() {
-    const rightEl = this.rightFixedContentRef?.nativeElement;
-    const leftEl = this.leftFixedContentRef?.nativeElement;
-    rightEl &&
-      fromEvent(rightEl, 'scroll').subscribe(() => {
-        const { scrollTop } = rightEl;
-        this.vxeService.scrollTop$.next(scrollTop);
-      });
-    leftEl &&
-      fromEvent(leftEl, 'scroll').subscribe(() => {
-        const { scrollTop } = leftEl;
-        this.vxeService.scrollTop$.next(scrollTop);
-      });
   }
 }

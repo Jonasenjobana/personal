@@ -81,10 +81,12 @@ export class VxeTableComponent {
   public headCol: VxeColumnGroups;
   public contentCol: VxeColumnComponent[];
   public tableHeight: number;
-  public scrollLeft: number;
   /**深拷贝inData 防止污染原数据 */
   public vData: VxeData[] = [];
   private destroy$: Subject<void> = new Subject();
+  /**缓存比对 相同不处理 */
+  public headHeight: number;
+  public scrollLeft: number;
   constructor(
     private elementRef: ElementRef<HTMLDivElement>,
     public vxeService: VxeTableService,
@@ -101,7 +103,9 @@ export class VxeTableComponent {
         filter(event => event instanceof NavigationEnd),
         takeUntil(this.destroy$)
       )
-      .subscribe(evt => {});
+      .subscribe(evt => {
+        this.vxeService.virtualScrolReset$.next();
+      });
   }
   ngOnChanges(changes: SimpleChanges) {
     const { inData, rowConfig, minHeight, maxHeight, gutterConfig, treeConfig } = changes;
@@ -145,30 +149,37 @@ export class VxeTableComponent {
       Object.assign(el, {
         _children: children.map(child => {
           child._parent = el;
-          return child
+          return child;
         }),
         _level: level,
         _treeIndex: treeIndex,
-        _expanded: expandAll || expandRowKeys.includes(el[rowField]),
+        _expanded: expandAll || expandRowKeys.includes(el[rowField])
       });
       return el;
     });
   }
   /**树转树 并扁平化为数组 */
   handleTree(data: VxeData[], parentIndex: string = '', level: number = 0, parent?: VxeData) {
-    const { childrenField = 'children', rowField = 'id', parentField = 'parentId', expandAll = true, expandRowKeys = [], treeSeq } = this.treeConfig;
+    const {
+      childrenField = 'children',
+      rowField = 'id',
+      parentField = 'parentId',
+      expandAll = true,
+      expandRowKeys = [],
+      treeSeq
+    } = this.treeConfig;
     return data.map((el, index) => {
       const children = el[childrenField];
-      let treeIndex = parentIndex ? `${parentIndex}.${index + 1}` : `${index + 1}`
+      let treeIndex = parentIndex ? `${parentIndex}.${index + 1}` : `${index + 1}`;
       Object.assign(el, {
         _treeIndex: treeIndex,
         _expanded: expandAll || expandRowKeys.includes(el[rowField]),
         _level: level,
         _parent: parent,
         _children: children ? this.handleTree(children, treeIndex, level + 1, el) : []
-      })
+      });
       return el;
-    })
+    });
   }
   /**扁平化树 */
   flatTree(data: VxeData[]) {
@@ -192,10 +203,12 @@ export class VxeTableComponent {
     const el = this.elementRef.nativeElement;
     this.wraperWidth = el.offsetWidth;
     this.vxeService.headHeight$.subscribe(height => {
-      if (!height) return;
+      if (!height || height == this.headHeight) return;
+      this.headHeight = height;
       this.setTableHeight();
     });
     this.vxeService.scrollLeft$.subscribe(scrollLeft => {
+      if (scrollLeft == this.scrollLeft) return;
       this.scrollLeft = scrollLeft;
       this.cdr.detectChanges();
     });

@@ -11,9 +11,9 @@ import {
 } from '@angular/core';
 import { VxeColumnComponent } from '../vxe-column/vxe-column.component';
 import { VxeTableService } from '../vxe-table.service';
-import { VxeColumnGroup, VxeColumnGroups, VxeContentEvent, VxeData, VxeGutterConfig, VxeHeadEvent, VxeRowConfig, VxeTableModel, VxeTreeConfig, VxeVirtualConfig } from '../vxe-model';
+import { VxeColumnGroup, VxeContentEvent, VxeData, VxeGutterConfig, VxeHeadEvent, VxeRowConfig, VxeTableModel, VxeTreeConfig, VxeVirtualConfig } from '../vxe-model';
 import { VxeTableComponent } from '../vxe-table/vxe-table.component';
-import { Subject, fromEvent, takeUntil, filter } from 'rxjs';
+import { Subject, fromEvent, takeUntil } from 'rxjs';
 import { CdkVirtualScrollViewport } from '@angular/cdk/scrolling';
 
 @Component({
@@ -42,7 +42,8 @@ export class VxeTableContentComponent {
     if (!ref) return;
     this.virtualContentRef = ref;
     this.addScrollEvent();
-    this.handleFixed();
+    this.scrollGutter();
+    this.handleRightFixed();
   }
   @ViewChild('vxeTable', { static: false }) vxeTable: ElementRef<HTMLTableElement>;
   get gutterConfig(): VxeGutterConfig {
@@ -75,7 +76,13 @@ export class VxeTableContentComponent {
     this.vxeService.headHeight$.subscribe(height => {
       this.headHeight = height;
     });
+    this.vxeService.virtualScrolReset$.subscribe(() => {
+      // 虚拟滚动重置原来位置
+      this.vxeService.scrollTop$.next(this.vxeService.virtualScrollLastTop);
+      this.handleRightFixed();
+    })
     this.vxeService.scrollTop$.subscribe(scrollTop => {
+      this.vxeService.virtualScrollLastTop = scrollTop;
       this.onScroll(scrollTop);
     });
     this.vxeService.headEvent$.subscribe(($event: VxeHeadEvent) => {
@@ -87,6 +94,10 @@ export class VxeTableContentComponent {
       const {type} = $event;
       if (type == 'expand') {
         this.treeData = this.vData.filter(item => item._parent ? item._parent._expanded && !item._parent._hidden : true);
+        setTimeout(() => {
+          this.scrollGutter();
+          this.handleRightFixed();
+        }, 100)
       }
     })
   }
@@ -110,11 +121,14 @@ export class VxeTableContentComponent {
       this.isHover = isHover;
     }
     if (vData) {
-      !vData.firstChange && this.handleFixed();
+      if (!vData.firstChange) {
+        this.scrollGutter();
+        this.handleRightFixed();
+      }
       this.treeData = this.vData.filter(item => item._parent ? item._parent._expanded && !item._parent._hidden : true);
     }
     if (vxeWraperHeight && this.vxeWraperHeight) {
-      this.updateDom();
+      this.updateContainerDom();
     }
   }
   getSeqNumber(index: number, item: any) {
@@ -126,13 +140,19 @@ export class VxeTableContentComponent {
   }
   expandNode(item: any, col: VxeColumnGroup) {
     item._expanded = !item._expanded;
-    item._children.forEach(el => el._hidden = !item._expanded);
+    this.handleExpanded(item._children, !item._expanded)
     this.vxeService.contentEvent$.next({
       type: 'expand',
       column: col,
       row: item,
       event: item._expanded
     })
+  }
+  handleExpanded(children: VxeData[], hidden: boolean) {
+    children.forEach(child => {
+      child._hidden = hidden;
+      this.handleExpanded(child._children || [], hidden)
+    });
   }
   /**滚动同步处理 */
   addScrollEvent() {
@@ -173,22 +193,44 @@ export class VxeTableContentComponent {
   ngAfterViewInit() {
     setTimeout(() => {
       this.addScrollEvent();
-      this.handleFixed();
+      this.scrollGutter();
+      this.handleRightFixed();
     }, 100);
   }
-  updateDom() {
+  /**
+   * dom变化都需要执行
+   * 根据表格高度判断需要滚动槽 */
+  scrollGutter() {
+    const { width: gutterWidth} = this.vxeService.gutterConfig
+    let gutterSize = 0;
+    if (!this.isVirtual && this.vxeTable) {
+      const { height } = this.vxeTable.nativeElement.getBoundingClientRect();
+      const { height: containerHeight } = this.elementRef.nativeElement.getBoundingClientRect();
+      gutterSize = containerHeight < height ? gutterWidth : 0;
+    } else if (this.virtualContentRef) {
+      const {clientHeight, scrollHeight} = this.virtualContentRef.elementRef.nativeElement;
+      gutterSize = clientHeight < scrollHeight ? gutterWidth : 0;
+    }
+    this.vxeService.gutterChange$.next({type: 'vertical', size: gutterSize});
+  }
+  updateContainerDom() {
     const { height } = this.gutterConfig;
     const el = this.elementRef.nativeElement;
+    // 水平滚动槽 固定列才需要减去
     const gutter = this.fixed ? height : 0;
     this.contentHeight = this.vxeWraperHeight - this.headHeight - gutter;
-    this.renderer.setStyle(el, 'height', this.contentHeight + 'px');
+    this.renderer.setStyle(el, 'max-height', this.contentHeight + 'px');
+    this.renderer.setStyle(el, 'min-height', this.contentHeight + 'px');
   }
-  handleFixed() {
+  /**处理右固定列 特殊 */
+  handleRightFixed() {
     if (this.fixed != 'right') return;
     if (!this.isVirtual) {
-      const { width } = this.vxeTable.nativeElement.getBoundingClientRect();
-      const { width: containerWidth } = this.elementRef.nativeElement.getBoundingClientRect();
-      this.transformX = containerWidth - width;
+      const { width, height } = this.vxeTable.nativeElement.getBoundingClientRect();
+      const { width: containerWidth, height: containerHeight } = this.elementRef.nativeElement.getBoundingClientRect();
+      const { width: gutterWidth} = this.vxeService.gutterConfig
+      let gutter = containerHeight < height ? gutterWidth : 0;
+      this.transformX = containerWidth - width - gutter;
     } else {
       const virtualEl = this.virtualContentRef.elementRef.nativeElement;
       virtualEl.scrollLeft = virtualEl.scrollWidth - virtualEl.clientWidth;

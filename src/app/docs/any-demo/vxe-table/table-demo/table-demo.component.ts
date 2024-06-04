@@ -13,12 +13,7 @@ export class TableDemoComponent {
   }
   data: any[] = [
     { id: '123', name: '张三', 'age': 18, 'address': '北京市朝阳区', 'sex': '男', num: '1', date: '2024-02-21', role:'管理' },
-    { id: '4544', name: '里斯', 'age': 22, 'address': '北京市朝阳区' },    { id: '123', name: '张三', 'age': 18, 'address': '北京市朝阳区', 'sex': '男', num: '1', date: '2024-02-21', role:'管理' },
-    { id: '4544', name: '里斯', 'age': 22, 'address': '北京市朝阳区' },    { id: '123', name: '张三', 'age': 18, 'address': '北京市朝阳区', 'sex': '男', num: '1', date: '2024-02-21', role:'管理' },
-    { id: '4544', name: '里斯', 'age': 22, 'address': '北京市朝阳区' },    { id: '123', name: '张三', 'age': 18, 'address': '北京市朝阳区', 'sex': '男', num: '1', date: '2024-02-21', role:'管理' },
-    { id: '4544', name: '里斯', 'age': 22, 'address': '北京市朝阳区' },    { id: '123', name: '张三', 'age': 18, 'address': '北京市朝阳区', 'sex': '男', num: '1', date: '2024-02-21', role:'管理' },
-    { id: '4544', name: '里斯', 'age': 22, 'address': '北京市朝阳区' },    { id: '123', name: '张三', 'age': 18, 'address': '北京市朝阳区', 'sex': '男', num: '1', date: '2024-02-21', role:'管理' },
-    { id: '4544', name: '里斯', 'age': 22, 'address': '北京市朝阳区' },
+    { id: '4544', name: '里斯', 'age': 22, 'address': '北京市朝阳区' }, 
   ]
   data2: any[] = [
     { id: 10000, parentId: null, name: 'Test1', type: 'mp3', size: 1024, date: '2020-08-01' },

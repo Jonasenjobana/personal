@@ -12,7 +12,7 @@
     [maxHeight]="300"
     (checkChange)="onCheckChange($event)"
     [rowConfig]="{ isHover: true }"
-    [virtualConfig]="{ itemHeight: 28 }"
+    [virtualConfig]="{ itemHeight: 33, minBuffer: 300, maxBuffer: 1000 }"
   >
     <vxe-column type="checkbox" [width]="50" fixed="left"></vxe-column>
     <vxe-column type="seq" [width]="100" fixed="left"></vxe-column>
@@ -40,21 +40,22 @@
   <!-- 树形表格 -->
   <vxe-table [inData]="data2" [treeConfig]="{ transform: true, rowField: 'id', parentField: 'parentId' }">
     <vxe-column type="seq" fixed="left" [align]="'left'" [treeNode]="true"></vxe-column>
-    <vxe-column field="name" title="Name" fixed="left"></vxe-column>
-    <vxe-column field="size" title="Size" fixed="left"></vxe-column>
-    <vxe-column field="type" title="Type"></vxe-column>
-    <vxe-column field="date" title="Date"></vxe-column>
+    <vxe-column field="name" title="Name" [width]="500"></vxe-column>
+    <vxe-column field="size" title="Size" [width]="500"></vxe-column>
+    <vxe-column field="type" title="Type" fixed="right"></vxe-column>
+    <vxe-column field="date" title="Date" fixed="right"></vxe-column>
   </vxe-table>
   <!-- 树形表格 -->
   <vxe-table
     [inData]="data3"
     [virtualConfig]="{ itemHeight: 28, minBuffer: 400, }"
     [treeConfig]="{ transform: false, childrenField: 'children' }"
+    [rowConfig]="{isHover: true}"
   >
-    <vxe-column type="seq" fixed="left" [align]="'left'"></vxe-column>
-    <vxe-column field="aidsName" title="aidsName" fixed="left" [align]="'left'" [treeNode]="true"></vxe-column>
-    <vxe-column field="ifAlarm" title="ifAlarm" fixed="left"></vxe-column>
-    <vxe-column field="ifBind" title="ifBind"></vxe-column>
-    <vxe-column field="opertion" title="opertion"></vxe-column>
+    <vxe-column type="seq" [align]="'left'"></vxe-column>
+    <vxe-column field="aidsName" title="aidsName" [align]="'left'" [treeNode]="true"></vxe-column>
+    <vxe-column field="ifAlarm" title="ifAlarm" [width]="500"></vxe-column>
+    <vxe-column field="ifBind" title="ifBind" fixed="right"></vxe-column>
+    <vxe-column field="opertion" title="opertion" fixed="right"></vxe-column>
   </vxe-table>
 </div>

@@ -1,7 +1,13 @@
 import { VxeColumnGroupBase } from "./vxe-base/vxe-column-group"
 
 export interface VxeColumnConfig {
-    
+    width: number
+    /**最小宽度 */
+    minWidth: number
+    /**列宽拖拽调整 */
+    resizable: boolean
+    /**点击高亮当前列 */
+    isCurrent
 }
 export interface VxeRowConfig {
     /**限制行高 */
