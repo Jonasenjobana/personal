@@ -63,6 +63,7 @@
 <!-- 基础表格 -->
 <ng-template #baseTableTemplate let-item="item" let-index="index" let-level="level">
   <tr
+    [style.height.px]="rowHeight || 28"
     [class.hover]="isHover && index == hoverIndex"
     [class.selected]="item._check"
     (mouseenter)="onMouseEnter(index)"
@@ -91,16 +92,16 @@
             {{ index + 1 }}
           </span>
           <span *ngIf="tableModel == 'tree'">
-            {{ item._treeIndex }}
+            {{ index + 1 }}
           </span>
         </ng-container>
         <ng-container *ngSwitchDefault>
           <ng-template
-            *ngIf="col.template"
-            [ngTemplateOutlet]="col.template"
-            [ngTemplateOutletContext]="{ row: item, col: col }"
+            *ngIf="col.vxeRowTemplate"
+            [ngTemplateOutlet]="col.vxeRowTemplate"
+            [ngTemplateOutletContext]="{ row: item, col: col, index: index }"
           ></ng-template>
-          <span *ngIf="!col.template">{{ item[col.field] }}</span>
+          <span *ngIf="!col.vxeRowTemplate">{{ item[col.field] }}</span>
         </ng-container>
       </ng-container>
     </td>

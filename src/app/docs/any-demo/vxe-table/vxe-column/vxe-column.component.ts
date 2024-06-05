@@ -4,11 +4,13 @@ import {
   Component,
   ContentChild,
   ElementRef,
+  Injector,
   Input,
   Optional,
   SimpleChanges,
   TemplateRef,
-  ViewChild
+  ViewChild,
+  ViewContainerRef
 } from '@angular/core';
 import { VxeTableService } from '../vxe-table.service';
 import { VxeColgroupComponent } from '../vxe-colgroup/vxe-colgroup.component';
@@ -25,15 +27,17 @@ export class VxeColumnComponent extends VxeColumnGroupBase {
   @Input() type: 'checkbox' | 'seq' | 'radio';
   @Input() sortable: boolean;
   @Input() sortRuleCb?: (field: string, data: any) => number;
-  @ContentChild(TemplateRef) template: TemplateRef<any>;
+  @ContentChild('rowTemplate') vxeRowTemplate: TemplateRef<any>;
   asce: boolean = true; // 升序 true 降序 false
   isCheck: boolean = false;
   constructor(
     @Optional() protected override vxeService: VxeTableService,
-    public override element: ElementRef,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    protected override viewContainerRef: ViewContainerRef,
+    protected override injector: Injector,
+    public override element: ElementRef
   ) {
-    super(vxeService, element);
+    super(vxeService, viewContainerRef, injector, element);
     if (!vxeService) Error('error: vxeService is null');
   }
   ngOnChanges(changes: SimpleChanges) {
@@ -53,7 +57,8 @@ export class VxeColumnComponent extends VxeColumnGroupBase {
   sortStatusChange() {
     this.asce = !this.asce;
   }
-  ngAfterViewInit() {
+  override ngAfterViewInit() {
+    super.ngAfterViewInit();
     this.setWidth();
   }
   checkboxChange($event) {

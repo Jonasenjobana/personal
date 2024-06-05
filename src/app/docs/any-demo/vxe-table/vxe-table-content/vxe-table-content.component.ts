@@ -50,6 +50,7 @@ export class VxeTableContentComponent {
     return this.vxeService.gutterConfig;
   }
   isHover: boolean = false;
+  rowHeight: number = 28;
   get isVirtual() {
     return !!this.virtualConfig;
   }
@@ -93,13 +94,20 @@ export class VxeTableContentComponent {
     this.vxeService.contentEvent$.subscribe(($event: VxeContentEvent) => {
       const {type} = $event;
       if (type == 'expand') {
-        this.treeData = this.vData.filter(item => item._parent ? item._parent._expanded && !item._parent._hidden : true);
+        this.treeData = this.vData.filter(item => this.treeFilter(item));
         setTimeout(() => {
           this.scrollGutter();
           this.handleRightFixed();
         }, 100)
       }
     })
+  }
+  treeFilter(item: VxeData) {
+    const {_parent} = item;
+    if (_parent) {
+      return _parent._expanded && !_parent._hidden && this.treeFilter(_parent);
+    }
+    return true;
   }
   onHeadEvent($event: VxeHeadEvent) {
     const {type, event, column} = $event;
@@ -117,8 +125,9 @@ export class VxeTableContentComponent {
   ngOnChanges(changes: SimpleChanges) {
     const { rowConfig, virtualConfig, vData, vxeWraperHeight, contentCol, treeConfig } = changes;
     if (rowConfig && rowConfig.currentValue) {
-      const { isHover = false } = this.rowConfig;
+      const { isHover = false, height } = this.rowConfig;
       this.isHover = isHover;
+      this.rowHeight = height
     }
     if (vData) {
       if (!vData.firstChange) {
@@ -147,6 +156,7 @@ export class VxeTableContentComponent {
       row: item,
       event: item._expanded
     })
+    console.log(item)
   }
   handleExpanded(children: VxeData[], hidden: boolean) {
     children.forEach(child => {

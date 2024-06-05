@@ -1,5 +1,7 @@
 import { Component, ViewChild } from '@angular/core';
 import { NgForm } from '@angular/forms';
+import { CodeNetData } from './net';
+import { VxeGridConfig } from '../vxe-model';
 
 @Component({
   selector: 'table-demo',
@@ -7,6 +9,7 @@ import { NgForm } from '@angular/forms';
   styleUrls: ['./table-demo.component.less']
 })
 export class TableDemoComponent {
+  @ViewChild('rowtemp') rowtemp: any
   hidden: boolean = false
   constructor() {
 
@@ -35,19 +38,32 @@ export class TableDemoComponent {
     { id: 24566, parentId: 24555, name: 'Test17', type: 'js', size: 1024, date: '2021-06-01' },
     { id: 24577, parentId: 24555, name: 'Test18', type: 'js', size: 1024, date: '2021-06-01' }
   ]
-  data3: any[] = []
-  shows: boolean[] = [true, true, true, true, true, true, true,]
+  data3: any[] = [];
+  data4 = []
+  shows: boolean[] = [true, true, true, true, true, true, true,];
+  gridConfig: VxeGridConfig = {
+    columns: [
+      { type: 'seq' },
+      { title: '测试', field: 'aidsName' },
+      { title: 'test', children: [
+        { title: '测试', field: 'aidsName', width: 300 },
+      ]}
+    ],
+    data: [{
+      aidsName: 'sss'
+    }]
+  }
   ngAfterViewInit() {
     setTimeout(() => {
       this.hidden = true;
-      new Array(1000).fill(1).forEach(() => {
+      new Array(600).fill(1).forEach(() => {
         this.data.push({ id: '123', name: '张三', 'age': 18, 'address': '北京市朝阳区', 'sex': '男', num: '1', date: '2024-02-21', role:'管理' })
       })
       this.data = [...this.data]
     }, 3000);
     setTimeout(() => {
       this.data3 = [];
-      for (let i = 0; i < 1000; i++) {
+      for (let i = 0; i < 600; i++) {
         let data: any = {
           id: i,
           collectionTime: 'detail' + i,
@@ -78,6 +94,36 @@ export class TableDemoComponent {
         this.data3.push(data);
       }
     }, 2000);
+    setTimeout(() => {
+      this.handleCode(CodeNetData);
+      this.data4 = CodeNetData;
+      console.log(this.data4,'===')
+    }, 2000);
+    this.gridConfig = {
+      columns: [
+        { type: 'seq' },
+        { title: '测试', field: 'aidsName', rowTemplate: this.rowtemp  },
+      ],
+      data: [{
+        aidsName: 'sss'
+      }]
+    }
+  }
+  handleCode(data: any[]) {
+    data.forEach(el => {
+      if (el.menuType == '3') {
+        el._operate = el.children.map(child => {
+          child._parent = el;
+          return child
+        });
+        el.children = [];
+      } else {
+        this.handleCode(el.children)
+      }
+    })
+  }
+  checkChange($event) {
+    console.log($event)
   }
   onCheckChange($event) {
     console.log('外部',$event)
@@ -89,5 +135,23 @@ export class TableDemoComponent {
   }
   onSubmit(form: NgForm) {
     console.log(form)
+  }
+  checkOperateCode(item,col) {
+    if (!item) return;
+    const {_parent} = item
+    if (item.ifCheck) _parent.ifCheck = true;
+    this.checkOperateCode(_parent, col)
+  }
+  checkParentCode(item, ifCheck: boolean) {
+    if (ifCheck) return;
+    const {children, _operate} = item;
+    const iteral = children && children.length > 0 ? children : _operate;
+    iteral?.forEach(child => {
+      child.ifCheck = ifCheck;
+      this.checkParentCode(child, ifCheck)
+    })
+  }
+  clickSetting() {
+
   }
 }

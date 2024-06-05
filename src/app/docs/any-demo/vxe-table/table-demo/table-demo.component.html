@@ -1,61 +1,6 @@
 <div class="container">
-  <!-- 表头合并 -->
-  <button (click)="shows[0] = !shows[0]">{{ shows[0] ? '隐藏' : '显示' }}基本信息列</button>
-  <button (click)="shows[1] = !shows[1]">{{ shows[1] ? '隐藏' : '显示' }}更多信息列</button>
-  <button (click)="shows[2] = !shows[2]">{{ shows[2] ? '隐藏' : '显示' }}额外信息列</button>
-  <button (click)="shows[3] = !shows[3]">{{ shows[3] ? '隐藏' : '显示' }}Address列</button>
-  <button (click)="shows[4] = !shows[4]">{{ shows[4] ? '隐藏' : '显示' }}Name列</button>
-  <button (click)="shows[5] = !shows[5]">{{ shows[5] ? '隐藏' : '显示' }}Sex列</button>
-  <button (click)="shows[6] = !shows[6]">{{ shows[6] ? '隐藏' : '显示' }}详细信息列</button>
-  <vxe-table
-    [inData]="data"
-    [maxHeight]="300"
-    (checkChange)="onCheckChange($event)"
-    [rowConfig]="{ isHover: true }"
-    [virtualConfig]="{ itemHeight: 33, minBuffer: 300, maxBuffer: 1000 }"
-  >
-    <vxe-column type="checkbox" [width]="50" fixed="left"></vxe-column>
-    <vxe-column type="seq" [width]="100" fixed="left"></vxe-column>
-    <vxe-colgroup [hidden]="!shows[0]" title="基本信息" align="center" fixed="left">
-      <vxe-column [hidden]="!shows[4]" title="Name" field="name" [width]="233">
-        <ng-template let-row="row" let-col="col">
-          <input type="text" nz-input [(ngModel)]="row[col.field]" />
-        </ng-template>
-      </vxe-column>
-    </vxe-colgroup>
-    <vxe-colgroup [hidden]="!shows[1]" title="更多信息" [width]="500">
-      <vxe-column title="Role" field="name"></vxe-column>
-      <vxe-column title="Age" field="age"></vxe-column>
-      <vxe-colgroup [hidden]="!shows[6]" title="详细信息" [width]="100">
-        <vxe-column [hidden]="!shows[5]" title="Sex" field="sex" [width]="60"></vxe-column>
-        <vxe-column title="Num" field="num"></vxe-column>
-      </vxe-colgroup>
-    </vxe-colgroup>
-    <vxe-colgroup [hidden]="!shows[2]" title="额外信息" [width]="150" fixed="right">
-      <vxe-column title="Date" field="date" [width]="50"></vxe-column>
-      <vxe-column title="Address" [width]="100" field="address"></vxe-column>
-    </vxe-colgroup>
-    <vxe-column [hidden]="!shows[3]" title="Address" [width]="100" field="address" fixed="right"></vxe-column>
-  </vxe-table>
-  <!-- 树形表格 -->
-  <vxe-table [inData]="data2" [treeConfig]="{ transform: true, rowField: 'id', parentField: 'parentId' }">
-    <vxe-column type="seq" fixed="left" [align]="'left'" [treeNode]="true"></vxe-column>
-    <vxe-column field="name" title="Name" [width]="500"></vxe-column>
-    <vxe-column field="size" title="Size" [width]="500"></vxe-column>
-    <vxe-column field="type" title="Type" fixed="right"></vxe-column>
-    <vxe-column field="date" title="Date" fixed="right"></vxe-column>
-  </vxe-table>
-  <!-- 树形表格 -->
-  <vxe-table
-    [inData]="data3"
-    [virtualConfig]="{ itemHeight: 28, minBuffer: 400, }"
-    [treeConfig]="{ transform: false, childrenField: 'children' }"
-    [rowConfig]="{isHover: true}"
-  >
-    <vxe-column type="seq" [align]="'left'"></vxe-column>
-    <vxe-column field="aidsName" title="aidsName" [align]="'left'" [treeNode]="true"></vxe-column>
-    <vxe-column field="ifAlarm" title="ifAlarm" [width]="500"></vxe-column>
-    <vxe-column field="ifBind" title="ifBind" fixed="right"></vxe-column>
-    <vxe-column field="opertion" title="opertion" fixed="right"></vxe-column>
-  </vxe-table>
+  <vxe-grid [vxeConfig]="gridConfig"></vxe-grid>
 </div>
+<ng-template #rowtemp let-row="row" let-col="col">
+  {{ row[col.field] }}ddddd
+</ng-template>

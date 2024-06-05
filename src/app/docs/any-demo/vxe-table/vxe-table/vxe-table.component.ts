@@ -2,15 +2,23 @@ import { Subject, filter, takeUntil } from 'rxjs';
 import {
   ChangeDetectorRef,
   Component,
+  ComponentFactoryResolver,
+  ComponentRef,
+  ContentChild,
   ContentChildren,
   ElementRef,
   EventEmitter,
+  Inject,
+  Injector,
   Input,
+  Optional,
   Output,
   QueryList,
   Renderer2,
   SimpleChanges,
-  ViewChild
+  TemplateRef,
+  ViewChild,
+  ViewContainerRef
 } from '@angular/core';
 import { VxeTableService } from '../vxe-table.service';
 import { VxeColumnComponent } from '../vxe-column/vxe-column.component';
@@ -19,6 +27,7 @@ import {
   VxeColumnGroups,
   VxeContentEvent,
   VxeData,
+  VxeGridConfig,
   VxeGutterConfig,
   VxePageConfig,
   VxeRowConfig,
@@ -30,6 +39,7 @@ import {
 import { VxeColgroupComponent } from '../vxe-colgroup/vxe-colgroup.component';
 import { NavigationEnd, Router } from '@angular/router';
 import * as _ from 'lodash';
+import { VxeDynamicTable } from '../vxe-base/vxe-dynamic-table';
 
 @Component({
   selector: 'vxe-table',
@@ -37,7 +47,7 @@ import * as _ from 'lodash';
   styleUrls: ['./vxe-table.component.less'],
   providers: [VxeTableService]
 })
-export class VxeTableComponent {
+export class VxeTableComponent extends VxeDynamicTable {
   /**表格数据 */
   @Input() inData: any[] = [];
   /**接口 */
@@ -48,6 +58,8 @@ export class VxeTableComponent {
   @Input() rowConfig: Partial<VxeRowConfig>;
   @Input() minHeight: number = 300;
   @Input() maxHeight: number;
+  /**表格配置模式 */
+  @Input() inGrid: boolean = false;
   /**表单模式 */
   @Input() formModel: boolean = false;
   // 分页配置
@@ -62,18 +74,11 @@ export class VxeTableComponent {
   };
   @Input() rowStyle: any;
   @Input() cellStyle: any;
+  @Input() gridConfig: VxeGridConfig
   tableModel: VxeTableModel = 'normal';
   /**列 */
-  @ContentChildren(VxeColumnComponent) set columnComponents(column: QueryList<VxeColumnComponent>) {
-    this.columnComponentList = column.toArray();
-    this.resetTable();
-  }
-  @ContentChildren(VxeColgroupComponent) set colgroupComponents(colgroup: QueryList<VxeColgroupComponent>) {
-    this.colgroupComponentList = colgroup.toArray();
-    this.resetTable();
-  }
-  columnComponentList: VxeColumnComponent[];
-  colgroupComponentList: VxeColgroupComponent[];
+  @ContentChildren(VxeColumnComponent) contentColumns: QueryList<VxeColumnComponent>
+  @ContentChildren(VxeColgroupComponent) contentGroups: QueryList<VxeColgroupComponent>
   wraperWidth: number = 0;
   /**页脚 含分页 等 */
   @ViewChild('tableFooter') tableFooter: ElementRef<HTMLDivElement>;
@@ -89,11 +94,14 @@ export class VxeTableComponent {
   public scrollLeft: number;
   constructor(
     private elementRef: ElementRef<HTMLDivElement>,
-    public vxeService: VxeTableService,
+    public override vxeService: VxeTableService,
     private renderer: Renderer2,
     private cdr: ChangeDetectorRef,
-    private router: Router
+    private router: Router,
+    protected override viewContainerRef: ViewContainerRef,
+    protected override injector: Injector
   ) {
+    super(vxeService, viewContainerRef, injector);
     this.vxeService.contentEvent$.subscribe(($event: VxeContentEvent) => {
       this.contentEvent($event);
     });
@@ -212,6 +220,11 @@ export class VxeTableComponent {
       this.scrollLeft = scrollLeft;
       this.cdr.detectChanges();
     });
+    // 表格配置
+    if (this.inGrid) {
+      this.resetTableHeader()
+      this.createDynamicHeader(this.gridConfig.columns)
+    }
   }
   contentEvent($event: VxeContentEvent) {
     const { type, event, row } = $event;
@@ -228,10 +241,8 @@ export class VxeTableComponent {
     this.cdr.markForCheck();
   }
   resetTable() {
-    const groups = this.colgroupComponentList || [];
-    const columns = this.columnComponentList || [];
     // 保证节点顺序
-    this.headCol = this.vxeService.getDomFlow([...groups, ...columns]);
+    this.headCol = this.resetTableHeader();
     this.vxeService.tableInnerColumn$.next(this.headCol);
   }
   ngOnDestroy() {

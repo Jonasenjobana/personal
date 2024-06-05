@@ -7,7 +7,7 @@
     <thead class="vxe-head">
       <tr *ngFor="let header of tableHeaders;let idx = index">
           <td *ngFor="let item of header" [attr.rowspan]="item.VXETYPE == 'vxe-colgroup' ? 1 : tableHeaders.length - item._level" [attr.colspan]="item._colspan || 1">
-            <ng-template [ngTemplateOutlet]="item.vxeColumnTemplate"></ng-template>
+            <ng-template [ngTemplateOutlet]="item.vxeColumnTemplate" [ngTemplateOutletContext]="{col: item}"></ng-template>
           </td>
           <td *ngIf="scrollable && idx == 0" [attr.rowspan]="tableHeaders.length"></td>
       </tr>

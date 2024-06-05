@@ -1,3 +1,4 @@
+import { TemplateRef } from "@angular/core"
 import { VxeColumnGroupBase } from "./vxe-base/vxe-column-group"
 
 export interface VxeColumnConfig {
@@ -7,7 +8,8 @@ export interface VxeColumnConfig {
     /**列宽拖拽调整 */
     resizable: boolean
     /**点击高亮当前列 */
-    isCurrent
+    isCurrent: boolean
+    height: number
 }
 export interface VxeRowConfig {
     /**限制行高 */
@@ -100,4 +102,27 @@ export type VxeRowStyle = (param: {row: any, col: VxeColumnGroup, rowIndex: numb
 export type VxeCellStyle = (param: {row: any, col: VxeColumnGroup, rowIndex: number, columnIndex: number}) => Object
 export interface MergeCell {
     
+}
+export interface VxeGridConfig {
+    columns: Partial<VxeGridColumn>[]
+    rowConfig?: Partial<VxeRowConfig>
+    columnConfig?: Partial<VxeColumnConfig>
+    virtualConfig?: Partial<VxeVirtualConfig>
+    treeConfig?: Partial<VxeTreeConfig>
+    gutterConfig?: Partial<VxeGutterConfig>
+    data: any
+}
+export interface VxeGridColumn {
+    type: 'checkbox' | 'seq' | 'radio'
+    title: string
+    sortNumber: number
+    field: string
+    width: number
+    align: 'left' | 'center' | 'right'
+    fixed: 'left' | 'right'
+    treeNode: boolean
+    hidden: boolean
+    children: Partial<VxeGridColumn>[]
+    rowTemplate: TemplateRef<any>
+    columnTemplate: TemplateRef<any>
 }
