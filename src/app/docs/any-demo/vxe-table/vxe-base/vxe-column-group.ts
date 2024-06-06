@@ -3,18 +3,13 @@ import {
   Directive,
   ElementRef,
   Input,
-  Optional,
-  Injector,
   TemplateRef,
   ViewChild,
-  ViewContainerRef
 } from '@angular/core';
-import { VxeTableService } from '../vxe-table.service';
-import { VxeDynamicTable } from './vxe-dynamic-table';
 
 /**公用属性 */
 @Directive()
-export abstract class VxeColumnGroupBase extends VxeDynamicTable {
+export abstract class VxeColumnGroupBase {
   abstract readonly VXETYPE: 'vxe-column' | 'vxe-colgroup';
   @Input() field: string;
   @Input() width: number;
@@ -36,23 +31,9 @@ export abstract class VxeColumnGroupBase extends VxeDynamicTable {
   vxeColumnTemplate: TemplateRef<any>;
   /**自动计算宽度 */
   autoWidth: number;
-  parentComponent?: VxeColumnGroupBase;
   children: VxeColumnGroupBase[] = [];
-  componentWidth: number;
-  constructor(
-    @Optional() protected override vxeService: VxeTableService,
-    protected viewContaineRef: ViewContainerRef,
-    protected override injector: Injector,
-    public element: ElementRef
-  ) {
-    super(vxeService, viewContaineRef, injector);
-  }
-  setFixedColumn() {
-    this.fixed && this.vxeService.addFixed(this.fixed, this);
-  }
+  constructor(public element: ElementRef) {}
   ngAfterViewInit() {
     this.vxeColumnTemplate = this.contentTemplate || this.defaultTemplate;
   }
-  /** */
-  abstract setWidth();
 }

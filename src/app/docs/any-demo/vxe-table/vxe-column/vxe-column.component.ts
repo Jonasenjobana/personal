@@ -31,41 +31,34 @@ export class VxeColumnComponent extends VxeColumnGroupBase {
   asce: boolean = true; // 升序 true 降序 false
   isCheck: boolean = false;
   constructor(
-    @Optional() protected override vxeService: VxeTableService,
+    @Optional() protected vxeService: VxeTableService,
     private cdr: ChangeDetectorRef,
-    protected override viewContainerRef: ViewContainerRef,
-    protected override injector: Injector,
     public override element: ElementRef
   ) {
-    super(vxeService, viewContainerRef, injector, element);
+    super(element);
     if (!vxeService) Error('error: vxeService is null');
   }
   ngOnChanges(changes: SimpleChanges) {
-    const { fixed, width, hidden, treeNode } = changes;
+    const { fixed, hidden } = changes;
     if (fixed) {
       setTimeout(() => {
         this.setFixedColumn();
       });
     }
-    if (width) {
-      this.setWidth();
-    }
     if (hidden) {
       this.vxeService.headUpdate$.next();
     }
+  }
+  setFixedColumn() {
+    this.fixed && this.vxeService.addFixed(this.fixed, this);
   }
   sortStatusChange() {
     this.asce = !this.asce;
   }
   override ngAfterViewInit() {
     super.ngAfterViewInit();
-    this.setWidth();
   }
   checkboxChange($event) {
     this.vxeService.headEvent$.next({type: 'checkbox', column: this, event: $event})
-  }
-  override setWidth(width: number = 0) {
-    // const currentWidth = this.vxeColumnTemplate?.elementRef.nativeElement.getBoundingClientRect().width || 0
-    this.componentWidth = Math.max(width, 1);
   }
 }

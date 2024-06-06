@@ -139,7 +139,7 @@ export class TableDemoComponent {
   checkOperateCode(item,col) {
     if (!item) return;
     const {_parent} = item
-    if (item.ifCheck) _parent.ifCheck = true;
+    if (item.ifCheck && _parent) _parent.ifCheck = true;
     this.checkOperateCode(_parent, col)
   }
   checkParentCode(item, ifCheck: boolean) {

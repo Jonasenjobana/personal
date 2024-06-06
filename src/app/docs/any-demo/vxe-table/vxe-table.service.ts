@@ -1,8 +1,16 @@
-import { Injectable } from '@angular/core';
+import { ComponentRef, Injectable } from '@angular/core';
 import { BehaviorSubject, Subject } from 'rxjs';
 import { VxeColumnComponent } from './vxe-column/vxe-column.component';
-import { VxeColumnGroup, VxeColumnGroups, VxeContentEvent, VxeGutterConfig, VxeHeadEvent } from './vxe-model';
+import {
+  VxeColumnGroup,
+  VxeColumnGroups,
+  VxeContentEvent,
+  VxeGridColumn,
+  VxeGutterConfig,
+  VxeHeadEvent
+} from './vxe-model';
 import { isNotEmpty } from 'src/app/shared/utils/common.util';
+import { VxeColgroupComponent } from './vxe-colgroup/vxe-colgroup.component';
 
 /**
  * vxe 跨组件通讯必备服务
@@ -39,13 +47,12 @@ export class VxeTableService {
   public gutterConfig: VxeGutterConfig = {
     width: 8,
     height: 6
-  }
+  };
   /**滚动槽变化 */
-  public gutterChange$: Subject<{type: 'horizen' | 'vertical', size: number}> = new Subject();
+  public gutterChange$: Subject<{ type: 'horizen' | 'vertical'; size: number }> = new Subject();
   /**表头更新通知 */
   public headUpdate$: Subject<void> = new Subject();
-  constructor() {
-  }
+  constructor() {}
   addFixed(dir: 'left' | 'right', vxeCol: VxeColumnGroup) {
     this.fixedColumn[dir].push(vxeCol);
     this.fixedChange$.next();
@@ -57,30 +64,36 @@ export class VxeTableService {
   destroy() {
     this.fixedColumn = new FixedColumn();
   }
-  changeSort(column: VxeColumnComponent) {
-    
-  }
+  changeSort(column: VxeColumnComponent) {}
   /**按照dom顺序数组 */
   getDomFlow(domArray: VxeColumnGroups) {
-    return domArray.sort((a, b) => a.element.nativeElement.compareDocumentPosition(b.element.nativeElement) & Node.DOCUMENT_POSITION_FOLLOWING ? -1 : 1);
+    return domArray.sort((a, b) =>
+      a.element.nativeElement.compareDocumentPosition(b.element.nativeElement) & Node.DOCUMENT_POSITION_FOLLOWING
+        ? -1
+        : 1
+    );
   }
 }
 
 class FixedColumn {
-  left: VxeColumnGroup[]
-  right: VxeColumnGroup[]
+  left: VxeColumnGroup[];
+  right: VxeColumnGroup[];
   get hasFixed() {
-    return this.left.length > 0 || this.right.length > 0
+    return this.left.length > 0 || this.right.length > 0;
   }
   get rightWidth() {
-    return this.right.filter(el => !el.hidden).reduce((width, el) => {
-      return el.autoWidth + width
-    }, 0)
+    return this.right
+      .filter(el => !el.hidden)
+      .reduce((width, el) => {
+        return el.autoWidth + width;
+      }, 0);
   }
   get leftWidth() {
-    return this.left.filter(el => !el.hidden).reduce((width, el) => {
-      return el.autoWidth + width
-    }, 0)
+    return this.left
+      .filter(el => !el.hidden)
+      .reduce((width, el) => {
+        return el.autoWidth + width;
+      }, 0);
   }
 
   constructor() {

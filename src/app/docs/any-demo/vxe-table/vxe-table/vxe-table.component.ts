@@ -27,6 +27,7 @@ import {
   VxeColumnGroups,
   VxeContentEvent,
   VxeData,
+  VxeGridColumn,
   VxeGridConfig,
   VxeGutterConfig,
   VxePageConfig,
@@ -40,6 +41,7 @@ import { VxeColgroupComponent } from '../vxe-colgroup/vxe-colgroup.component';
 import { NavigationEnd, Router } from '@angular/router';
 import * as _ from 'lodash';
 import { VxeDynamicTable } from '../vxe-base/vxe-dynamic-table';
+import { createDynamicHeader } from '../vxe-base/vxe-mixin';
 
 @Component({
   selector: 'vxe-table',
@@ -47,7 +49,7 @@ import { VxeDynamicTable } from '../vxe-base/vxe-dynamic-table';
   styleUrls: ['./vxe-table.component.less'],
   providers: [VxeTableService]
 })
-export class VxeTableComponent extends VxeDynamicTable {
+export class VxeTableComponent implements VxeDynamicTable {
   /**表格数据 */
   @Input() inData: any[] = [];
   /**接口 */
@@ -94,14 +96,13 @@ export class VxeTableComponent extends VxeDynamicTable {
   public scrollLeft: number;
   constructor(
     private elementRef: ElementRef<HTMLDivElement>,
-    public override vxeService: VxeTableService,
+    public vxeService: VxeTableService,
     private renderer: Renderer2,
     private cdr: ChangeDetectorRef,
     private router: Router,
-    protected override viewContainerRef: ViewContainerRef,
-    protected override injector: Injector
+    protected viewContainerRef: ViewContainerRef,
+    protected injector: Injector
   ) {
-    super(vxeService, viewContainerRef, injector);
     this.vxeService.contentEvent$.subscribe(($event: VxeContentEvent) => {
       this.contentEvent($event);
     });
@@ -115,6 +116,10 @@ export class VxeTableComponent extends VxeDynamicTable {
         this.vxeService.virtualScrolReset$.next();
       });
   }
+  contentColComponents: VxeColumnComponent[] = [];
+  contentGroupComponents: VxeColgroupComponent[] = [];
+  dynamicColComponents: VxeColumnComponent[] = [];
+  dynamicGroupComponents: VxeColgroupComponent[] = [];
   ngOnChanges(changes: SimpleChanges) {
     const { inData, rowConfig, minHeight, maxHeight, gutterConfig, treeConfig } = changes;
     if ((minHeight && !minHeight.isFirstChange()) || (maxHeight && !maxHeight.isFirstChange())) {
@@ -207,6 +212,18 @@ export class VxeTableComponent extends VxeDynamicTable {
     this.tableHeight = (maxHeight && Math.min(maxHeight, this.tableHeight)) || this.tableHeight;
     this.renderer.setStyle(this.elementRef.nativeElement, 'height', this.tableHeight + 'px');
   }
+  ngAfterContentInit() {
+    this.contentColComponents = this.contentColumns.toArray();
+    this.contentGroupComponents = this.contentGroups.toArray();
+    this.contentColumns.changes.subscribe(data => {
+      this.contentColComponents = this.contentColumns.toArray();
+      this.resetTableHeader();
+    });
+    this.contentGroups.changes.subscribe(data => {
+      this.contentGroupComponents = this.contentGroups.toArray();
+      this.resetTableHeader();
+    });
+  }
   ngAfterViewInit() {
     const el = this.elementRef.nativeElement;
     this.wraperWidth = el.offsetWidth;
@@ -222,9 +239,21 @@ export class VxeTableComponent extends VxeDynamicTable {
     });
     // 表格配置
     if (this.inGrid) {
-      this.resetTableHeader()
       this.createDynamicHeader(this.gridConfig.columns)
     }
+    this.resetTableHeader()
+  }
+  resetTableHeader() {
+    const groups = [...this.contentGroupComponents, ...this.dynamicGroupComponents];
+    const columns = [...this.contentColComponents, ...this.dynamicColComponents];
+    this.headCol = this.vxeService.getDomFlow([...groups, ...columns]);
+    this.vxeService.tableInnerColumn$.next(this.headCol);
+    this.cdr.detectChanges();
+  }
+  createDynamicHeader(vxeGridColumn: Partial<VxeGridColumn>[]) {
+    const {dyColumns, dyGroups} = createDynamicHeader(vxeGridColumn, { viewContainerRef: this.viewContainerRef, injector: this.injector })
+    this.dynamicColComponents = dyColumns;
+    this.dynamicGroupComponents = dyGroups;
   }
   contentEvent($event: VxeContentEvent) {
     const { type, event, row } = $event;
@@ -242,7 +271,6 @@ export class VxeTableComponent extends VxeDynamicTable {
   }
   resetTable() {
     // 保证节点顺序
-    this.headCol = this.resetTableHeader();
     this.vxeService.tableInnerColumn$.next(this.headCol);
   }
   ngOnDestroy() {

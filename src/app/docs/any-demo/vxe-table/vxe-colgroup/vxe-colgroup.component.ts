@@ -15,13 +15,15 @@ import { VxeTableService } from '../vxe-table.service';
 import { VxeColumnComponent } from '../vxe-column/vxe-column.component';
 import { VxeGridColumn } from '../vxe-model';
 import { VxeColumnGroupBase } from '../vxe-base/vxe-column-group';
+import { VxeDynamicTable } from '../vxe-base/vxe-dynamic-table';
+import { createDynamicHeader } from '../vxe-base/vxe-mixin';
 
 @Component({
   selector: 'vxe-colgroup',
   templateUrl: './vxe-colgroup.component.html',
   styleUrls: ['./vxe-colgroup.component.less'],
 })
-export class VxeColgroupComponent extends VxeColumnGroupBase {
+export class VxeColgroupComponent extends VxeColumnGroupBase implements VxeDynamicTable {
   readonly VXETYPE = 'vxe-colgroup';
   /**内部投影方式递归 */
   @Input() columnChildren: Partial<VxeGridColumn>[] = [];
@@ -29,82 +31,60 @@ export class VxeColgroupComponent extends VxeColumnGroupBase {
   @ContentChildren(VxeColgroupComponent) groups: QueryList<VxeColgroupComponent>;
   columnComponentList: VxeColumnComponent[];
   groupComponentList: VxeColgroupComponent[];
-  columnCount: number = 0;
   constructor(
-    @Optional() protected override vxeService: VxeTableService,
+    @Optional() protected vxeService: VxeTableService,
     private cdr: ChangeDetectorRef,
-    protected override viewContainerRef: ViewContainerRef,
-    protected override injector: Injector,
-    public override element: ElementRef
+    public override element: ElementRef,
+    protected viewContainerRef: ViewContainerRef,
+    protected injector: Injector,
   ) {
-    super(vxeService, viewContainerRef, injector, element);
+    super(element);
     if (!vxeService) Error('error: vxeService is null');
+  }
+  contentColComponents: VxeColumnComponent[] = [];
+  contentGroupComponents: VxeColgroupComponent[] = [];
+  dynamicColComponents: VxeColumnComponent[] = [];
+  dynamicGroupComponents: VxeColgroupComponent[] = [];
+  resetTableHeader() {
+    const groups = [...this.contentGroupComponents, ...this.dynamicGroupComponents];
+    const columns = [...this.contentColComponents, ...this.dynamicColComponents];
+    this.children = this.vxeService.getDomFlow([...groups, ...columns]);
+  }
+  setFixedColumn() {
+    this.fixed && this.vxeService.addFixed(this.fixed, this);
+  }
+  createDynamicHeader(vxeGridColumn: Partial<VxeGridColumn>[]) {
+    const {dyColumns, dyGroups} = createDynamicHeader(vxeGridColumn, { viewContainerRef: this.viewContainerRef, injector: this.injector })
+    this.dynamicColComponents = dyColumns;
+    this.dynamicGroupComponents = dyGroups;
   }
   ngOnChanges(changes: SimpleChanges) {
     const { fixed, width, hidden, columnChildren } = changes;
     if (fixed && !fixed.isFirstChange()) {
       this.setFixedColumn();
     }
-    if (width) {
-      this.setWidth(this.width);
-    }
     if (hidden) {
       this.vxeService.headUpdate$.next();
     }
     if (columnChildren) {
-      this.setChildComponent();
+      this.columnChildren.length > 0 && this.createDynamicHeader(this.columnChildren);
     }
-  }
-  setChildComponent() {
-    this.columnComponentList = [];
-    this.groupComponentList = [];
-    this.columnChildren.forEach((col) => {
-      let ref: ComponentRef<any>
-      if (col.children && col.children.length > 0) {
-         ref = this.viewContainerRef.createComponent(VxeColgroupComponent, {injector: this.injector})
-         this.groupComponentList.push(ref.instance)
-         ref.setInput('columnChildren', col.children);
-      } else {
-         ref = this.viewContainerRef.createComponent(VxeColumnComponent, {injector: this.injector})
-         this.columnComponentList.push(ref.instance)
-         ref.setInput('type', col.type);
-      }
-      ref.setInput('title', col.title);
-      ref.setInput('field', col.field);
-    })
-    this.reset();
   }
   ngAfterContentInit() {
     this.setFixedColumn();
+    this.contentColComponents = this.columns.toArray();
+    this.contentGroupComponents = this.groups.toArray();
     this.columns.changes.subscribe(data => {
-      this.reset();
+      this.contentColComponents = this.columns.toArray();
+      this.resetTableHeader();
     });
     this.groups.changes.subscribe(data => {
-      this.reset();
+      this.contentGroupComponents = this.groups.toArray();
+      this.resetTableHeader();
     });
   }
   override ngAfterViewInit(): void {
     super.ngAfterViewInit();
-    this.reset();
-  }
-  reset() {
-    this.columnCount =
-      this.columns.length + this.columnComponentList.length + 
-      [...this.groups, ...this.groupComponentList].reduce((count, el) => {
-        return count + el.columnCount;
-      }, 0);
-    const columns = [...this.columns.toArray(), ...this.columnComponentList];
-    const groups = [...this.groups.toArray(), ...this.groupComponentList];
-    this.children = this.vxeService.getDomFlow([...groups, ...columns]);
-    console.log(columns, groups, this.title)
-    this.setWidth(this.width);
-  }
-  override setWidth(width: number = 0) {
-    // let childWidth = 0;
-    // this.children.forEach(el => {
-    //   childWidth += el.componentWidth;
-    // });
-    // const currentWidth = this.vxeColumnTemplate?.elementRef.nativeElement.getBoundingClientRect().width || 0;
-    // this.componentWidth = Math.max(childWidth, width, currentWidth);
+    this.resetTableHeader();
   }
 }
