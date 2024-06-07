@@ -1,4 +1,5 @@
 <div class="container">
+  <button (click)="getScreenShot()">截图</button>
   <button (click)="shows[0] = !shows[0]">{{ shows[0] ? '隐藏' : '显示' }}基本信息列</button>
   <button (click)="shows[1] = !shows[1]">{{ shows[1] ? '隐藏' : '显示' }}更多信息列</button>
   <button (click)="shows[2] = !shows[2]">{{ shows[2] ? '隐藏' : '显示' }}额外信息列</button>
@@ -7,6 +8,7 @@
   <button (click)="shows[5] = !shows[5]">{{ shows[5] ? '隐藏' : '显示' }}Sex列</button>
   <button (click)="shows[6] = !shows[6]">{{ shows[6] ? '隐藏' : '显示' }}详细信息列</button>
   <vxe-table
+    id="table"
     [inData]="data"
     (checkChange)="onCheckChange($event)"
     [rowConfig]="{ isHover: true, height: 48 }"
@@ -152,4 +154,55 @@
     <vxe-column title="联系地址" field="address"></vxe-column>
     <vxe-column title="状态" field="ifEnabled" [width]="50"></vxe-column>
   </vxe-table>
+    <!-- 打印表格 -->
+    <div class="print-table">
+      <vxe-table>
+        <vxe-column title="航标管理单位" [width]="40"></vxe-column>
+        <vxe-column title="代码" [width]="24"></vxe-column>
+        <vxe-column title="合计" [width]="30"></vxe-column>
+        <vxe-colgroup title="视觉航标">
+          <vxe-colgroup title="灯塔">
+            <vxe-column [width]="30" title="有人看守"></vxe-column>
+            <vxe-column [width]="30" title="无线电标志"></vxe-column>
+            <vxe-column [width]="30" title="已遥测遥控"></vxe-column>
+            <vxe-column [width]="30" title="AIS航标"></vxe-column>
+          </vxe-colgroup>
+          <vxe-colgroup title="灯桩">
+            <vxe-column [width]="30" title="射程≤5海里"></vxe-column>
+            <vxe-column [width]="30" title="射程＞5海里"></vxe-column>
+            <vxe-column [width]="30" title="已遥测遥控"></vxe-column>
+            <vxe-column [width]="30" title="AIS航标"></vxe-column>
+          </vxe-colgroup>
+          <vxe-colgroup title="导标">
+            <vxe-column [width]="30" title="数量"></vxe-column>
+            <vxe-column [width]="30" title="已遥测遥控"></vxe-column>
+            <vxe-column [width]="30" title="AIS航标"></vxe-column>
+          </vxe-colgroup>
+          <vxe-colgroup title="灯船">
+            <vxe-column [width]="30" title="数量"></vxe-column>
+            <vxe-column [width]="30" title="已遥测遥控"></vxe-column>
+            <vxe-column [width]="30" title="AIS航标"></vxe-column>
+          </vxe-colgroup>
+          <vxe-colgroup title="桥梁标志">
+            <vxe-column [width]="30" title="已遥测遥控"></vxe-column>
+            <vxe-column [width]="30" title="AIS航标"></vxe-column>
+          </vxe-colgroup>
+          <vxe-column [width]="30" title="立标"></vxe-column>
+          <vxe-column [width]="30" title="浮标"></vxe-column>
+        </vxe-colgroup>
+        <vxe-colgroup title="音响航标">
+          <vxe-column [width]="30" title="雾号"></vxe-column>
+          <vxe-column [width]="30" title="雾钟"></vxe-column>
+        </vxe-colgroup>
+        <vxe-colgroup title="无线电标志">
+          <vxe-column [width]="30" title="雷达响应器"></vxe-column>
+          <vxe-column [width]="30" title="雷达指向标"></vxe-column>
+          <vxe-column [width]="30" title="AIS基站"></vxe-column>
+          <vxe-column [width]="30" title="AIS接收站"></vxe-column>
+          <vxe-column [width]="30" title="DGNSS台站" *ngIf="!hidden"></vxe-column>
+        </vxe-colgroup>
+        <vxe-column [width]="30" title="其他标志"></vxe-column>
+        <vxe-column [width]="30" title="备注"></vxe-column>
+      </vxe-table>
+    </div>
 </div>

@@ -72,6 +72,7 @@ export class VxeTableContentComponent {
     private renderer: Renderer2
   ) {
     this.vxeService.hoverIndex$.subscribe(idx => {
+      if (this.hoverIndex == idx) return;
       this.hoverIndex = idx;
     });
     this.vxeService.headHeight$.subscribe(height => {
@@ -136,6 +137,9 @@ export class VxeTableContentComponent {
       const { isHover = false, height } = this.rowConfig;
       this.isHover = isHover;
       this.rowHeight = height
+    }
+    if (treeConfig) {
+      const {showLine = false} = this.treeConfig;
     }
     if (vData) {
       if (!vData.firstChange) {

@@ -23,6 +23,7 @@
     "@antv/g": "^5.18.25",
     "@antv/g-canvas": "^1.11.27",
     "@antv/g-lottie-player": "^0.2.22",
+    "html2canvas": "^1.4.1",
     "leaflet": "^1.9.4",
     "lodash": "^4.17.21",
     "marked": "^5.0.4",

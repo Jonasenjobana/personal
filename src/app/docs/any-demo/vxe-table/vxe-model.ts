@@ -23,6 +23,13 @@ export interface VxeRowConfig {
     /**鼠标移动显示详细 */
     showTitle: boolean
 }
+export interface VxeToolConfig {
+    // 截图
+    snapshot: {
+    }
+    // PDF
+    // 打印
+}
 export interface VxePageConfig {
     pageSize: number
     pageRecord: number

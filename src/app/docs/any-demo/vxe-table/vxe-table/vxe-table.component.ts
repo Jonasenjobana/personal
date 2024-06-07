@@ -47,6 +47,9 @@ import { createDynamicHeader } from '../vxe-base/vxe-mixin';
   templateUrl: './vxe-table.component.html',
   styleUrls: ['./vxe-table.component.less'],
   providers: [VxeTableService],
+  host: {
+    '[class.vxe-border-inner]': 'innerBorder',
+  }
 })
 export class VxeTableComponent implements VxeDynamicTable {
   /**表格数据 */
@@ -59,7 +62,7 @@ export class VxeTableComponent implements VxeDynamicTable {
   @Input() maxHeight: number;
   @Input() pageIndex: number = 0;
   /**默认完整边框 */
-  @Input() inBorder: 'full' | 'inner' | 'none' = 'full';
+  @Input() innerBorder: boolean = true
   /**加载中 */
   @Input() loading: boolean
   /**表头tr td额外classname */
@@ -93,6 +96,8 @@ export class VxeTableComponent implements VxeDynamicTable {
   /**页脚 含分页 等 */
   @ViewChild('tableFooter') tableFooter: ElementRef<HTMLDivElement>;
   @Output() checkChange: EventEmitter<any> = new EventEmitter();
+  @Output() pageChange: EventEmitter<any> = new EventEmitter();
+
   public headCol: VxeColumnGroups;
   public contentCol: VxeColumnComponent[];
   public tableHeight: number;

@@ -2,7 +2,7 @@ import { Component, ViewChild } from '@angular/core';
 import { NgForm } from '@angular/forms';
 import { CodeNetData, Organize, WareHouses } from './net';
 import { VxeData, VxeGridColumn, VxeGridConfig } from '../vxe-model';
-
+import html2Canvas from "html2canvas";
 @Component({
   selector: 'table-demo',
   templateUrl: './table-demo.component.html',
@@ -72,9 +72,7 @@ export class TableDemoComponent {
         this.data.push({ id: '123', name: '张三', 'age': 18, 'address': '北京市朝阳区', 'sex': '男', num: '1', date: '2024-02-21', role:'管理' })
       })
       this.data = [...this.data]
-      setTimeout(() => {
-        this.data = [...this.data.slice(0,5)]
-      }, 10000);
+
     }, 3000);
     setTimeout(() => {
       this.data3 = [];
@@ -204,6 +202,31 @@ export class TableDemoComponent {
       aidsName3: 'www3',
       aidsName4: 'www4'
     }]
+  }
+  async getScreenShot() {
+    await html2Canvas(document.querySelector('#table')).then((canvas) => {
+      var imgData = canvas.toDataURL('image/png').replace('image/png', 'image/octet-stream');
+      const a = document.createElement('a');
+      a.href = imgData;
+      a.download = `123.png`;
+      const event = new MouseEvent('click', {
+        bubbles: true,
+        cancelable: false,
+        view: window,
+        detail: 0,
+        screenX: 0,
+        screenY: 0,
+        clientX: 0,
+        clientY: 0,
+        ctrlKey: false,
+        altKey: false,
+        shiftKey: false,
+        metaKey: false,
+        button: 0,
+        relatedTarget: null,
+      });
+      a.dispatchEvent(event);
+    });
   }
 }
 interface CustomVxeGridConfig extends VxeGridConfig {
