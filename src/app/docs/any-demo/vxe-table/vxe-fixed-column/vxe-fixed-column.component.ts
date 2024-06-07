@@ -1,11 +1,12 @@
 import { fromEvent } from 'rxjs';
 import { VxeColumnGroupBase } from '../vxe-base/vxe-column-group';
 import { VxeColumnComponent } from '../vxe-column/vxe-column.component';
-import { VxeData, VxeRowConfig, VxeTableModel, VxeTreeConfig, VxeVirtualConfig } from '../vxe-model';
+import { VxeColumnConfig, VxeData, VxeRowConfig, VxeTableModel, VxeTreeConfig, VxeVirtualConfig } from '../vxe-model';
 import { VxeTableComponent } from '../vxe-table/vxe-table.component';
 import { VxeTableService } from './../vxe-table.service';
 import { ChangeDetectorRef, Component, ElementRef, Input, Optional, SimpleChanges, ViewChild } from '@angular/core';
 import { VxeTableHeadComponent } from '../vxe-table-head/vxe-table-head.component';
+import { VxeTableContentComponent } from '../vxe-table-content/vxe-table-content.component';
 
 /**不建议单独使用 捆绑vxe-table*/
 @Component({
@@ -23,13 +24,15 @@ export class VxeFixedColumnComponent {
   @Input() wraperWidth: number;
   @Input() contentCol: VxeColumnComponent[];
   @Input() tableModel: VxeTableModel
+  @Input() columnConfig: Partial<VxeColumnConfig>;
   @Input() treeConfig: Partial<VxeTreeConfig>
   @ViewChild('leftFixedContent') leftFixedContentRef: ElementRef<HTMLDivElement>;
-  @ViewChild('rightFixedContent') rightFixedContentRef: ElementRef<HTMLDivElement>;
+  @ViewChild('rightFixedContent') rightFixedContentRef: VxeTableContentComponent;
   @ViewChild('rightHeadRef') rightHeadRef: VxeTableHeadComponent;
   content: VxeColumnComponent[] = [];
   scrollTop: number;
   scrollLeft: number;
+  headHeight: number;
   headWidth: number;
   fixedLeftWidth: number;
   fixedRightWidth: number;
@@ -53,6 +56,7 @@ export class VxeFixedColumnComponent {
       this.setFixedColumn();
     }
   }
+  ok: boolean = false;
   ngAfterViewInit() {
     this.vxeService.scrollLeft$.subscribe(scrollLeft => {
       this.scrollLeft = scrollLeft;
@@ -63,6 +67,12 @@ export class VxeFixedColumnComponent {
     this.vxeService.tableHeaderLeafColumns$.subscribe(columns => {
       this.content = columns as VxeColumnComponent[];
     });
+    this.vxeService.headHeight$.subscribe(height => {
+      this.headHeight = height;
+    })
+    setTimeout(() => {
+      this.ok = true;
+    },250);
   }
   setFixedColumn() {
     this.fixedLeftWidth = this.contentCol.filter(col => col.fixed == 'left').reduce((width, el) => width + el.autoWidth, 0);

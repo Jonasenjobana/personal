@@ -2,7 +2,6 @@ import { Subject, filter, takeUntil } from 'rxjs';
 import {
   ChangeDetectorRef,
   Component,
-  ComponentFactoryResolver,
   ComponentRef,
   ContentChild,
   ContentChildren,
@@ -47,19 +46,28 @@ import { createDynamicHeader } from '../vxe-base/vxe-mixin';
   selector: 'vxe-table',
   templateUrl: './vxe-table.component.html',
   styleUrls: ['./vxe-table.component.less'],
-  providers: [VxeTableService]
+  providers: [VxeTableService],
 })
 export class VxeTableComponent implements VxeDynamicTable {
   /**表格数据 */
   @Input() inData: any[] = [];
-  /**接口 */
-  @Input() inApi: string;
   @Input() columnConfig: Partial<VxeColumnConfig>;
   @Input() treeConfig: Partial<VxeTreeConfig>;
   @Input() mergeCell: any;
   @Input() rowConfig: Partial<VxeRowConfig>;
   @Input() minHeight: number = 300;
   @Input() maxHeight: number;
+  @Input() pageIndex: number = 0;
+  /**默认完整边框 */
+  @Input() inBorder: 'full' | 'inner' | 'none' = 'full';
+  /**加载中 */
+  @Input() loading: boolean
+  /**表头tr td额外classname */
+  @Input() headerRowClassName: string
+  @Input() headerCellClassName: string
+  /**表内容tr td额外classname */
+  @Input() cellClassName: string
+  @Input() rowClassName: string
   /**表格配置模式 */
   @Input() inGrid: boolean = false;
   /**表单模式 */
@@ -88,6 +96,7 @@ export class VxeTableComponent implements VxeDynamicTable {
   public headCol: VxeColumnGroups;
   public contentCol: VxeColumnComponent[];
   public tableHeight: number;
+  public wraperHeight: number;
   /**深拷贝inData 防止污染原数据 */
   public vData: VxeData[] = [];
   private destroy$: Subject<void> = new Subject();
@@ -121,7 +130,7 @@ export class VxeTableComponent implements VxeDynamicTable {
   dynamicColComponents: VxeColumnComponent[] = [];
   dynamicGroupComponents: VxeColgroupComponent[] = [];
   ngOnChanges(changes: SimpleChanges) {
-    const { inData, rowConfig, minHeight, maxHeight, gutterConfig, treeConfig } = changes;
+    const { inData, rowConfig, minHeight, maxHeight, gutterConfig, treeConfig, gridConfig } = changes;
     if ((minHeight && !minHeight.isFirstChange()) || (maxHeight && !maxHeight.isFirstChange())) {
       this.setTableHeight();
     }
@@ -141,7 +150,11 @@ export class VxeTableComponent implements VxeDynamicTable {
       if (this.tableModel == 'tree') {
         const { transform } = this.treeConfig;
         if (transform) {
-          this.transformTree(this.vData);
+          this.vData.forEach(el => {
+            this.transformTree(el);
+          })
+          this.vData = this.vData.filter(el => !el._parent)
+          this.vData = this.flatTree(this.vData);
         } else {
           // 本身就是树节点
           this.handleTree(this.vData);
@@ -149,48 +162,47 @@ export class VxeTableComponent implements VxeDynamicTable {
         }
       }
     }
+    if (gridConfig && !gridConfig.isFirstChange()) {
+      this.createDynamicHeader(this.gridConfig.columns);
+      this.resetTableHeader();
+    }
   }
-  /**自动根据parentId转树结构 */
-  transformTree(data: VxeData[], parentIndex: string = '', level: number = 0, children?: VxeData[]) {
-    const { rowField, parentField, expandAll = true, expandRowKeys = [], treeSeq } = this.treeConfig;
-    const iterate = children || data.filter(el => !el[parentField]);
-    return iterate.map((el, index) => {
-      const id = el[rowField];
-      let children = data.filter(item => item[parentField] == id);
-      let treeIndex = parentIndex ? `${parentIndex}.${index + 1}` : `${index + 1}`;
-      children = this.transformTree(data, treeIndex, level + 1, children);
-      Object.assign(el, {
-        _children: children.map(child => {
-          child._parent = el;
-          return child;
-        }),
-        _level: level,
-        _treeIndex: treeIndex,
-        _expanded: expandAll || expandRowKeys.includes(el[rowField])
-      });
-      return el;
-    });
+  /**自动根据parentId转树结构 调整顺序 */
+  transformTree(current: VxeData, parentIndex: string = '') {
+    const { rowField, parentField, expandAll = true, expandCb, treeSeq } = this.treeConfig;
+    const id = current[rowField];
+    const children = this.vData.filter(el => el[parentField] == id);
+    if (children.length) {
+      const expand = expandCb ? expandCb(current) : expandAll
+      if (!current._parent) {
+        current._hidden = false;
+        current._level = 0;
+      }
+      current._expanded = expand;
+      current._children = children.map((child, index) => {
+        child._parent = current;
+        child._hidden = current._hidden || !current._expanded
+        child._level = current._level + 1;
+        return child;
+      })
+    }
   }
-  /**树转树 并扁平化为数组 */
+  /**本身是树转vxe的树 并扁平化为数组 */
   handleTree(data: VxeData[], parentIndex: string = '', level: number = 0, parent?: VxeData) {
     const {
       childrenField = 'children',
-      rowField = 'id',
-      parentField = 'parentId',
       expandAll = true,
-      expandRowKeys = [],
-      treeSeq
+      expandCb,
     } = this.treeConfig;
     return data.map((el, index) => {
       const children = el[childrenField];
       let treeIndex = parentIndex ? `${parentIndex}.${index + 1}` : `${index + 1}`;
-      Object.assign(el, {
-        _treeIndex: treeIndex,
-        _expanded: expandAll || expandRowKeys.includes(el[rowField]),
-        _level: level,
-        _parent: parent,
-        _children: children ? this.handleTree(children, treeIndex, level + 1, el) : []
-      });
+      el._level = level;
+      el._treeIndex = treeIndex;
+      el._parent = parent;
+      el._hidden = parent ? (parent._hidden || !parent._expanded) : false;
+      el._expanded = expandCb ? expandCb(el) : expandAll;
+      el._children = children ? this.handleTree(children, treeIndex, level + 1, el) : []
       return el;
     });
   }
@@ -199,7 +211,7 @@ export class VxeTableComponent implements VxeDynamicTable {
     let result: VxeData[] = [];
     data.forEach(el => {
       result.push(el);
-      if (el._children) {
+      if (el._children && el._children.length > 0) {
         result = result.concat(this.flatTree(el._children));
       }
     });
@@ -208,9 +220,12 @@ export class VxeTableComponent implements VxeDynamicTable {
   setTableHeight() {
     const { minHeight, maxHeight } = this;
     const { height } = this.elementRef.nativeElement.getBoundingClientRect();
-    this.tableHeight = Math.max(height, minHeight);
-    this.tableHeight = (maxHeight && Math.min(maxHeight, this.tableHeight)) || this.tableHeight;
-    this.renderer.setStyle(this.elementRef.nativeElement, 'height', this.tableHeight + 'px');
+    const { height: footerHeight} = this.tableFooter.nativeElement.getBoundingClientRect();
+    console.log(height,'www')
+    this.wraperHeight = Math.max(height, minHeight);
+    this.wraperHeight = (maxHeight && Math.min(maxHeight, this.wraperHeight)) || this.wraperHeight;
+    this.renderer.setStyle(this.elementRef.nativeElement, 'height', this.wraperHeight + 'px');
+    this.tableHeight = this.wraperHeight - footerHeight;
   }
   ngAfterContentInit() {
     this.contentColComponents = this.contentColumns.toArray();
@@ -268,10 +283,6 @@ export class VxeTableComponent implements VxeDynamicTable {
   onColumnChange(columns: VxeColumnGroups) {
     this.contentCol = columns.filter(el => el.VXETYPE == 'vxe-column' && !el.hidden) as VxeColumnComponent[];
     this.cdr.markForCheck();
-  }
-  resetTable() {
-    // 保证节点顺序
-    this.vxeService.tableInnerColumn$.next(this.headCol);
   }
   ngOnDestroy() {
     this.destroy$.next();

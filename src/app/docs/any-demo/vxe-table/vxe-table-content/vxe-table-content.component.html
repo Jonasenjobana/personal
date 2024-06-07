@@ -13,7 +13,7 @@
       <colgroup>
         <col *ngFor="let item of contentCol" [style.width.px]="item.autoWidth || 50" />
       </colgroup>
-      <tbody class="vxe-body">
+      <tbody class="vxe-body" cdkDropList>
         <!-- 基础表格 -->
         <ng-container *ngIf="tableModel == 'normal'">
           <ng-template
@@ -38,7 +38,7 @@
       <colgroup>
         <col *ngFor="let item of contentCol" [style.width.px]="item.autoWidth || 50" />
       </colgroup>
-      <tbody class="vxe-body">
+      <tbody class="vxe-body" cdkDropList >
         <!-- 基础表格 -->
         <ng-container *ngIf="tableModel == 'normal'">
           <ng-template
@@ -63,6 +63,8 @@
 <!-- 基础表格 -->
 <ng-template #baseTableTemplate let-item="item" let-index="index" let-level="level">
   <tr
+    cdkDrag
+    [cdkDragDisabled]="true"
     [style.height.px]="rowHeight || 28"
     [class.hover]="isHover && index == hoverIndex"
     [class.selected]="item._check"
@@ -73,10 +75,10 @@
       <div
         class="tree-node"
         *ngIf="tableModel == 'tree' && col.treeNode"
-        [style.padding-left.px]="item._children.length > 0 ? level * 20 : level * 20 + 14"
+        [style.padding-left.px]="item._children && item._children.length > 0 ? level * 20 : level * 20 + 14"
       >
         <span
-          *ngIf="item._children.length > 0"
+          *ngIf="item._children && item._children.length > 0"
           nz-icon
           [nzType]="item._expanded ? 'caret-down' : 'caret-right'"
           nzTheme="outline"

@@ -24,6 +24,7 @@ export abstract class VxeColumnGroupBase {
   @Input() sortNumber: number;
   /**树节点 */
   @Input() treeNode: boolean;
+  @Input() columnTemplate: TemplateRef<any>;
   /**默认模板 取决于 type*/
   @ViewChild('vxeTemplate') defaultTemplate: TemplateRef<any>;
   /**自定义模板 */
@@ -33,7 +34,8 @@ export abstract class VxeColumnGroupBase {
   autoWidth: number;
   children: VxeColumnGroupBase[] = [];
   constructor(public element: ElementRef) {}
+  /**模板优先级大于 投影 大于 默认 */
   ngAfterViewInit() {
-    this.vxeColumnTemplate = this.contentTemplate || this.defaultTemplate;
+    this.vxeColumnTemplate = this.columnTemplate || this.contentTemplate || this.defaultTemplate;
   }
 }

@@ -10,22 +10,27 @@ import {
   ViewChild
 } from '@angular/core';
 import { VxeTableService } from '../vxe-table.service';
-import { VxeColumnGroup, VxeColumnGroups, VxeGutterConfig } from '../vxe-model';
+import { VxeColumnConfig, VxeColumnGroup, VxeColumnGroups, VxeGutterConfig } from '../vxe-model';
 import { VxeColumnGroupBase } from '../vxe-base/vxe-column-group';
 import { VxeTableComponent } from '../vxe-table/vxe-table.component';
+import { Subject, takeUntil } from 'rxjs';
 
 /**含表头合并处理 */
 @Component({
   selector: 'vxe-table-head',
   templateUrl: './vxe-table-head.component.html',
-  styleUrls: ['./vxe-table-head.component.less']
+  styleUrls: ['./vxe-table-head.component.less'],
+  host: {
+    '[class.fixed-right]': 'fixed == "right"',
+  }
 })
 export class VxeTableHeadComponent {
   @Input() wraperWidth: number;
   @Input() headCol: VxeColumnGroups;
   @Input() fixed: 'left' | 'right';
+  @Input() columnConfig: Partial<VxeColumnConfig>
   /**同步滚动 */
-  transformX: number = 0;
+  transformX: number;
   tableHeaders: VxeColumnGroups[] = [];
   colgroupLeaf: VxeColumnGroups;
   /**列头变化 */
@@ -37,7 +42,9 @@ export class VxeTableHeadComponent {
   scrollLeft: number;
   /**实际宽度 */
   headWidth: number;
+  headHeight: number;
   gutterWidth: number;
+  destroy$: Subject<void> = new Subject();
   get gutterConfig(): VxeGutterConfig {
     return this.vxeService.gutterConfig;
   }
@@ -48,11 +55,13 @@ export class VxeTableHeadComponent {
     @Optional() private parent: VxeTableComponent
   ) {
     /**滚动槽 */
-    this.vxeService.gutterChange$.subscribe(({type, size}) => {
+    this.vxeService.gutterChange$.pipe(takeUntil(this.destroy$)).subscribe(({type, size}) => {
       if (type == 'vertical' && this.scrollable != size > 0) {
         this.scrollable = size > 0;
         this.cdr.detectChanges();
-        this.updateDom();
+        setTimeout(() => {
+          this.updateDom();
+        });
       }
     })
   }
@@ -60,7 +69,7 @@ export class VxeTableHeadComponent {
   ngOnChanges(changes: SimpleChanges) {
     const { headCol, wraperWidth } = changes;
     if (headCol && headCol.currentValue) {
-      requestAnimationFrame(() => {
+      setTimeout(() => {
         this.initHeadColumns();
       });
     }
@@ -69,7 +78,7 @@ export class VxeTableHeadComponent {
   initHeadColumns() {
     this.tableHeaders = [];
     this.transformTree(this.headCol);
-    this.updateAutoWidth(this.tableHeaders[0], this.wraperWidth);
+    this.updateAutoWidth(this.tableHeaders[0], this.wraperWidth - this.gutterConfig.width - 1);
     this.colgroupLeaf = this.tableHeaders
       .flat(1)
       .filter(el => el._isLeaf)
@@ -138,6 +147,7 @@ export class VxeTableHeadComponent {
    */
   updateAutoWidth(header: VxeColumnGroups, wraperWidth: number) {
     if (header.length == 0) return 0;
+    const {minWidth = 50} = this.columnConfig || {}
     // assign 已经分配了宽度的header
     const assignChild = header.filter(el => el.width);
     const assigWidth = assignChild.reduce((width, el) => el.width + width, 0);
@@ -145,7 +155,7 @@ export class VxeTableHeadComponent {
     // 当前集合的平均宽度 已经分配则是剩余宽度 若不够剩余宽度则仍然默认平均宽度
     const avgWidth = (diff > 0 ? diff : wraperWidth) / (diff > 0 ?  header.length - assignChild.length : header.length);
     header.forEach(td => {
-      td.autoWidth = td.width || avgWidth;
+      td.autoWidth = Math.max(td.width || avgWidth, minWidth);
       if (td.VXETYPE == 'vxe-colgroup') {
         const childWidth = this.updateAutoWidth(td.children, td.autoWidth || avgWidth);
         td.autoWidth = Math.min(childWidth, td.autoWidth);
@@ -189,14 +199,14 @@ export class VxeTableHeadComponent {
     return count;
   }
   ngAfterViewInit() {
-    this.vxeService.scrollLeft$.subscribe(scrollLeft => {
+    this.vxeService.scrollLeft$.pipe(takeUntil(this.destroy$)).subscribe(scrollLeft => {
       if (this.scrollLeft == scrollLeft) return;
       if (!this.fixed) {
         this.transformX = -scrollLeft;
       }
       this.scrollLeft = scrollLeft;
     });
-    this.vxeService.headUpdate$.subscribe(() => {
+    this.vxeService.headUpdate$.pipe(takeUntil(this.destroy$)).subscribe(() => {
       this.initHeadColumns();
     });
   }
@@ -204,23 +214,25 @@ export class VxeTableHeadComponent {
     const tableEl = this.tableRef?.nativeElement;
     const headEl = this.tableHead?.nativeElement;
     if (!tableEl || !headEl) return;
-    const { width } = tableEl.getBoundingClientRect();
-    const { width: headWidth, height: headHeight } = headEl.getBoundingClientRect();
+    const { width, height: headHeight } = tableEl.getBoundingClientRect();
+    const { width: headWidth } = headEl.getBoundingClientRect();
     this.scrollWidth = width;
     setTimeout(() => {
       if (this.scrollable) {
         const { width } = tableEl.getBoundingClientRect();
         this.scrollWidth = width;
       }
-      if (this.fixed == 'right') {
-        this.transformX = headWidth - this.scrollWidth;
-      }
       if (!this.fixed) {
         this.vxeService.headHeight$.next(headHeight);
         this.vxeService.headWidth$.next(headWidth);
       }
+      this.headHeight = headHeight;
       this.headWidth = headWidth;
       this.setGutterWidth();
     });
+  }
+  ngOnDestroy() {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 }

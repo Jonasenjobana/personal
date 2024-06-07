@@ -18,6 +18,10 @@ export interface VxeRowConfig {
     isHover: boolean
     /**TODO 移入显示详情 上右下左*/
     toolBar: boolean
+    /**拖拽改变行位置 */
+    dragable: boolean
+    /**鼠标移动显示详细 */
+    showTitle: boolean
 }
 export interface VxePageConfig {
     pageSize: number
@@ -39,8 +43,8 @@ export interface VxeTreeConfig {
     showLine: boolean
     /**默认展开所有子孙节点 */
     expandAll: boolean
-    /**默认展开指定树节点 */
-    expandRowKeys: string[]
+    /**自定义默认展开回调 */
+    expandCb: (row: any) => boolean
     /**树形序号 层级关系 1.1.1 ... 默认 按索引顺序*/
     treeSeq: boolean
 }
@@ -92,7 +96,7 @@ export type VxeData = {
     _children?: VxeData[],
     _expanded?: boolean,
     _index?: number
-    _treeIndex?: number
+    _treeIndex?: number | string
     _hidden?: boolean
     _check?: boolean
     _level?: number
@@ -125,4 +129,8 @@ export interface VxeGridColumn {
     children: Partial<VxeGridColumn>[]
     rowTemplate: TemplateRef<any>
     columnTemplate: TemplateRef<any>
+    slot: {
+        rowName?: string
+        colName?: string
+    }
 }

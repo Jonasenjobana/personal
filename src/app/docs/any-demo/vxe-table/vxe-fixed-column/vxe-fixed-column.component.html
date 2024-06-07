@@ -6,7 +6,7 @@
     *ngIf="fixedLeftWidth > 0"
     [style.visibility]="scrollLeft == 0 ? 'hidden' : 'visible'"
   >
-    <vxe-table-head #leftHeadRef [wraperWidth]="wraperWidth" [headCol]="headCol" [fixed]="'left'"></vxe-table-head>
+    <vxe-table-head #leftHeadRef [columnConfig]="columnConfig" [wraperWidth]="wraperWidth" [headCol]="headCol" [fixed]="'left'"></vxe-table-head>
     <vxe-table-content
       #leftFixedContent
       [tableModel]="tableModel"
@@ -26,7 +26,7 @@
     [style.visibility]="scrollLeft >= rightHeadRef.scrollWidth - headWidth ? 'hidden' : 'visible'"
     [style.width.px]="fixedRightWidth + gutterWidth"
   >
-    <vxe-table-head #rightHeadRef [wraperWidth]="wraperWidth" [headCol]="headCol" [fixed]="'right'"></vxe-table-head>
+    <vxe-table-head #rightHeadRef [columnConfig]="columnConfig" [wraperWidth]="wraperWidth" [headCol]="headCol" [fixed]="'right'"></vxe-table-head>
     <vxe-table-content
       #rightFixedContent
       [vData]="vData"

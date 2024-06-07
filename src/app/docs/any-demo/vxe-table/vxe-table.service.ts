@@ -48,6 +48,8 @@ export class VxeTableService {
     width: 8,
     height: 6
   };
+  /**表格整体更新 */
+  public tableUpdate$: Subject<void> = new Subject();
   /**滚动槽变化 */
   public gutterChange$: Subject<{ type: 'horizen' | 'vertical'; size: number }> = new Subject();
   /**表头更新通知 */

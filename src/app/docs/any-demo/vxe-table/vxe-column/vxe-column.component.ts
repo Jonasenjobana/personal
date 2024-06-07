@@ -26,8 +26,10 @@ export class VxeColumnComponent extends VxeColumnGroupBase {
   readonly VXETYPE = 'vxe-column';
   @Input() type: 'checkbox' | 'seq' | 'radio';
   @Input() sortable: boolean;
+  @Input() rowTemplate: TemplateRef<any>;
   @Input() sortRuleCb?: (field: string, data: any) => number;
-  @ContentChild('rowTemplate') vxeRowTemplate: TemplateRef<any>;
+  @ContentChild('rowTemplate') contentRowTemplate: TemplateRef<any>
+  vxeRowTemplate: TemplateRef<any>
   asce: boolean = true; // 升序 true 降序 false
   isCheck: boolean = false;
   constructor(
@@ -39,7 +41,7 @@ export class VxeColumnComponent extends VxeColumnGroupBase {
     if (!vxeService) Error('error: vxeService is null');
   }
   ngOnChanges(changes: SimpleChanges) {
-    const { fixed, hidden } = changes;
+    const { fixed, hidden, rowTemplate } = changes;
     if (fixed) {
       setTimeout(() => {
         this.setFixedColumn();
@@ -48,6 +50,10 @@ export class VxeColumnComponent extends VxeColumnGroupBase {
     if (hidden) {
       this.vxeService.headUpdate$.next();
     }
+    if (rowTemplate && rowTemplate.currentValue) {
+      this.vxeRowTemplate = this.rowTemplate;
+      // this.vxeService.tableUpdate$.next();
+    }
   }
   setFixedColumn() {
     this.fixed && this.vxeService.addFixed(this.fixed, this);
@@ -55,8 +61,10 @@ export class VxeColumnComponent extends VxeColumnGroupBase {
   sortStatusChange() {
     this.asce = !this.asce;
   }
+  /**模板优先级大于 投影 大于 默认 */
   override ngAfterViewInit() {
     super.ngAfterViewInit();
+    this.vxeRowTemplate = this.rowTemplate || this.contentRowTemplate;
   }
   checkboxChange($event) {
     this.vxeService.headEvent$.next({type: 'checkbox', column: this, event: $event})

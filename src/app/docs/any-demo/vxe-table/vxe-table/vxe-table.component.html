@@ -1,5 +1,5 @@
 <div class="vxe-table-wrapper" #tableWrapper>
-  <vxe-table-head [wraperWidth]="wraperWidth" [headCol]="headCol" (columnChange)="onColumnChange($event)"></vxe-table-head>
+  <vxe-table-head [columnConfig]="columnConfig" [wraperWidth]="wraperWidth" [headCol]="headCol" (columnChange)="onColumnChange($event)"></vxe-table-head>
   <vxe-table-content
     #tableContent
     [vxeWraperHeight]="tableHeight"
@@ -16,6 +16,7 @@
   [wraperWidth]="wraperWidth"
   [headCol]="headCol"
   [contentCol]="contentCol"
+  [columnConfig]="columnConfig"
   [vxeWraperHeight]="tableHeight" 
   [vData]="vData"
   [rowConfig]="rowConfig"
@@ -26,5 +27,5 @@
 <div class="vxe-table-footer" #tableFooter>
   <!-- 页脚 合计 TODO -->
   <!-- 分页 -->
-  <ng-content select="page"></ng-content>
+  <ng-content select="[page]"></ng-content>
 </div>

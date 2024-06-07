@@ -72,6 +72,11 @@
         "serve": {
           "builder": "@angular-devkit/build-angular:dev-server",
           "configurations": {
+            "zq": {
+              "browserTarget": "personal:build:development",
+              "host": "192.168.1.159",
+              "port": 8282
+            },
             "production": {
               "browserTarget": "personal:build:production"
             },

@@ -1,5 +1,4 @@
 <div class="container">
-  <!-- 表头合并 -->
   <button (click)="shows[0] = !shows[0]">{{ shows[0] ? '隐藏' : '显示' }}基本信息列</button>
   <button (click)="shows[1] = !shows[1]">{{ shows[1] ? '隐藏' : '显示' }}更多信息列</button>
   <button (click)="shows[2] = !shows[2]">{{ shows[2] ? '隐藏' : '显示' }}额外信息列</button>
@@ -9,7 +8,6 @@
   <button (click)="shows[6] = !shows[6]">{{ shows[6] ? '隐藏' : '显示' }}详细信息列</button>
   <vxe-table
     [inData]="data"
-    [maxHeight]="300"
     (checkChange)="onCheckChange($event)"
     [rowConfig]="{ isHover: true, height: 48 }"
     [virtualConfig]="{ itemHeight: 48, minBuffer: 300, maxBuffer: 1000 }"
@@ -42,16 +40,8 @@
       <vxe-column title="Address" [width]="100" field="address"></vxe-column>
     </vxe-colgroup>
     <vxe-column [hidden]="!shows[3]" title="Address" [width]="100" field="address" fixed="right"></vxe-column>
+    <div page style="height: 50px;width: 100%;"></div>
   </vxe-table>
-  <!-- 树形表格 -->
-  <vxe-table [inData]="data2" [treeConfig]="{ transform: true, rowField: 'id', parentField: 'parentId' }">
-    <vxe-column type="seq" fixed="left" [align]="'left'" [treeNode]="true"></vxe-column>
-    <vxe-column field="name" title="Name" [width]="500"></vxe-column>
-    <vxe-column field="size" title="Size" [width]="500"></vxe-column>
-    <vxe-column field="type" title="Type" fixed="right"></vxe-column>
-    <vxe-column field="date" title="Date" fixed="right"></vxe-column>
-  </vxe-table>
-  <!-- 树形表格 -->
   <vxe-table
     [inData]="data3"
     [virtualConfig]="{ itemHeight: 48, minBuffer: 400, }"
@@ -64,9 +54,8 @@
     <vxe-column field="ifBind" title="ifBind" fixed="right"></vxe-column>
     <vxe-column field="opertion" title="opertion" fixed="right"></vxe-column>
   </vxe-table>
-  <!-- 权限表格 -->
-  <vxe-table [inData]="data4" [treeConfig]="{ transform: false, childrenField: 'children' }">
-    <vxe-column field="menuName" title="权限名" [align]="'left'" [treeNode]="true"> </vxe-column>
+  <vxe-table [inData]="data4" [treeConfig]="{ transform: false, childrenField: 'children', expandAll: true }">
+    <vxe-column field="menuName" title="权限名" [align]="'left'" [treeNode]="true" [width]="300"> </vxe-column>
     <vxe-column field="ifCheck" title="权限" [width]="50">
       <ng-template #columnTemplate let-col="col">
         <div style="display: flex; justify-content: center; align-items: center">
@@ -91,5 +80,76 @@
       </ng-template>
     </vxe-column>
   </vxe-table>
-  <vxe-grid [vxeConfig]="gridConfig"></vxe-grid>
+  <vxe-grid [vxeConfig]="gridConfig">
+    <vxe-template [templateName]="'asd'" [type]="'row'">
+      <ng-template let-row="row" let-col="col">
+        wwwwwwwwwwww
+        {{row[col.field]}}
+        <span nz-icon nzType="setting" nzTheme="outline" (click)="clickSetting()"></span>
+      </ng-template>
+    </vxe-template>
+  </vxe-grid>
+  <vxe-table [inData]="data5" [treeConfig]="{ transform: false, expandCb: expandCb2}" [rowConfig]="{ isHover: true }">
+    <vxe-column type="seq" title="序号" [width]="50" fixed="left"></vxe-column>
+    <vxe-colgroup title="仓库信息" fixed="left">
+      <vxe-column title="仓库编号" [width]="100" field="warehouseCode" fixed="left"></vxe-column>
+    <vxe-column title="仓库名称" [width]="300" field="warehouseName" fixed="left" [treeNode]="true" [align]="'left'">
+      <ng-template #rowTemplate let-item="row" let-col="col">
+        {{ item.warehouseName?item.warehouseName:item.orgShort }}
+      </ng-template>
+    </vxe-column>
+    <vxe-column title="仓库简称" [width]="130" field="warehouseNameShort"></vxe-column>
+    <vxe-column title="仓库类别" [width]="100" field="warehouseType"></vxe-column>
+    <vxe-column title="仓库面积" [width]="100" field="warehouseArea"></vxe-column>
+    </vxe-colgroup>
+    <vxe-column title="管理人" [width]="100" field="managePeople"></vxe-column>
+    <vxe-column title="启用时间" [width]="100" field="enabledTime"></vxe-column>
+    <vxe-column title="仓库配置" [width]="100" field="warehouseConfiguration"></vxe-column>
+    <vxe-column title="状态" [width]="100" field="useStatus">
+      <ng-template #rowTemplate let-row="row" let-col="col">
+        {{row[col.field] == 0 ? '启用' : '禁用'}}
+      </ng-template>
+    </vxe-column>
+    <vxe-column title="操作" [width]="100">
+      <ng-template #rowTemplate>
+        <button>1</button>
+        <button>2</button>
+      </ng-template>
+    </vxe-column>
+  </vxe-table>
+  <vxe-grid [vxeConfig]="inGrid">
+    <vxe-template [templateName]="'battery'" [type]="'row'">
+        <ng-template let-row="row" let-col="col">battery{{row[col.field]}}</ng-template>
+    </vxe-template>
+    <vxe-template [templateName]="'crud'" [type]="'row'">
+        <ng-template let-row="row" let-col="col">crud{{row[col.field]}}</ng-template>
+    </vxe-template>
+    <vxe-template [templateName]="'link'" [type]="'row'">
+        <ng-template let-row="row" let-col="col">link{{row[col.field]}}</ng-template>
+    </vxe-template>
+    <vxe-template [templateName]="'code-btn'" [type]="'row'">
+        <ng-template let-row="row" let-col="col">code-btn{{row[col.field]}}</ng-template>
+    </vxe-template>
+    <vxe-template [templateName]="'dot'" [type]="'row'">
+        <ng-template let-row="row" let-col="col">dot{{row[col.field]}}</ng-template>
+    </vxe-template>
+  </vxe-grid>
+
+  <vxe-table [inData]="data2" [treeConfig]="{ transform: true, rowField: 'id', parentField: 'parentId', expandCb: expandCb }">
+    <vxe-column type="seq" fixed="left" [align]="'left'"></vxe-column>
+    <vxe-column field="name" title="Name" [width]="500" [treeNode]="true"></vxe-column>
+    <vxe-column field="size" title="Size" [width]="500"></vxe-column>
+    <vxe-column field="type" title="Type" fixed="right"></vxe-column>
+    <vxe-column field="date" title="Date" fixed="right"></vxe-column>
+  </vxe-table>
+    <vxe-table [treeConfig]="{ transform: true, rowField: 'id', parentField: 'parentId' }" [inData]="data6">
+    <vxe-column type="seq" title="序号" [width]="50"></vxe-column>
+    <vxe-column title="机构/部门名称" [width]="300" [align]="'left'" field="orgName" [treeNode]="true"></vxe-column>
+    <vxe-column title="机构代码" [width]="100" field="orgCode"></vxe-column>
+    <vxe-column title="联系人" field="contact"></vxe-column>
+    <vxe-column title="联系电话" field="phone"></vxe-column>
+    <vxe-column title="电子邮箱" field="email"></vxe-column>
+    <vxe-column title="联系地址" field="address"></vxe-column>
+    <vxe-column title="状态" field="ifEnabled" [width]="50"></vxe-column>
+  </vxe-table>
 </div>

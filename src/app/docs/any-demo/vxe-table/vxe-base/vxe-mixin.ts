@@ -17,8 +17,10 @@ export function createDynamicHeader(vxeGridColumn: Partial<VxeGridColumn>[], { v
       componentRef = viewContainerRef.createComponent(VxeColumnComponent, { injector });
       componentRef.setInput('type', col.type);
       componentRef.setInput('field', col.field);
+      componentRef.setInput('rowTemplate', col.rowTemplate);
       dyColumns.push(componentRef.instance as VxeColumnComponent);
     }
+    componentRef.setInput('columnTemplate', col.columnTemplate);
     componentRef.setInput('title', col.title);
     componentRef.setInput('width', col.width);
   });

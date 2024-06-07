@@ -1,7 +1,7 @@
 import { Component, ViewChild } from '@angular/core';
 import { NgForm } from '@angular/forms';
-import { CodeNetData } from './net';
-import { VxeGridConfig } from '../vxe-model';
+import { CodeNetData, Organize, WareHouses } from './net';
+import { VxeData, VxeGridColumn, VxeGridConfig } from '../vxe-model';
 
 @Component({
   selector: 'table-demo',
@@ -10,7 +10,7 @@ import { VxeGridConfig } from '../vxe-model';
 })
 export class TableDemoComponent {
   @ViewChild('rowtemp') rowtemp: any
-  hidden: boolean = false
+  hidden: boolean = true
   constructor() {
 
   }
@@ -46,20 +46,35 @@ export class TableDemoComponent {
       { type: 'seq' },
       { title: '测试', field: 'aidsName' },
       { title: 'test', children: [
-        { title: '测试', field: 'aidsName', width: 300 },
+        { title: '测试', field: 'aidsName', width: 300, slot: {
+          rowName: 'asd'
+        } },
       ]}
     ],
     data: [{
       aidsName: 'sss'
     }]
   }
+  data5: any = []
+  data6: any = Organize
+  expandCb = (row: VxeData) => {
+    return true
+  }
+  expandCb2 = (row) => {
+    return true
+  }
   ngAfterViewInit() {
     setTimeout(() => {
-      this.hidden = true;
+      this.hidden = false
+    }, 6000);
+    setTimeout(() => {
       new Array(600).fill(1).forEach(() => {
         this.data.push({ id: '123', name: '张三', 'age': 18, 'address': '北京市朝阳区', 'sex': '男', num: '1', date: '2024-02-21', role:'管理' })
       })
       this.data = [...this.data]
+      setTimeout(() => {
+        this.data = [...this.data.slice(0,5)]
+      }, 10000);
     }, 3000);
     setTimeout(() => {
       this.data3 = [];
@@ -101,13 +116,26 @@ export class TableDemoComponent {
     }, 2000);
     this.gridConfig = {
       columns: [
-        { type: 'seq' },
-        { title: '测试', field: 'aidsName', rowTemplate: this.rowtemp  },
+        { type: 'seq', width: 50 },
+        { title: '测试', field: 'aidsName', slot: {
+          rowName: 'asd'
+        }  },
       ],
       data: [{
         aidsName: 'sss'
       }]
     }
+    this.handledata5([WareHouses])
+    setTimeout(() => {
+    this.data5 = [WareHouses]
+      console.log(this.data5)
+    });
+  }
+  handledata5(arr) {
+    arr.forEach(el => {
+      this.handledata5(el.children);
+      el.children.unshift(...el.warehouseList);
+    })
   }
   handleCode(data: any[]) {
     data.forEach(el => {
@@ -154,4 +182,35 @@ export class TableDemoComponent {
   clickSetting() {
 
   }
+  inGrid: CustomVxeGridConfig = {
+    columns: [
+      { type: 'seq', width: 50 },
+      { title: '测试', field: 'aidsName', customType: 'dot', slot: {rowName: 'dot'}},
+      { title: '测试1', field: 'aidsName1', customType: 'link', slot: {rowName: 'link'}},
+      { title: '测试2', field: 'aidsName2', customType: 'battery', slot: {rowName: 'battery'}},
+      { title: '测试3', field: 'aidsName3', customType: 'crud', slot: {rowName: 'crud'}},
+      { title: '测试4', field: 'aidsName4', customType: 'code-btn', slot: {rowName: 'code-btn'}},
+    ],
+    data: [{
+      aidsName: 'sss',
+      aidsName1: '1',
+      aidsName2: 'ss2s',
+      aidsName3: '3',
+      aidsName4: '4'
+    },{
+      aidsName: 'wwwwsss',
+      aidsName1: 'wwww',
+      aidsName2: 'wwwss2s',
+      aidsName3: 'www3',
+      aidsName4: 'www4'
+    }]
+  }
+}
+interface CustomVxeGridConfig extends VxeGridConfig {
+  columns: Partial<CustomVxeGridColumn>[]
+}
+interface CustomVxeGridColumn extends VxeGridColumn {
+  // 定义自定义模板
+  customType: 'dot' | 'crud' | 'link' | 'battery' | 'code-btn'
+  children: Partial<CustomVxeGridColumn>[]
 }

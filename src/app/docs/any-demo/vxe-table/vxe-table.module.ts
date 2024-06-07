@@ -20,6 +20,9 @@ import { OverlayModule } from '@angular/cdk/overlay';
 // 引入你需要的图标，比如你需要 fill 主题的 AccountBook Alert 和 outline 主题的 Alert，推荐 ✔️
 import { SortAscendingOutline, SortDescendingOutline, CaretRightOutline, CaretDownOutline, SettingOutline } from '@ant-design/icons-angular/icons';
 import { VxeGridComponent } from './vxe-grid/vxe-grid.component';
+import { VxeTemplateDirective } from './vxe-base/vxe-template.directive';
+import {DragDropModule} from '@angular/cdk/drag-drop';
+import { TableTemplateDemoComponent } from './table-template-demo/table-template-demo.component';
 const icons: IconDefinition[] = [ SortAscendingOutline, SortDescendingOutline, CaretRightOutline, CaretDownOutline, SettingOutline ];
 @NgModule({
   declarations: [
@@ -32,6 +35,8 @@ const icons: IconDefinition[] = [ SortAscendingOutline, SortDescendingOutline, C
     VxeTableHeadComponent,
     VxeTableContentComponent,
     VxeGridComponent,
+    VxeTemplateDirective,
+    TableTemplateDemoComponent,
   ],
   providers: [VxeTableService],
   imports: [
@@ -40,12 +45,14 @@ const icons: IconDefinition[] = [ SortAscendingOutline, SortDescendingOutline, C
     NzCheckboxModule,OverlayModule,
     NzInputModule,
     NzButtonModule,
+    DragDropModule,
     NzIconModule.forRoot(icons)
   ],
   exports: [
     VxeColumnComponent,
     VxeTableComponent,
     VxeColgroupComponent,
+    VxeTemplateDirective
   ]
 })
 export class VxeTableModule { }

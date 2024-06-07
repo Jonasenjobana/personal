@@ -39,7 +39,7 @@ export class VxeTableContentComponent {
   @Input() maxHeight: number;
   @Input() tableModel: VxeTableModel;
   @ViewChild('virtualContent', { static: false }) set virtualContent(ref: CdkVirtualScrollViewport) {
-    if (!ref) return;
+    if (!ref || !this.isVirtual) return;
     this.virtualContentRef = ref;
     this.addScrollEvent();
     this.scrollGutter();
@@ -63,7 +63,7 @@ export class VxeTableContentComponent {
   transformX: number = 0;
   /**vData 过滤后的树形数据 */
   treeData: VxeData[];
-  destroy$: Subject<void> = new Subject();
+  scrollDestroy$: Subject<void> = new Subject();
   constructor(
     private vxeService: VxeTableService,
     @Optional() private parent: VxeTableComponent,
@@ -75,7 +75,15 @@ export class VxeTableContentComponent {
       this.hoverIndex = idx;
     });
     this.vxeService.headHeight$.subscribe(height => {
+      if (this.headHeight == height) return;
       this.headHeight = height;
+      if (this.vxeWraperHeight) {
+        this.updateContainerDom();
+        setTimeout(() => {
+          this.scrollGutter();
+          this.handleRightFixed(); 
+        });
+      }
     });
     this.vxeService.virtualScrolReset$.subscribe(() => {
       // 虚拟滚动重置原来位置
@@ -131,13 +139,20 @@ export class VxeTableContentComponent {
     }
     if (vData) {
       if (!vData.firstChange) {
-        this.scrollGutter();
-        this.handleRightFixed();
+        setTimeout(() => {
+          this.scrollGutter();
+          this.handleRightFixed(); 
+        });
       }
       this.treeData = this.vData.filter(item => item._parent ? item._parent._expanded && !item._parent._hidden : true);
     }
     if (vxeWraperHeight && this.vxeWraperHeight) {
-      this.updateContainerDom();
+        this.updateContainerDom();
+        setTimeout(() => {
+          this.addScrollEvent();
+          this.scrollGutter();
+          this.handleRightFixed(); 
+        });
     }
   }
   getSeqNumber(index: number, item: any) {
@@ -156,7 +171,6 @@ export class VxeTableContentComponent {
       row: item,
       event: item._expanded
     })
-    console.log(item)
   }
   handleExpanded(children: VxeData[], hidden: boolean) {
     children.forEach(child => {
@@ -166,12 +180,12 @@ export class VxeTableContentComponent {
   }
   /**滚动同步处理 */
   addScrollEvent() {
-    this.destroy$.next();
+    this.scrollDestroy$.next();
     /**非虚拟滚动监听 */
     if (!this.isVirtual) {
       const el = this.elementRef.nativeElement;
       fromEvent(el, 'scroll')
-        .pipe(takeUntil(this.destroy$))
+        .pipe(takeUntil(this.scrollDestroy$))
         .subscribe(() => {
           const { scrollLeft, scrollTop } = el;
           this.vxeService.scrollTop$.next(scrollTop);
@@ -180,7 +194,7 @@ export class VxeTableContentComponent {
     } else {
       this.virtualContentRef
         ?.elementScrolled()
-        .pipe(takeUntil(this.destroy$))
+        .pipe(takeUntil(this.scrollDestroy$))
         .subscribe(e => {
           const { scrollLeft, scrollTop } = e.target as HTMLElement;
           !this.fixed && this.vxeService.scrollLeft$.next(scrollLeft);
@@ -199,13 +213,6 @@ export class VxeTableContentComponent {
     } else {
       this.virtualContentRef.scrollTo({ top: scrollTop });
     }
-  }
-  ngAfterViewInit() {
-    setTimeout(() => {
-      this.addScrollEvent();
-      this.scrollGutter();
-      this.handleRightFixed();
-    }, 100);
   }
   /**
    * dom变化都需要执行
@@ -264,7 +271,7 @@ export class VxeTableContentComponent {
     this.hoverIndex = -1;
   }
   ngOnDestroy() {
-    this.destroy$.next();
-    this.destroy$.complete();
+    this.scrollDestroy$.next();
+    this.scrollDestroy$.complete();
   }
 }
