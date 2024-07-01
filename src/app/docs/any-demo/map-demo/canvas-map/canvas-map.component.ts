@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { SLUCanvasMapper2, CanvasMapperLayer } from '../util/slu-canvas-mapper2';
 import { latLngToMercator } from '../util/latlng.util';
-import { Arc, GlassBg } from './draw';
+import { Arc, PipeBackgroundLayer } from './draw';
 import { t } from './mock';
 @Component({
   selector: 'canvas-map',
@@ -40,10 +40,8 @@ export class CanvasMapComponent {
     // }, 3000);
     /** 测试bnsv输水图 */
     const map = new SLUCanvasMapper2('.map');
-    const layer = new CanvasMapperLayer().addTo(map);
-    const bg = new GlassBg({width: 1920, height: 937, offset: [0, 0]});
+    const layer = new PipeBackgroundLayer({bgWidth: 1920, bgHeight: 937, bgUrl: '/assets/images/map/test-bg.png'}).addTo(map);
     setTimeout(() => {
-      bg.addTo(layer);
       new Arc({latlng: [277, 277], radius: 2, color: '#00ff00'}).addTo(layer);
       new Arc({latlng: [271, 277], radius: 2, color: '#00ff00'}).addTo(layer);
       new Arc({latlng: [271, 977], radius: 2, color: '#00ff00'}).addTo(layer);

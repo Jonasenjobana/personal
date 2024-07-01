@@ -278,8 +278,8 @@ export class SLUCanvasMapper2 {
  * 可结合konava.js绘制
  *  */
 export class CanvasMapperLayer {
-  protected width!: number;
-  protected height!: number;
+  public width!: number;
+  public height!: number;
   protected ctx!: CanvasRenderingContext2D;
   protected _mapper!: SLUCanvasMapper2;
   /**事件暂存 实现清除图层mapper同步清除该图层事件 */
@@ -329,6 +329,7 @@ export class CanvasMapperLayer {
       /**等比例放大 */
       this.ctx.scale(pixelRatio, pixelRatio);
     }
+    this.onReset();
   }
   emit(evName: string, $event) {
     this.layerEventCtr.emit(evName, $event);
@@ -347,11 +348,11 @@ export class CanvasMapperLayer {
   }
   public update() {
     this.clearCanvas();
+    this.onUpdate();
     this.mapElements.forEach(el => {
       el.render();
     });
     this.groupElements.forEach(el => el.render());
-    this.onUpdate();
   }
   /**清除画布 */
   public clearCanvas() {
@@ -359,6 +360,8 @@ export class CanvasMapperLayer {
       { ctx } = that;
     ctx.clearRect(0, 0, that.width, that.height);
   }
+  /**画布变更大小回调 */
+  onReset() {}
   /**更新回调 */
   onUpdate() {}
   public reset() {
