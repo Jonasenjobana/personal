@@ -85,6 +85,14 @@ const routes: Routes = [
       {
         path: 'partical',
         component: ParticalCanvasComponent
+      },
+      {
+        path: 'three-demo',
+        loadChildren: () => import('./any-demo/three-demo/three-demo.module').then(m => m.ThreeDemoModule)
+      },
+      {
+        path: 'map-lab',
+        loadChildren: () => import('./any-demo/map-demo/map-demo.module').then(m => m.MapDemoModule)
       }
     ]
   }
