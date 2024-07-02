@@ -1,7 +1,7 @@
 import { Subject, fromEvent, throwError } from 'rxjs';
 import { switchMap, takeUntil } from 'rxjs/operators';
 import { SLUSettimeout } from 'src/app/shared/utils/slu-time';
-import { CanvasAnimeState, CanvasMapperConfig } from './model';
+import { CanvasMapperConfig, CanvasMapperLayerConfig } from './model';
 
 /**
  * 第二版
@@ -11,7 +11,7 @@ import { CanvasAnimeState, CanvasMapperConfig } from './model';
  * */
 export class SLUCanvasMapper2 {
   mapContainerEl!: HTMLElement;
-  canvasContainer!: HTMLElement;
+  canvasContainer!: HTMLDivElement;
   config: CanvasMapperConfig = {
     scale: 1,
     scaleDelta: 0.2,
@@ -259,12 +259,7 @@ export class SLUCanvasMapper2 {
   }
   /**删除图层 */
   removeLayer(layer: CanvasMapperLayer) {
-    const delIdx = this.layers.findIndex(el => el == layer);
-    if (delIdx == -1) {
-      return;
-    }
-    this.layers.splice(delIdx, 1);
-    this.canvasContainer.removeChild(layer.canvasEl);
+    layer.remove();
   }
   destroy() {
     this.resize$?.disconnect();
@@ -275,7 +270,7 @@ export class SLUCanvasMapper2 {
 }
 /**
  * 图层基类
- * 可结合konava.js绘制
+ * 可结合konava.js 等其他外部canvas库绘制
  *  */
 export class CanvasMapperLayer {
   public width!: number;
@@ -289,14 +284,14 @@ export class CanvasMapperLayer {
   public zIndex: number = 0;
   public mapElements: CanvasMapperElement[] = [];
   public groupElements: CanvasMapperGroup[] = [];
-
   get canvasContext() {
     return this.ctx;
   }
   get mapper() {
     return this._mapper;
   }
-  constructor() {}
+  constructor(config?: CanvasMapperLayerConfig) {
+  }
   public addTo(mapper: SLUCanvasMapper2) {
     if (this._mapper) {
       return this;
@@ -316,6 +311,7 @@ export class CanvasMapperLayer {
       this.canvasEl.style.position = 'absolute';
       this.canvasEl.style.top = '0';
       this.canvasEl.style.left = '0';
+      this.canvasEl.style.pointerEvents = 'none';
     }
     const { width, height, config, pixelRatio } = this.mapper;
     this.canvasEl.style.width = width + 'px';
@@ -336,7 +332,11 @@ export class CanvasMapperLayer {
   }
   public remove() {
     if (!this.mapper) return;
-    this.mapper.removeLayer(this);
+    const { layers } = this.mapper;
+    const delIdx = layers.findIndex(el => el == this);
+    if (delIdx !== -1) {
+      layers.splice(delIdx, 1);
+    }
     this.off();
     this.onRemove();
     this._mapper = null;
@@ -388,40 +388,6 @@ export class CanvasMapperLayer {
   protected onAdd() {}
   protected onRemove() {}
   protected onDestroy() {}
-}
-export class CanvasMapperAnimeLayer extends CanvasMapperLayer {
-  animeFlag?: number;
-  animeCb?: Function;
-  override onAdd() {
-    this.animeRender();
-  }
-  /**动画图层回调 */
-  anime(cb: Function) {
-    this.animeCb = cb;
-  }
-  animeRender() {
-    this.cancelAnime();
-    this.animeFlag = requestAnimationFrame(() => {
-      this.animeRender();
-    });
-    this.animeCb && this.animeCb();
-  }
-  private cancelAnime() {
-    this.animeFlag && cancelAnimationFrame(this.animeFlag);
-  }
-  protected override onRemove(): void {
-    super.onRemove();
-    this.cancelAnime();
-  }
-  protected override onDestroy(): void {
-    super.onDestroy();
-    this.cancelAnime();
-  }
-}
-export class SLUCanvasAnimeController {
-  /**动画缓存所有状态 */
-  animeMap: Map<string, CanvasAnimeState> = new Map();
-  constructor() {}
 }
 /**事件控制 */
 export class SLUCanvasMapperEvent {
@@ -496,10 +462,6 @@ export abstract class CanvasMapperGroup {
 export abstract class CanvasMapperElement {
   /**元素唯一 */
   uuid: string;
-  /**动画阶段 */
-  animeStage: number = 0;
-  /**动画进度 */
-  animeProgress: number = 0;
   /**默认坐标系位置 */
   ox!: number;
   oy!: number;
@@ -510,12 +472,16 @@ export abstract class CanvasMapperElement {
   layer: CanvasMapperLayer;
   /**所在容器 */
   mapper: SLUCanvasMapper2;
+  /**是否已添加 */
+  ifAdd: boolean = false;
   constructor(ox: number, oy: number) {
     this.ox = ox;
     this.oy = oy;
   }
   abstract render();
   addTo(layer: CanvasMapperLayer) {
+    if (this.ifAdd) return this;
+    this.ifAdd = true;
     this.layer = layer;
     this.mapper = layer.mapper;
     this.layer.mapElements.push(this);
@@ -525,6 +491,7 @@ export abstract class CanvasMapperElement {
   }
   onAdd() {}
   remove() {
+    this.ifAdd = false;
     if (this.layer) {
       this.layer.mapElements.splice(this.layer.mapElements.indexOf(this), 1);
       this.layer.update();

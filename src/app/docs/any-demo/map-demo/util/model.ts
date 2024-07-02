@@ -25,15 +25,8 @@ export interface CanvasMapperConfig {
     /**基点参考系下 对应像素 比例 */
     baseProportionPixel?: [number, number];
   }
-  interface CanvasMapperLayerConfig {
+  export interface CanvasMapperLayerConfig {
     zIndex?: number;
     hidden?: boolean;
-  }
-  export interface CanvasAnimeState {
-    id: string
-    /**动画进度 */
-    progress: number;
-    /**动画阶段 */
-    stage?: number
   }
   export type CanvasMapperEvent = 'click' | 'moveend' | 'zoom' | 'render'

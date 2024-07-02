@@ -25,6 +25,7 @@
     "@antv/g-lottie-player": "^0.2.22",
     "gsap": "^3.12.5",
     "html2canvas": "^1.4.1",
+    "konva": "^9.3.12",
     "leaflet": "^1.9.4",
     "lodash": "^4.17.21",
     "marked": "^5.0.4",
