@@ -1,0 +1,13 @@
+<div class="scroll-number">
+  <div class="scroll-box" *ngFor="let current of showNums">
+    <div class="numbers">
+      <div
+        *ngFor="let item of [].constructor(10); let index = index"
+        class="number-item"
+        [ngStyle]="{ transform: 'rotateX(' + (index * 36 - degValue[current]) + 'deg) translate(-50%, -50%)' }"
+      >
+        <span>{{ index }}</span>
+      </div>
+    </div>
+  </div>
+</div>

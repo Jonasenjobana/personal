@@ -93,6 +93,10 @@ const routes: Routes = [
       {
         path: 'map-lab',
         loadChildren: () => import('./any-demo/map-demo/map-demo.module').then(m => m.MapDemoModule)
+      },
+      {
+        path: 'dom',
+        loadChildren: () => import('./any-demo/dom-demo/dom-demo.module').then(m => m.DomDemoModule)
       }
     ]
   }

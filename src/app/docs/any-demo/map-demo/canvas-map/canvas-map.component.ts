@@ -13,6 +13,9 @@ export class CanvasMapComponent {
   width: string = '100%';
   height: string = '100%';
   ngAfterViewInit() {
+    this.createMap();
+  }
+  createMap() {
     const map = new SLUCanvasMapper2('.map', {
       /**基准点 baseXY对应画布的偏移量 */
       baseOffset: [1920/2, 850/2],
@@ -21,6 +24,8 @@ export class CanvasMapComponent {
         const { x: ox, z: oy } = latLngToMercator(lat, lng);
         return [ox, oy]
       },
+      dragging: false,
+      scaleCenter: true,
       /**基准点初始坐标 内部转墨卡托 然后再转像素坐标 */
       baseXY: [117.54782617092134, 39.74742506855425],
       /**墨卡托坐标 转 像素坐标 每180变化量距460像素 */
@@ -39,10 +44,9 @@ export class CanvasMapComponent {
       id: '1',
       info: 'w'
     }).addTo(layer);
-    a.on('click', (e) => {
+    layer.on('click', (e) =>{
       console.log(e)
     })
-    console.log(layer)
     /** 测试bnsv输水图 */
     // const map = new SLUCanvasMapper2('.map');
     // const layer = new PipeBackgroundLayer({bgWidth: 1920, bgHeight: 937, bgUrl: '/assets/images/map/test-bg.png'}).addTo(map);

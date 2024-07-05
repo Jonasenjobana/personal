@@ -20,8 +20,7 @@ export class FlashPoint extends KnovaCanvasElement {
   flashMin: number
   constructor(config: FlashPointConfig) {
     const { id, lat, lng, radius = 3, color = '#fefe00', time = 1000, flashMax = radius + 2, flashMin = 1 } = config;
-    /**lng相当于x lat相当于y */
-    super(lng, lat);
+    super();
     const that = this;
     that.id = id;
     that.lat = lat;
@@ -37,6 +36,7 @@ export class FlashPoint extends KnovaCanvasElement {
     this.circle = new Konva.Circle({
       radius: this.flashRadius,
       fill: this.flashColor,
+      draggable: true,
       data: {
         s: 'fff',
         cursor: true,
@@ -54,6 +54,8 @@ export class FlashPoint extends KnovaCanvasElement {
     that.circle.radius(animeRadius);
     that.circle.x(px);
     that.circle.y(py);
+    this.cx = px;
+    this.cy = py;
     if (!frame) return;
     that.updateAnime(frame)
   }

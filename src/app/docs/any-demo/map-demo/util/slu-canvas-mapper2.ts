@@ -7,6 +7,7 @@ import { CanvasMapperConfig, CanvasMapperLayerConfig } from './model';
  * 第二版
  * 参考leaflet api 自动改变canvas宽高 不需要每次初始化
  * 可以不再依赖经纬度 可以任意坐标系 只要定义好默认参考标准
+ * 亦可
  * TODO 绘制bnsv类似的输水系统
  * */
 export class SLUCanvasMapper2 {
@@ -22,7 +23,8 @@ export class SLUCanvasMapper2 {
     baseOffset: [0, 0],
     baseXY: [0, 0],
     boxScale: true,
-    dragging: true
+    dragging: true,
+    scaleCenter: false,
   };
   layers: CanvasMapperLayer[] = [];
   height: number = 0;
@@ -100,12 +102,10 @@ export class SLUCanvasMapper2 {
     that.update();
     return that;
   }
-  /**像素坐标转为默认坐标 */
-  containerPositionToDefault(x: number, y: number) {}
   initEvent() {
     const that = this,
-      { canvasContainer: mapEl, config, currentOffsetPosition, eventCtr } = that,
-      { dragging, boxScale } = config || {},
+      { canvasContainer: mapEl, config, currentOffsetPosition, eventCtr, width, height } = that,
+      { dragging, boxScale, scaleCenter } = config || {},
       { eventMap } = eventCtr;
     that.destroy$.next();
     if (mapEl) {
@@ -133,7 +133,11 @@ export class SLUCanvasMapper2 {
         fromEvent(mapEl, 'mousewheel')
           .pipe(takeUntil(that.destroy$))
           .subscribe((ev: WheelEvent) => {
-            const { deltaY, offsetX, offsetY } = ev;
+            let { deltaY, offsetX, offsetY } = ev;
+            if (scaleCenter) {
+              offsetX = width/2;
+              offsetY = height/2;
+            }
             // 滚轮缩放
             that.onScale(offsetX, offsetY, deltaY);
             that.update();
@@ -242,14 +246,14 @@ export class SLUCanvasMapper2 {
     // 缩放之前
     const preScaleValue = currentProportionPixel[1] / currentProportionPixel[0];
     that.setScale(deltaWheel);
-    // // 缩放比例
+    // 缩放比例
     const scaleValue = currentProportionPixel[1] / currentProportionPixel[0];
-    // // 之前鼠标位置和鼠标位置缩放后应偏移的位置
+    // 之前鼠标位置和鼠标位置缩放后应偏移的位置
     const [newX, newY] = [
       ((mouseX - baseOffsetX) / preScaleValue) * scaleValue + baseOffsetX,
       ((mouseY - baseOffsetY) / preScaleValue) * scaleValue + baseOffsetY
     ];
-    // // 基准点偏移量 等同于 新位置偏移量
+    // 基准点偏移量 等同于 新位置偏移量
     const [dx, dy] = [newX - mouseX, newY - mouseY];
     that.currentOffsetPosition = [baseOffsetX - dx, baseOffsetY - dy];
   }
@@ -445,39 +449,45 @@ export class SLUCanvasMapperEvent {
 export abstract class CanvasMapperGroup {
   /**所在图层 */
   layer: CanvasMapperLayer;
-  element: CanvasMapperElement[] = [];
+  elements: CanvasMapperElement[] = [];
+  /**所在容器 */
+  mapper: SLUCanvasMapper2;
+  /**是否已添加 */
+  ifAdd: boolean = false;
   constructor() {}
   abstract render();
   addTo(layer: CanvasMapperLayer) {
+    if (this.ifAdd) return this;
+    this.ifAdd = true;
     this.layer = layer;
+    this.mapper = layer.mapper;
+    this.layer.groupElements.push(this);
     this.onAdd();
     this.render();
     return this;
   }
   onAdd() {}
-  remove() {}
+  remove() {
+    this.ifAdd = false;
+    if (this.layer) {
+      this.layer.groupElements.splice(this.layer.groupElements.indexOf(this), 1);
+      this.layer.update();
+    }
+    this.onRemove();
+  }
   onRemove() {}
 }
 /**绘制元素基类 */
 export abstract class CanvasMapperElement {
   /**元素唯一 */
   uuid: string;
-  /**默认坐标系位置 */
-  ox!: number;
-  oy!: number;
-  /**画布像素坐标位置 */
-  cx!: number;
-  cy!: number;
   /**所在图层 */
   layer: CanvasMapperLayer;
   /**所在容器 */
   mapper: SLUCanvasMapper2;
   /**是否已添加 */
   ifAdd: boolean = false;
-  constructor(ox: number, oy: number) {
-    this.ox = ox;
-    this.oy = oy;
-  }
+  constructor() {}
   abstract render();
   addTo(layer: CanvasMapperLayer) {
     if (this.ifAdd) return this;

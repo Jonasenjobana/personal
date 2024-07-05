@@ -2,6 +2,8 @@ import { CanvasMapperElement, CanvasMapperLayer } from '../util/slu-canvas-mappe
 export class Arc extends CanvasMapperElement {
   radius: number;
   color: string;
+  ox: number;
+  oy: number;
   override render() {
     const that = this,
       { ox, oy, mapper, layer, radius = 50, color = '#00ff00' } = that,
@@ -16,7 +18,9 @@ export class Arc extends CanvasMapperElement {
   }
   constructor(config: ArcConfig) {
     const { latlng, color, radius } = config;
-    super(latlng[1], latlng[0]);
+    super();
+    this.ox = latlng[1];
+    this.oy = latlng[0];
     this.radius = radius;
     this.color = color;
   }

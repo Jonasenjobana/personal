@@ -1,12 +1,23 @@
 import { IFrame } from "konva/lib/types";
-import { CanvasMapperElement } from "../util/slu-canvas-mapper2";
+import { CanvasMapperElement, CanvasMapperGroup } from "../util/slu-canvas-mapper2";
 
 export class KnovaCanvasElement extends CanvasMapperElement {
     /** 鼠标点击样式 */
     cursorPointer: boolean = true;
-    constructor(ox: number, oy: number) {
-        super(ox, oy);
+    cx: number;
+    cy: number;
+    constructor() {
+        super();
     }
     override render(iframe?: IFrame) {
+    }
+}
+export class KnovaCanvasGroup extends CanvasMapperGroup {
+    override elements: KnovaCanvasElement[] = [];
+    constructor() {
+        super();
+    }
+    override render() {
+        
     }
 }

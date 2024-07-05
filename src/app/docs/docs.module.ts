@@ -28,6 +28,8 @@ import { MessageWarpComponent } from './message-demo/components/message-warp/mes
 import { EllipsePipe } from './message-demo/ellipse.pipe';
 import { CanvasDemoModule } from './any-demo/canvas-demo/canvas-demo.module';
 import { VxeTableModule } from './any-demo/vxe-table/vxe-table.module';
+import { BigScreenComponent } from './big-screen/big-screen.component';
+import { BigScreenLayerComponent } from './big-screen/big-screen-layer/big-screen-layer.component';
 
 
 @NgModule({
@@ -54,6 +56,8 @@ import { VxeTableModule } from './any-demo/vxe-table/vxe-table.module';
     MessageTipComponent,
     MessageWarpComponent,
     EllipsePipe,
+    BigScreenComponent,
+    BigScreenLayerComponent,
   ],
   imports: [
     FormsModule,
