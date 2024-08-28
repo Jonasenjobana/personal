@@ -19,7 +19,7 @@ export interface DynamicComponentConfig<T = any> {
   position?: Partial<DynamicPosition>;
   height: number;
   width: number;
-  animeTime?: number
+  animeTime?: number;
   positionStatus?: Map<string, Partial<DynamicPosition>> // 'A' => 'B' Map['A'] => Map['B']
 }
 export interface DynamicPosition {

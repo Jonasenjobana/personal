@@ -35,3 +35,31 @@ export interface CanvasMapperConfig {
     hidden?: boolean;
   }
   export type CanvasMapperEvent = 'click' | 'moveend' | 'zoom' | 'render'
+  /**json格式 绘制底图 */
+  export interface CanvasMapGeo {
+    type: 'polygon' | 'image' | 'circle' | 'line',
+    geoId: string,
+    label: string,
+    points: [number, number][],
+    radius: number
+    width: number
+    height: number
+    imageUrl?: string
+    itemStyle: {
+      color: string
+      fillColor: string,
+      maxScale: number,
+      minScale: number
+    },
+    labelStyle: {
+      color: string,
+      maxScale: number,
+      minScale: number
+    },
+    hoverStyle: {
+      color: string,
+      fillColor: string
+    },
+    children?: CanvasMapGeo[],
+    parent?: string
+  }

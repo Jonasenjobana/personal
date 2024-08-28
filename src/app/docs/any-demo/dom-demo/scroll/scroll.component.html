@@ -1,0 +1,16 @@
+<div class="sl-scroll" #slScrollRef>
+  <div class="scroll-container">
+    <div class="update-scroll"></div>
+    <!-- 无缝滚动 -->
+    <div class="scroll-infinity" #scrollInfinity>
+      <div class="front-list" [ngStyle]="{ transform: 'translateY(' + translateY + 'px)' }"> </div>
+      <div class="next-list">
+        <ul>
+          <li></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+  <!-- 模拟滚动条 -->
+  <div class="scroll-thumb"></div>
+</div>

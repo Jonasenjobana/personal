@@ -4,11 +4,13 @@ import { SLUSettimeout } from 'src/app/shared/utils/slu-time';
 import { CanvasMapperConfig, CanvasMapperLayerConfig } from './model';
 
 /**
+ * Leaflet CRS: Simple + ImageOverlay可完美替代此类
  * 第二版
  * 参考leaflet api 自动改变canvas宽高 不需要每次初始化
  * 可以不再依赖经纬度 可以任意坐标系 只要定义好默认参考标准
  * 亦可
  * TODO 绘制bnsv类似的输水系统
+ * TODO 类geojson导入绘制底图
  * */
 export class SLUCanvasMapper2 {
   mapContainerEl!: HTMLElement;
@@ -250,6 +252,7 @@ export class SLUCanvasMapper2 {
     const scaleValue = currentProportionPixel[1] / currentProportionPixel[0];
     // 之前鼠标位置和鼠标位置缩放后应偏移的位置
     const [newX, newY] = [
+      // 转化为固定m 然后再转像素比例
       ((mouseX - baseOffsetX) / preScaleValue) * scaleValue + baseOffsetX,
       ((mouseY - baseOffsetY) / preScaleValue) * scaleValue + baseOffsetY
     ];

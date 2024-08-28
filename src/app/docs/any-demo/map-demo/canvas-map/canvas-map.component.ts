@@ -1,9 +1,11 @@
-import { Component } from '@angular/core';
-import { SLUCanvasMapper2, CanvasMapperLayer } from '../util/slu-canvas-mapper2';
+import { Component, ElementRef, ViewChild } from '@angular/core';
+import { SLUCanvasMapper2 } from '../util/slu-canvas-mapper2';
 import { latLngToMercator } from '../util/latlng.util';
 import { t } from './mock';
 import { RadarLayer } from '../radar-map/radar-layer';
 import { FlashPoint } from '../radar-map/flash-point';
+import * as L from 'leaflet';
+
 @Component({
   selector: 'canvas-map',
   templateUrl: './canvas-map.component.html',
@@ -12,8 +14,38 @@ import { FlashPoint } from '../radar-map/flash-point';
 export class CanvasMapComponent {
   width: string = '100%';
   height: string = '100%';
+  @ViewChild('mapRef') mapRef!: ElementRef;
   ngAfterViewInit() {
-    this.createMap();
+    // this.createMap();
+    this.leafletMap();
+    // setInterval(() => {
+    //   this.width = Math.random() * 100 + '%';
+    //   this.height = Math.random() * 100 + '%';
+    //   requestAnimationFrame(() => {
+    //     this.map && this.map.invalidateSize(true);
+
+    //   })
+    // }, 1000)
+  }
+  map: L.Map
+  leafletMap() {
+    const el = this.mapRef.nativeElement;
+    this.map = L.map(el, {
+      crs: L.CRS.Simple,
+      minZoom: -5
+    }).setView([500,500], 1).on('click', (e) => {
+      console.log(e)
+      const {containerPoint, latlng} = e, {x, y} = containerPoint;
+      const toLatlng = this.map.latLngToContainerPoint(latlng);
+      const toPoint = this.map.containerPointToLatLng(containerPoint);
+      console.log(toLatlng, toPoint, x, y)
+    })
+    // new TestPanel().addTo(this.map);
+    L.imageOverlay('/assets/images/map/map2.png',[[0,0],[2315, 2315]]).addTo(this.map);
+    // const circle = L.circle([50, 50], 100, {renderer: L.canvas()}).addTo(this.map).on('click', (e) => {
+    //   console.log(e)
+    // });
+    L.polyline([[244,1357], [244, 1305]]).addTo(this.map)
   }
   createMap() {
     const map = new SLUCanvasMapper2('.map', {
@@ -45,7 +77,10 @@ export class CanvasMapComponent {
       info: 'w'
     }).addTo(layer);
     layer.on('click', (e) =>{
-      console.log(e)
+      /**墨卡托转经纬度 经纬度转墨卡托坐标 */
+      console.log(L.Projection.SphericalMercator.project(L.latLng(39.74742506855425, 117.54782617092134)))
+      console.log(latLngToMercator(39.74742506855425, 117.54782617092134))
+      console.log(this.webMercator2LngLat(13085364.1532032, 4829306.376164524), this.webMercator2LngLat(13070721.90830294, 4823902.4847763805))
     })
     /** 测试bnsv输水图 */
     // const map = new SLUCanvasMapper2('.map');
@@ -56,5 +91,12 @@ export class CanvasMapComponent {
     //   new Arc({latlng: [271, 977], radius: 2, color: '#00ff00'}).addTo(layer);
     //   new Arc({latlng: [277, 977], radius: 2, color: '#00ff00'}).addTo(layer);
     // }, 1000);
+  }
+  webMercator2LngLat(x: number, y: number) {
+    //[12727039.383734727, 3579066.6894065146]  
+    var lng = x / 20037508.34 * 180;  
+    var lat = y / 20037508.34 * 180;      
+    lat = 180 / Math.PI * (2 * Math.atan(Math.exp(lat * Math.PI / 180)) - Math.PI / 2);  
+    return [lng, lat]; //[114.32894001591471, 30.58574800385281]  
   }
 }
