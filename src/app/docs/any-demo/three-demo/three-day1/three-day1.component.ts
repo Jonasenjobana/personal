@@ -28,6 +28,7 @@ import {
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
 import * as dat from 'dat.gui';
+/**经纬度材质映射地球 着色器变更像素 */
 @Component({
   selector: 'three-day1',
   templateUrl: './three-day1.component.html',
