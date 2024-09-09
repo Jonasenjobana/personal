@@ -6,7 +6,7 @@ import * as dat from 'dat.gui';
 export class ThreeBase {
     readonly canvasId: string = "three-base";
     tCamera: Three.Camera;
-    tRender: Three.Renderer;
+    tRender: Three.WebGLRenderer;
     tScene: Three.Scene;
     animeFlag: number;
     gui: dat.gui;
@@ -20,7 +20,7 @@ export class ThreeBase {
     initThree() {
         const el = document.getElementById(this.canvasId)
         this.tRender = new Three.WebGLRenderer({
-            canvas: el
+            canvas: el,
         });
         /**设置画布大小 */
         this.tRender.setSize(window.innerWidth, window.innerHeight);

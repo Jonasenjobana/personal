@@ -24,7 +24,7 @@ const routes: Routes = [
       {
         path: '',
         pathMatch: 'full',
-        redirectTo: 'three-demo/day1'
+        redirectTo: 'three-demo/day8-1'
       },
       {
         path: 'table-demo',

@@ -13,24 +13,30 @@ export class ThreeDay61Component extends ThreeBase {
   constructor() {
     super();
   }
-
+  control:any
   override ngAfterViewInit() {
     super.ngAfterViewInit();
     this.tCamera.position.set(0, 10, 10);
     this.tCamera.lookAt(0, 0, 0);
     this.tScene.add(new Three.AxesHelper(100));
+    // 开启阴影渲染
+    this.tRender.shadowMap.enabled = true;
+    this.control = new dat.GUI();
     this.createLight();
     this.createGround();
     this.createObject();
   }
   createLight() {
-    const control = new dat.GUI();
-    const light = new Three.HemisphereLight(0xb1e1ff, 0xb97a20, 1);
+    const light = new Three.DirectionalLight(0xffffff);
+    light.castShadow = true;
+    light.shadow.radius = 10;
+    light.shadow.mapSize.set(1024, 1024);
     this.tScene.add(light);
-    control.add(light, 'intensity').min(0).max(1).step(0.01);
-    control.add(light.position, 'x').min(-10).max(10).step(0.01);
-    control.add(light.position, 'y').min(-10).max(10).step(0.01);
-    control.add(light.position, 'z').min(-10).max(10).step(0.01);
+    this.control.add(light, 'intensity').min(0).max(5).step(0.01);
+    this.control.add(light.position, 'x').min(-10).max(10).step(0.01);
+    this.control.add(light.position, 'y').min(-10).max(10).step(0.01);
+    this.control.add(light.position, 'z').min(-10).max(10).step(0.01);
+    
     // const spotLightHelper = new Three.SpotLightHelper( light );
     // this.tScene.add( spotLightHelper );
   }
@@ -50,6 +56,7 @@ export class ThreeDay61Component extends ThreeBase {
     const mesh = new Mesh(ground, material);
     mesh.rotateX(-Math.PI / 2);
     this.tScene.add(mesh);
+    mesh.receiveShadow = true;
   }
   createObject() {
     const ball = new Three.SphereGeometry(1, 16, 16);
@@ -57,5 +64,8 @@ export class ThreeDay61Component extends ThreeBase {
     const ballMesh = new Three.Mesh(ball, mesh);
     ballMesh.position.set(2, 4, 3);
     this.tScene.add(ballMesh);
+    ballMesh.castShadow = true;
+    this.control.add(ballMesh.position, 'y').min(-10).max(10).step(0.01);// 添加gui control y轴方向值调整以便于debug调试 后续的操作
+
   }
 }
