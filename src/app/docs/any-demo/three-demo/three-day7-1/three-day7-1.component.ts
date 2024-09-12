@@ -4,7 +4,7 @@ import * as Three from 'three';
 // canvas贴图 保留canvas动画
 /**
  * Three Shape路径绘制形状 2d转变3d
- * 
+ *
  * ExtrudeGeometry(shape, { depth: 0.2, bevelEnabled: false, steps: 1 }); 2d挤压3d形状
  */
 @Component({

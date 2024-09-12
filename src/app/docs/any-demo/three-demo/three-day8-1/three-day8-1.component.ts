@@ -89,22 +89,22 @@ export class ThreeDay81Component extends ThreeBase {
         particle.status = 'drop';
         particle.update(ctx, this.rbush);
       }
-    })
+    });
     this.setRbush();
-    // this.cachedParticle = this.cachedParticle.filter(p => p.status != 'disappear');
+    this.cachedParticle = this.cachedParticle.filter(p => p.status != 'disappear');
   }
 
   setRbush() {
     const loadArr = this.cachedParticle.map(cached => {
-      const {x, y, radius} = cached;
+      const { x, y, radius } = cached;
       return {
-        minX: x-radius,
-        minY: y-radius,
-        maxX: x+radius,
-        maxY: y+radius,
+        minX: x - radius,
+        minY: y - radius,
+        maxX: x + radius,
+        maxY: y + radius,
         data: cached
-      }
-    })
+      };
+    });
     this.rbush.clear();
     this.rbush.load(loadArr);
   }
@@ -120,22 +120,23 @@ class Particle {
   status: 'drop' | 'disappear' | 'default' = 'default';
   /**x轴速度 */
   speedX: number;
-  accX: number
-  readonly gravity: number = 3; /**重力加速度 */
-  bounce: number = 0.5; /**弹性指数*/
+  accX: number;
+  readonly gravity: number = 2; /**重力加速度 */
+  bounce: number = 0.2; /**弹性指数*/
   speedY: number = 0;
   height: number;
   constructor(options: any = {}) {
     const { x = 0, y = 0, color = '#fff', radius = 5 } = options;
+    const r = Math.random();
     this.radius = radius;
     this.x = this.orginX = x;
     this.y = this.orginY = y;
     this.height = this.y;
     this.color = color;
-    this.accX = Math.random();
+    this.accX = Math.random() * 0.5;
     this.bounce = this.bounce + Math.random() * 0.5;
-    this.speedX = 1 * Math.random() > 0.3 ? 1 : Math.random() < 0.6 ? -1 : 0 * Math.random();
-    this.speedY = Math.random();
+    this.speedX = r > 0.5 ? 1 - r : -r;
+    this.speedY = Math.random() + 1;
   }
   /**
    * 接触到边界
@@ -145,12 +146,13 @@ class Particle {
   touchedBound(rbush: any) {
     const right = this.x + this.radius;
     const bottom = this.y + this.radius;
-    if (right >= window.innerWidth - 10 || right <= 10) {
-      this.speedX *= this.bounce * this.speedX * -1;
+    if (right >= window.innerWidth || right <= 0) {
+      this.x = window.innerWidth - this.radius;
+      this.speedX *= this.bounce * -1;
     }
     if (bottom >= window.innerHeight || bottom <= 0) {
       this.y = window.innerHeight - this.radius;
-      // this.speedY *= this.bounce * -1;
+      this.speedY *= this.bounce * -1;
     }
     const result = rbush.search({
       minX: this.x - this.radius,
@@ -159,9 +161,12 @@ class Particle {
       maxY: this.y + this.radius
     });
     if (result.length > 0) {
+      // result.sort((a, b) => a.data.y - b.data.y);
       // 最靠近的球体
-      this.speedY *= -1;
-      this.accX *= this.bounce * -1
+      this.speedY *= -1 * 0.3;
+      this.accX *= -1 * 0.8;
+      result[0].data.speedY *= 1.1;
+      result[0].data.accX *= 1.1;
     }
   }
   update(ctx, rbush) {
@@ -170,11 +175,7 @@ class Particle {
       this.speedX += this.accX;
       this.y += this.speedY;
       this.x += this.speedX;
-      this.height = this.y;
       this.touchedBound(rbush);
-      if (Math.abs(this.speedY) < 0.02) {
-        this.status = 'disappear';
-      }
     }
     this.draw(ctx);
     return this;
