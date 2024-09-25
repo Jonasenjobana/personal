@@ -27,6 +27,10 @@ const routes: Routes = [
         redirectTo: 'three-demo/day8-1'
       },
       {
+        path: 'cesium',
+        loadChildren: () => import('./any-demo/cesium/cesium.module').then(m => m.CesiumModule)
+      },
+      {
         path: 'table-demo',
         component: TableDemoComponent
       }, 

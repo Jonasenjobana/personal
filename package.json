@@ -1,6 +1,7 @@
 {
   "name": "personal",
   "version": "0.0.0",
+  "builders": "builders.json",
   "scripts": {
     "ng": "ng",
     "zq": "ng serve --configuration=zq",
@@ -23,6 +24,7 @@
     "@antv/g": "^5.18.25",
     "@antv/g-canvas": "^1.11.27",
     "@antv/g-lottie-player": "^0.2.22",
+    "cesium": "^1.121.1",
     "dat.gui": "^0.7.9",
     "echarts": "^5.5.1",
     "echarts-gl": "^2.0.9",
@@ -40,6 +42,7 @@
     "zone.js": "~0.13.3"
   },
   "devDependencies": {
+    "@angular-builders/custom-webpack": "^16.0.1",
     "@angular-devkit/build-angular": "^16.2.11",
     "@angular/cli": "~16.2.11",
     "@angular/compiler-cli": "^16.2.12",

@@ -30,6 +30,7 @@ import { CanvasDemoModule } from './any-demo/canvas-demo/canvas-demo.module';
 import { VxeTableModule } from './any-demo/vxe-table/vxe-table.module';
 import { BigScreenComponent } from './big-screen/big-screen.component';
 import { BigScreenLayerComponent } from './big-screen/big-screen-layer/big-screen-layer.component';
+import { CesiumModule } from './any-demo/cesium/cesium.module';
 
 
 @NgModule({
@@ -68,7 +69,8 @@ import { BigScreenLayerComponent } from './big-screen/big-screen-layer/big-scree
     FormsModule,
     ReactiveFormsModule,
     CanvasDemoModule,
-    VxeTableModule
+    VxeTableModule,
+    CesiumModule
   ]
 })
 export class DocsModule { }

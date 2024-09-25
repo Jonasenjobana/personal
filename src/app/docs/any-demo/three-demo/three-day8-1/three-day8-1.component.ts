@@ -37,7 +37,7 @@ export class ThreeDay81Component extends ThreeBase {
     this.ctx = el.getContext('2d');
     // gsap.
     const anime = () => {
-      requestAnimationFrame(anime);
+      this.animeFlag = requestAnimationFrame(anime);
       this.drawPartialText();
     };
     // 绘制粒子
@@ -107,6 +107,9 @@ export class ThreeDay81Component extends ThreeBase {
     });
     this.rbush.clear();
     this.rbush.load(loadArr);
+  }
+  override ngOnDestroy(): void {
+    this.animeFlag && cancelAnimationFrame(this.animeFlag)
   }
 }
 class Particle {
