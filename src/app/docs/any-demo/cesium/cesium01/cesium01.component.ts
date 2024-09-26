@@ -10,9 +10,14 @@ import {
   Model,
   Color,
   ColorBlendMode,
+  Primitive,
+  GeometryInstance,
+  MaterialAppearance,
   UniformType,
   Cartesian2,
   CallbackProperty,
+  Cartographic,
+  Ellipsoid
 } from 'cesium';
 import { CESIUM_TOKEN } from '../config/token';
 import * as dat from 'dat.gui';
@@ -92,7 +97,7 @@ export class Cesium01Component {
         customShader: new CallbackProperty(this.updateShader.bind(this), false)
       }
     });
-    this.entitys.push((entity.model as any as Model));
+    this.entitys.push(entity.model as any);
     this.viewer.trackedEntity = entity;
   }
   updateShader(time, result) {
