@@ -32,13 +32,10 @@ export class Cesium02Component {
   ngAfterViewInit() {
     this.getShips();
     this.slsCesium.initCesium(this.cesiumRef.nativeElement);
-    this.slsCesium.zoom$.subscribe(res => {
-      const {bound} = res
-      // this.shipLayer.rectangle.material = new Cesium.ImageMaterialProperty({
-      //   image: this.getCanvasTexture(),
-      //   transparent: true
-      // })
-    });
+    // this.slsCesium.mouseClick$.subscribe(res => {
+    //   const {bound} = res
+    //   console.log(res)
+    // });
     this.generateShip();
   }
   generate2D() {
@@ -78,6 +75,7 @@ export class Cesium02Component {
     this.slsCesium.viewer.trackedEntity = this.shipLayer;
   }
   getCanvasTexture(bound?: any) {
+    console.log('wwww')
     const canvas = this.mapRef.nativeElement as HTMLCanvasElement;
     const ctx = canvas.getContext('2d');
     const img = new Image();
@@ -93,8 +91,8 @@ export class Cesium02Component {
     ctx.strokeStyle = '#0c0c0c';
     ctx.strokeRect(0, 0, width, height);
     this.data.forEach(el => {
-      const {lat, lng, head} = el
-      ctx.arc((Number(lng) + 180) * scaleX, (Number(lat) + 30) * scaleY, 5, 0, Math.PI * 2);
+      const {lat, lng, head} = el;
+      ctx.arc((Number(lng) + 180) * scaleX, (Number(lat) + 30) * scaleY, 1, 0, Math.PI * 2);
       ctx.fill();
     })
     return canvas.toDataURL('image/png');

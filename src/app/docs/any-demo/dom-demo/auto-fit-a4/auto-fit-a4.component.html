@@ -1,0 +1,23 @@
+<div class="a4-container" #containerRef  [style.fontSize.px]="a4FontSize">
+    <button (click)="download()">下载</button>
+    <div class="a4" #a4Ref [style.width.px]="cachedSize?.width" [style.height.px]="cachedSize?.height">
+        <h1 style="text-align: center;">测试文章</h1>
+        <table style="width: 100%; height: 14.14em;">
+            <tr>
+                <td>序号</td>
+                <td>名称</td>
+                <td>价格</td>
+            </tr>
+            <tr>
+                <td>1</td>
+                <td>test1</td>
+                <td>23.3￥</td>
+            </tr>
+            <tr>
+                <td>2</td>
+                <td>test2</td>
+                <td>23.5￥</td>
+            </tr>
+        </table>
+    </div>
+</div>

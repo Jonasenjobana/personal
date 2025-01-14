@@ -101,6 +101,18 @@ const routes: Routes = [
       {
         path: 'dom',
         loadChildren: () => import('./any-demo/dom-demo/dom-demo.module').then(m => m.DomDemoModule)
+      },
+      {
+        path: 'echart',
+        loadChildren: () => import('./any-demo/echart-demo/echart-demo.module').then(m => m.EchartDemoModule)
+      },
+      {
+        path: 'webgl',
+        loadChildren: () => import('./any-demo/webgl-demo/webgl-demo.module').then(m => m.WebglDemoModule)
+      },
+      {
+        path: 'svg',
+        loadChildren: () => import('./any-demo/svg-demo/svg-demo.module').then(m => m.SvgDemoModule)
       }
     ]
   }

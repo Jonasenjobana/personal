@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <object width="300" height="300" classid="clsid:52f7f803-5035-41a0-9b49-75bbf5e280e6" id="ocx">
+    </object>
+    <script>
+        setTimeout(function () {
+            const ocx = document.querySelector('#ocx');
+            console.log([ocx],  ocx.Add(2));
+        }, 3000);
+    </script>
+</body>
+</html>

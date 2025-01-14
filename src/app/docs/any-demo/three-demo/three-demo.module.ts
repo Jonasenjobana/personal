@@ -9,6 +9,7 @@ import { ThreeDay71Component } from './three-day7-1/three-day7-1.component';
 import { ThreeDay72Component } from './three-day7-2/three-day7-2.component';
 import { ThreeDay81Component } from './three-day8-1/three-day8-1.component';
 import { ThreeDay91Component } from './three-day9-1/three-day9-1.component';
+import { ThreeDemo1Component } from './do/three-demo1/three-demo1.component';
 
 
 
@@ -21,7 +22,8 @@ import { ThreeDay91Component } from './three-day9-1/three-day9-1.component';
     ThreeDay71Component,
     ThreeDay72Component,
     ThreeDay81Component,
-    ThreeDay91Component
+    ThreeDay91Component,
+    ThreeDemo1Component
   ],
   imports: [
     CommonModule,

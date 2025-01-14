@@ -9,6 +9,7 @@ import { MissFortuneModel } from '../model/missfortune';
 import { CanyonScene } from '../model/scene';
 import { FirstPersonControls } from 'three/examples/jsm/controls/FirstPersonControls';
 import * as SceneUtils from 'three/examples/jsm/utils/SceneUtils';
+import { MitaSideModel } from '../model/mitaside';
 /**
  * SkeletonUtils.clone() 骨架与mesh id绑定， Object3D自带的clone会将uuid全部随机 把关联都取消了 导致各种变化都失效
  * 阴影 光源设置castShadow 渲染器开启shadowMap 物体设置castShadow 投影物体设置receiveShadow
@@ -29,47 +30,61 @@ export class ThreeDay91Component extends ThreeBase {
     RegisterResource();
   }
   mixer: AnimationMixer;
-  missfortune: MissFortuneModel;
+  missfortune: MitaSideModel;
   firstControl: FirstPersonControls;
   headCamera: Camera;
 
   override ngAfterViewInit(): void {
     super.ngAfterViewInit();
-    this.tRender.shadowMap.enabled = true;
-    this.tCamera.position.set(0, 10, 10);
+    this.tRender.shadowMap.enabled = false;
+    this.tCamera.position.set(0, -10, 10);
     this.tCamera.lookAt(0, 0, 0);
     this.tScene.add(new AxesHelper(500));
     new CanyonScene().setScene(this.tScene);
-    new MissFortuneModel().onLoad(model => {
+    new MitaSideModel().onLoad(model => {
       this.missfortune = model;
       console.log(model)
-      this.missfortune.model.traverse((child: Object3D) => {
-        if ((child as SkinnedMesh).isMesh && child.name == 'mesh_0_1') {
-          let mesh = child as SkinnedMesh;
-          // child.material = new MeshLambertMaterial({
-          //   color:0xffffff,
-          //   wireframe: true
-          // });
-          const el = this.tdCanvas.nativeElement;
-          const ctx = el.getContext('2d');
-          const clone = (mesh.material as MeshBasicMaterial).clone();
-          const bit: ImageBitmap = clone.map.source.data
-          ctx.drawImage(bit, 0, 0);
-          // SceneUtils.createMeshesFromMultiMaterialMesh(mesh, [clone, new MeshBasicMaterial({ map: new CanvasTexture(el) })]);
-          const mesh2 = new Mesh(mesh.geometry, new ShaderMaterial({
-            uniforms: {
-              uTime: this.uTime
-            },
-            vertexShader: ``,
-            fragmentShader: ``
-          }))
-          this.tScene.add(mesh2)
-          // mesh.material = new MeshBasicMaterial({ map: new CanvasTexture(el) });
-          console.log(mesh, mesh.geometry)
+      this.missfortune.model.traverse((child: any) => {
+        // if (child.isMesh) {
+        //   child.material.emissive = child.material.color;
+        //   child.material.emissiveMap = child.material.map;
+        // }
+        // if ((child as SkinnedMesh).isMesh && child.name == 'mesh_0_1') {
+        //   let mesh = child as SkinnedMesh;
+        //   // child.material = new MeshLambertMaterial({
+        //   //   color:0xffffff,
+        //   //   wireframe: true
+        //   // });
+        //   const el = this.tdCanvas.nativeElement;
+        //   const ctx = el.getContext('2d');
+        //   const clone = (mesh.material as MeshBasicMaterial).clone();
+        //   const bit: ImageBitmap = clone.map.source.data
+        //   ctx.drawImage(bit, 0, 0);
+        //   // SceneUtils.createMeshesFromMultiMaterialMesh(mesh, [clone, new MeshBasicMaterial({ map: new CanvasTexture(el) })]);
+        //   const mesh2 = new Mesh(mesh.geometry, new ShaderMaterial({
+        //     uniforms: {
+        //       uTime: this.uTime
+        //     },
+        //     vertexShader: ``,
+        //     fragmentShader: ``
+        //   }))
+        //   this.tScene.add(mesh2)
+        //   // mesh.material = new MeshBasicMaterial({ map: new CanvasTexture(el) });
+        //   console.log(mesh, mesh.geometry)
+        // }
+      })
+      // this.tScene.add(new SkeletonHelper(model.scene));
+      model.scene.scale.set(300, 300, 300);
+      model.scene.traverse((child: any) => {
+        if (child.isMesh) {
+          child.frustmuCulled = false;
+          child.castShadow = true;
+          // child.geometry.computeVertexNormals();
+          console.log(child.material)
+          // child.material.emissive = child.material.color;
+          // child.material.emissiveMap = child.material.map;
         }
       })
-      this.missfortune.model.add(new AxesHelper(500))
-      this.tScene.add(new SkeletonHelper(model.scene));
       this.tScene.add(model.scene);
     });
   }

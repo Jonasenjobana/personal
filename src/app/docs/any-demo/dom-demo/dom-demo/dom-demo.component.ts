@@ -17,6 +17,8 @@ export class DomDemoComponent {
   ];
   constructor(private http_: HttpClient) {}
   async ngAfterViewInit() {
+    const max = Math.PI / 3, min = Math.PI/6
+    const max2 = Math.PI / 2, min2 = Math.PI/3
     this.chart = echarts.init(document.getElementById('echart-container') as HTMLDivElement);
     this.chart.setOption({
       tooltip: {},
@@ -57,6 +59,50 @@ export class DomDemoComponent {
         }
       },
       series: [
+        // {
+        //   type: 'surface',
+        //   wireframe: {
+        //     // show: false
+        //   },
+        //   parametric: true,
+        //   parametricEquation: {
+        //     u: {
+        //       min: 0,
+        //       max: Math.PI * 2,
+        //       step: Math.PI / 20
+        //     },
+        //     v: {
+        //       min: 0,
+        //       max: Math.PI * 2,
+        //       step: Math.PI / 20
+        //     },
+        //     x: function (u, v) {
+        //       if (u > max) {
+        //         return (2 + Math.cos(v)) * Math.cos(max);
+        //       } else if (u < min) {
+        //         return (2 + Math.cos(v)) * Math.cos(min);
+        //       }
+        //       return (2 + Math.cos(v)) * Math.cos(u);
+        //     },
+
+
+        //     y: function (u, v) {
+        //       if (u > max) {
+        //         return (2 + Math.cos(v)) * Math.sin(max);
+        //       } else if (u < min) {
+        //         return (2 + Math.cos(v)) * Math.sin(min);
+        //       }
+        //       return (2 + Math.cos(v)) * Math.sin(u);
+        //     },
+        //     z: function (u, v) {
+        //       // pi - 2pi valid
+        //       if (u >= max || u <= min) {
+        //         return 1
+        //       }
+        //       return Math.sin(v) > 0 ? 0 : 1
+        //     }
+        //   }
+        // },
         {
           type: 'surface',
           wireframe: {
@@ -75,13 +121,29 @@ export class DomDemoComponent {
               step: Math.PI / 20
             },
             x: function (u, v) {
-              return Math.cos(u) * (1 - Math.abs(Math.sin(v) / 2));
+              if (u > max2) {
+                return (2 + Math.cos(v)) * Math.cos(max2);
+              } else if (u < min2) {
+                return (2 + Math.cos(v)) * Math.cos(min2);
+              }
+              return (2 + Math.cos(v)) * Math.cos(u);
             },
+
+
             y: function (u, v) {
-              return  Math.sin(u) * (1 - Math.abs(Math.sin(v) / 2));
+              if (u > max2) {
+                return (2 + Math.cos(v)) * Math.sin(max2);
+              } else if (u < min2) {
+                return (2 + Math.cos(v)) * Math.sin(min2);
+              }
+              return (2 + Math.cos(v)) * Math.sin(u);
             },
             z: function (u, v) {
-              return Math.sin(v) > 0 ? 0 : 1;
+              // pi - 2pi valid
+              if (u >= max2 || u <= min2) {
+                return 1
+              }
+              return Math.sin(v) > 0 ? 0 : 1
             }
           }
         }

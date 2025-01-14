@@ -70,7 +70,7 @@ import { CesiumModule } from './any-demo/cesium/cesium.module';
     ReactiveFormsModule,
     CanvasDemoModule,
     VxeTableModule,
-    CesiumModule
+    CesiumModule,
   ]
 })
 export class DocsModule { }
