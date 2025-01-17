@@ -26,9 +26,9 @@ export class Demo2Component {
     this.gl = el.getContext('webgl2');
   }
   setPrograms() {
+    this.square();
     this.ship();
     // this.letterF();
-    this.square();
   }
   letterF() {
     const f = new LetterF(this.gl, this.gui)

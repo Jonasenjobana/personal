@@ -1,6 +1,6 @@
 import ship1 from '@/assets/map/ship/1.png';
-// import ship2 from '@/assets/map/ship/2.png';
-// import ship3 from '@/assets/map/ship/3.png';
+import ship2 from '@/assets/map/ship/2.png';
+import ship3 from '@/assets/map/ship/3.png';
 // import ship4 from '@/assets/map/ship/4.png';
 // import ship5 from '@/assets/map/ship/5.png';
 // import ship6 from '@/assets/map/ship/6.png';
@@ -18,10 +18,18 @@ export class ShipGl {
   isLoad = false;
   constructor(public gl: WebGL2RenderingContext, type?: string) {
     this.init();
+    this.images = [ship1, ship2, ship3].map(url => {
+      const image = new Image();
+      image.src = url;
+      return image;
+    });
+    console.log(this.images);
   }
   ships: any[] = [];
+  images: any[] = [];
   bufferPosition: Float32Array = new Float32Array([]);
   typeAttr: Float32Array = new Float32Array([]);
+  rotateAttr: Float32Array = new Float32Array([]);
   corrdPosition: Float32Array = new Float32Array([]);
   init() {
     const gl = this.gl;
@@ -44,27 +52,40 @@ export class ShipGl {
       { x: 80, y: 330, url: '/assets/map/ship/3.png', type: '3' }
     ];
     const data = this.ships.reduce((prev, el) => {
-        const {x, y} = el;
-        prev.push(...[
-            // 三角形1
-            x - 8, y - 8, // 左上角
-            x - 8, y + 8, // 左下角
-            x + 8, y + 8, // 右下角
-            // 三角形2
-            x + 8, y + 8, // 右下角
-            x + 8, y - 8, // 右上角
-            x - 8, y - 8, // 左上角
-        ])
-        return prev
+      const { x, y } = el;
+      prev.push(
+        ...[
+          // 三角形1
+          x - 8,
+          y - 8, // 左上角
+          x - 8,
+          y + 8, // 左下角
+          x + 8,
+          y + 8, // 右下角
+          // 三角形2
+          x + 8,
+          y + 8, // 右下角
+          x + 8,
+          y - 8, // 右上角
+          x - 8,
+          y - 8 // 左上角
+        ]
+      );
+      return prev;
     }, []);
     const dataTypes = this.ships.reduce((prev, el) => {
-        const {type} = el;
-        prev.push(...new Array(6).fill(Number(type)));
-        return prev;
+      const { type } = el;
+      prev.push(...new Array(6).fill(Number(type)));
+      return prev;
+    }, []);
+    const rotate = this.ships.reduce((prev, el) => {
+      prev.push(...new Array(6).fill(Math.random()));
+      return prev;
     }, [])
     const dataCoord = new Float32Array();
     this.bufferPosition = new Float32Array(data);
     this.typeAttr = new Float32Array(dataTypes);
+    this.rotateAttr = new Float32Array(rotate);
   }
   draw() {
     const gl = this.gl;
@@ -75,6 +96,12 @@ export class ShipGl {
     const typeLocation = gl.getAttribLocation(p, 'a_type');
     const resolutionLocation = gl.getUniformLocation(p, 'u_resolution');
     const matrixLocation = gl.getUniformLocation(p, 'u_matrix');
+    const rotateALocation = gl.getAttribLocation(p, 'a_rotate');
+    const rotateBuffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, rotateBuffer);
+    gl.bufferData(gl.ARRAY_BUFFER, this.rotateAttr, gl.STATIC_DRAW);
+    gl.enableVertexAttribArray(rotateALocation);
+    gl.vertexAttribPointer(rotateALocation, 1, gl.FLOAT, false, 0, 0);
     const posBuffer = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, posBuffer);
     gl.bufferData(gl.ARRAY_BUFFER, this.bufferPosition, gl.STATIC_DRAW);
@@ -88,52 +115,32 @@ export class ShipGl {
     gl.uniform2f(resolutionLocation, gl.canvas.width, gl.canvas.height);
     const mat = mat3.create();
     gl.uniformMatrix3fv(matrixLocation, false, mat);
+    this.ships.forEach(ship => {});
+    const texCoordLocation = gl.getAttribLocation(p, 'a_texCoord'); // 纹理坐标
+    var texCoordBuffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, texCoordBuffer);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([0, 0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 0,0, 0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 0,0, 0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 0]), gl.STATIC_DRAW);
+    gl.enableVertexAttribArray(texCoordLocation);
+    gl.vertexAttribPointer(texCoordLocation, 2, gl.FLOAT, false, 0, 0);
+    this.initTexture(gl, p, 0);
+    this.initTexture(gl, p, 1);
+    this.initTexture(gl, p, 2);
     gl.drawArrays(gl.TRIANGLES, 0, this.ships.length * 3 * 2);
-    this.ships.forEach(ship => {
-
-    })
-    // const texCoordLocation = gl.getAttribLocation(p, 'a_texCoord'); // 纹理坐标
-    // var texCoordBuffer = gl.createBuffer();
-    // gl.bindBuffer(gl.ARRAY_BUFFER, texCoordBuffer);
-    // gl.bufferData(gl.ARRAY_BUFFER, this.TextureCoord, gl.STATIC_DRAW);
-    // gl.enableVertexAttribArray(texCoordLocation);
-    // gl.vertexAttribPointer(texCoordLocation, 2, gl.FLOAT, false, 0, 0);
-    // const texture = gl.createTexture();
-    // // 假设所有的图像维度都不是2的整数次幂
-    // gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-    // gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-    // gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-    // gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, this.image);
-    // const uImageLocation = gl.getUniformLocation(this.program, 'u_texture');
-    // gl.uniform1i(uImageLocation, 0);
-    // this.ships.forEach(el => {
-    //     this.drawImage(texture, el.x, el.y);
-    // });
   }
-  drawImage(texture, x, y) {
-    const gl = this.gl;
-    const p = this.program;
-    const matrixLocation = gl.getUniformLocation(p, 'u_matrix');
-    const mat = mat3.create();
-    // mat3.translate(mat, mat, [x,y]);
-    // gl.uniformMatrix3fv(matrixLocation, false, mat)
-    // 从像素空间转换到裁剪空间
-    // var matrix = m4.orthographic(0, gl.canvas.width, gl.canvas.height, 0, -1, 1);
-
-    // 平移到 dstX, dstY
-    // matrix = m4.translate(matrix, dstX, dstY, 0);
-
-    // 缩放单位矩形的宽和高到 texWidth, texHeight 个单位长度
-    // matrix = m4.scale(matrix, texWidth, texHeight, 1);
-
-    // 设置矩阵
-    // gl.uniformMatrix4fv(matrixLocation, false, matrix);
-
-    // 告诉着色器使用纹理单元 0
-    // gl.uniform1i(textureLocation, 0);
-
-    // 绘制矩形
-    gl.drawArrays(gl.TRIANGLES, 0, 6);
+  initTexture(gl: WebGL2RenderingContext, p, index: number) {
+    const texture1 = gl.createTexture();
+    gl.bindTexture(gl.TEXTURE_2D, texture1);
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, this.images[index]);
+    // 设置参数，让我们可以绘制任何尺寸的图像
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+    const textureLocation1 = gl.getUniformLocation(p, `u_texture${index}`);
+    gl.uniform1i(textureLocation1, index); // 使用第i个纹理单元
+    gl.activeTexture(gl.TEXTURE0 + index);
+    gl.bindTexture(gl.TEXTURE_2D, texture1);
+    gl.uniform1i(textureLocation1, index); // 使用第i个纹理单元
   }
 }
 export interface ShipGLItem {

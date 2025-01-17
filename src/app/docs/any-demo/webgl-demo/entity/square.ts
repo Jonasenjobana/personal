@@ -35,10 +35,10 @@ export class SquareGL {
     gl.vertexAttribPointer(texCoordLocation, 2, gl.FLOAT, false, 0, 0);
     // 创建纹理
     var texture = gl.createTexture();
-    gl.activeTexture(gl.TEXTURE3);
+    gl.activeTexture(gl.TEXTURE0);
     gl.bindTexture(gl.TEXTURE_2D, texture);
     const a = gl.getUniformLocation(p, 'u_image2')
-    gl.uniform1i(a, 3)
+    gl.uniform1i(a, 0)
     // 设置参数，让我们可以绘制任何尺寸的图像
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);

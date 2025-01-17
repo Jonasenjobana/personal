@@ -1,14 +1,18 @@
 precision mediump float;// 精度
 varying vec2 v_texcoord;
 varying float v_type;
-uniform sampler2D u_texture;
-
+uniform sampler2D u_texture1;
+uniform sampler2D u_texture2;
+uniform sampler2D u_texture3;
 void main(){
-   if(v_type==1.0){
-      gl_FragColor=vec4(1.,0,0,1.);
-   }else if (v_type == 2.0){
-      gl_FragColor=vec4(.0431,1.,.0902,1.);
-   } else {
-      gl_FragColor=vec4(0.0, 0.4314, 1.0, 1.0);
+   if(v_type==1.){
+      gl_FragColor=texture2D(u_texture1,v_texcoord);
+   }else if(v_type==2.){
+      gl_FragColor=texture2D(u_texture2,v_texcoord);
+      
+   }else{
+      gl_FragColor=texture2D(u_texture3,v_texcoord);
+      
    }
+   
 }

@@ -14,7 +14,7 @@
         gl.bindTexture(gl.TEXTURE_2D, texture);
         // 着色器绑定到纹理3
         const u_imageLoc = gl.getUniformLocation(program, "u_image");
-        gl.uniform1i(u_imageLoc, 3);
+        gl.uniform1i(u_imageLoc, 3); // 使用第3个纹理单元
     ```  
 ## 基本流程
 1. 创建顶点着色器
@@ -75,7 +75,7 @@
     ```javascript
         // 已加载IMAGE资源
         const texture = gl.createTexture();
-        gl.bindTexture(gl.TEXTURE_2D, texture);
+        gl.bindTexture(gl.TEXTURE_2D, texture); //默认纹理0
         // 纹理坐标超出范围后采样方式
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.REPEAT); // 重复
         // gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.REPEAT); 
@@ -85,7 +85,7 @@
         const textureLocation = gl.getUniformLocation(program, 'uTexture');
         gl.activeTexture(gl.TEXTURE0);
         gl.bindTexture(gl.TEXTURE_2D, texture);
-        gl.uniform1i(textureLocation, 0);
+        gl.uniform1i(textureLocation, 0);// t0
     ```
 8. 相机
     ```javascript
@@ -178,6 +178,20 @@
 11. clamp(a, b, c)
 - 取abc中间值
 12. 
+## webgl绘制粒子
+0. 只需要一个顶点着色器一个片元着色器绘制
+1. 设置所有粒子的初始状态包括位置传入缓冲区
+    - 
+       ```javascript
+       const particleData = [
+            // x, y, z, r, g, b, a
+            0.0, 0.0, 0.0, 1.0, 1.0, 1.0, 1.0,
+            0.5, 0.5, 0.0, 1.0, 0.0, 0.0, 1.0,
+            //... more particles
+        ];
+    
+        ```
+2. 通过数学公式和uTime变化各个粒子的位置 
 # Three.js
 - 
 # Cesium.js
