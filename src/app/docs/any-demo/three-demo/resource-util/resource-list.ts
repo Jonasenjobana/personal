@@ -23,7 +23,7 @@ export class MissFortuneGLTF extends LoaderResource<GLTF, GLTFLoader>{
     });
   }
 }
-/**米塔资源导入 😭😭😭😭 */
+/**米塔资源导入 😎🕶😭😭😭😭 */
 export class MisideGLTF extends LoaderResource<GLTF, GLTFLoader>{
   static sourcePromise: Promise<GLTF|null>;;
   static sourceUrl: string = '/assets/gltf/mitasidegirl/scene.gltf';
@@ -31,6 +31,7 @@ export class MisideGLTF extends LoaderResource<GLTF, GLTFLoader>{
   static async initResource(loader: GLTFLoader = new GLTFLoader()): Promise<GLTF|null> {
     return new Promise(async (resolve, reject) => {
       MisideGLTF.sourcePromise = loader.loadAsync(MisideGLTF.sourceUrl).then(res => {
+        console.log(res,'sssssss')
         MisideGLTF.orginSource = res;
         resolve(res);
         return res;

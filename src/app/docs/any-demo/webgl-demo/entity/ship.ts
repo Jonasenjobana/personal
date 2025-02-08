@@ -96,12 +96,13 @@ export class ShipGl {
     const typeLocation = gl.getAttribLocation(p, 'a_type');
     const resolutionLocation = gl.getUniformLocation(p, 'u_resolution');
     const matrixLocation = gl.getUniformLocation(p, 'u_matrix');
-    const rotateALocation = gl.getAttribLocation(p, 'a_rotate');
-    const rotateBuffer = gl.createBuffer();
-    gl.bindBuffer(gl.ARRAY_BUFFER, rotateBuffer);
-    gl.bufferData(gl.ARRAY_BUFFER, this.rotateAttr, gl.STATIC_DRAW);
-    gl.enableVertexAttribArray(rotateALocation);
-    gl.vertexAttribPointer(rotateALocation, 1, gl.FLOAT, false, 0, 0);
+    // const uniformTextcoord = gl.getUniformLocation(p, 'u_texCoord');
+    // const rotateALocation = gl.getAttribLocation(p, 'a_rotate');
+    // const rotateBuffer = gl.createBuffer();
+    // gl.bindBuffer(gl.ARRAY_BUFFER, rotateBuffer);
+    // gl.bufferData(gl.ARRAY_BUFFER, this.rotateAttr, gl.STATIC_DRAW);
+    // gl.enableVertexAttribArray(rotateALocation);
+    // gl.vertexAttribPointer(rotateALocation, 1, gl.FLOAT, false, 0, 0);
     const posBuffer = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, posBuffer);
     gl.bufferData(gl.ARRAY_BUFFER, this.bufferPosition, gl.STATIC_DRAW);
@@ -115,6 +116,7 @@ export class ShipGl {
     gl.uniform2f(resolutionLocation, gl.canvas.width, gl.canvas.height);
     const mat = mat3.create();
     gl.uniformMatrix3fv(matrixLocation, false, mat);
+    // gl.uniform1fv(uniformTextcoord, new Float32Array([0, 0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 0]));
     this.ships.forEach(ship => {});
     const texCoordLocation = gl.getAttribLocation(p, 'a_texCoord'); // 纹理坐标
     var texCoordBuffer = gl.createBuffer();
@@ -125,7 +127,7 @@ export class ShipGl {
     this.initTexture(gl, p, 0);
     this.initTexture(gl, p, 1);
     this.initTexture(gl, p, 2);
-    gl.drawArrays(gl.TRIANGLES, 0, this.ships.length * 3 * 2);
+    gl.drawArrays(gl.TRIANGLES, 0, this.ships.length * 3 * 2); // 每组船由2片元三角形组成
   }
   initTexture(gl: WebGL2RenderingContext, p, index: number) {
     const texture1 = gl.createTexture();

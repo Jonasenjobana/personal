@@ -8,7 +8,7 @@ import { Demo2Component } from './demo2/demo2.component';
 @NgModule({
   declarations: [
     WebglDemoComponent,
-    Demo2Component
+    Demo2Component,
   ],
   imports: [
     CommonModule,

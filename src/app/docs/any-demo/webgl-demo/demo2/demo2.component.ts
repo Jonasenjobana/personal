@@ -3,6 +3,7 @@ import * as dat from 'dat.gui';
 import { SquareGL } from '../entity/square';
 import { LetterF } from '../entity/letterF';
 import { ShipGl } from '../entity/ship';
+import { TextureDemo } from '../entity/textureDemo';
 @Component({
   selector: 'demo2',
   templateUrl: './demo2.component.html',
@@ -26,8 +27,8 @@ export class Demo2Component {
     this.gl = el.getContext('webgl2');
   }
   setPrograms() {
-    this.square();
-    this.ship();
+    // this.square();
+    this.ship2();
     // this.letterF();
   }
   letterF() {
@@ -42,6 +43,10 @@ export class Demo2Component {
     const s2 = new ShipGl(this.gl);
     s2.setData([]);
     this.entitys.push(s2);
+  }
+  ship2() {
+    const s3 = new TextureDemo(this.gl);
+    this.entitys.push(s3);
   }
   draw() {
     this.entitys.forEach(e => {

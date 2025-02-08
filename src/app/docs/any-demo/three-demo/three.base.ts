@@ -43,6 +43,8 @@ export class ThreeBase {
   }
   renderThree = () => {
     const delta = this.tClock.getDelta();
+    this.tRender.setScissor(0, 0, 100, 100);
+    this.tRender.setViewport(0, 0, 100, 100);
     this.tRender.render(this.tScene, this.tCamera);
     this.uTime.value += delta;
     this.renderCb(delta);

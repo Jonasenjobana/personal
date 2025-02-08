@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { ThreeBase } from '../three.base';
 import { GLTF, GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
-import { AnimationAction, AnimationMixer, AxesHelper, BufferGeometry, Camera, CanvasTexture, LineBasicMaterial, LoopRepeat, Mesh, MeshBasicMaterial, MeshLambertMaterial, MeshPhongMaterial, Object3D, PCFSoftShadowMap, PerspectiveCamera, PointsMaterial, ShaderMaterial, SkeletonHelper, SkinnedMesh } from 'three';
+import { AmbientLight, AnimationAction, AnimationMixer, AxesHelper, BufferGeometry, Camera, CanvasTexture, DirectionalLight, DoubleSide, LineBasicMaterial, LoopRepeat, Mesh, MeshBasicMaterial, MeshLambertMaterial, MeshPhongMaterial, Object3D, PCFSoftShadowMap, PerspectiveCamera, PointsMaterial, ShaderMaterial, SkeletonHelper, SkinnedMesh } from 'three';
 import gsap from 'gsap';
 import { RegisterResource } from '../resource-util/load-util';
 import { MissFortuneGLTF } from '../resource-util/resource-list';
@@ -37,6 +37,8 @@ export class ThreeDay91Component extends ThreeBase {
   override ngAfterViewInit(): void {
     super.ngAfterViewInit();
     this.tRender.shadowMap.enabled = false;
+    const l = new AmbientLight(0xffffff, 2)
+    this.tScene.add(l);
     this.tCamera.position.set(0, -10, 10);
     this.tCamera.lookAt(0, 0, 0);
     this.tScene.add(new AxesHelper(500));
@@ -45,10 +47,10 @@ export class ThreeDay91Component extends ThreeBase {
       this.missfortune = model;
       console.log(model)
       this.missfortune.model.traverse((child: any) => {
-        // if (child.isMesh) {
-        //   child.material.emissive = child.material.color;
-        //   child.material.emissiveMap = child.material.map;
-        // }
+        if (child.isMesh) {
+          // child.material.emissive = child.material.color;
+          // child.material.emissiveMap = child.material.map;
+        }
         // if ((child as SkinnedMesh).isMesh && child.name == 'mesh_0_1') {
         //   let mesh = child as SkinnedMesh;
         //   // child.material = new MeshLambertMaterial({
@@ -77,6 +79,7 @@ export class ThreeDay91Component extends ThreeBase {
       model.scene.scale.set(300, 300, 300);
       model.scene.traverse((child: any) => {
         if (child.isMesh) {
+          child.material.side = DoubleSide;
           child.frustmuCulled = false;
           child.castShadow = true;
           // child.geometry.computeVertexNormals();

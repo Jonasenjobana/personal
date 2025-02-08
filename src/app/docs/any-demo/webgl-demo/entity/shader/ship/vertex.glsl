@@ -1,27 +1,10 @@
-attribute vec2 a_position;
-attribute vec2 a_texCoord;
-attribute float a_type;
-attribute float a_rotate;
-uniform vec2 u_resolution;// 画布像素大小
-uniform mat3 u_matrix; // 变形矩阵
-varying vec2 v_texcoord;
-varying float v_type;
+attribute vec2 aPosition;
+attribute vec2 aTexCoord;
+varying vec2 v_texcoord;// 片元纹理坐标
+uniform mat3 uModel;// 模型矩阵（平移+旋转+缩放）
+uniform mat3 uProjection;// 投影矩阵
 void main(){
-   //   mat3 matrix = mat3(
-   //    cos(a_rotate) -sin(a_rotate), 0,
-   //    sin(a_rotate) cos(a_rotate), 0,
-   //    0, 0, 1
-   // )
-   vec2 position=(u_matrix * vec3(a_position, 1.0)).xy;
-   // convert the position from pixels to 0.0 to 1.0
-   vec2 zeroToOne=position/u_resolution; // 归一
-   
-   // convert from 0->1 to 0->2
-   vec2 zeroToTwo=zeroToOne*2.;
-   
-   // convert from 0->2 to -1->+1 (clipspace)
-   vec2 clipSpace=zeroToTwo-1.;
-   gl_Position=vec4(clipSpace*vec2(1,-1),0,1);
-   v_texcoord=a_texCoord;
-   v_type = a_type;
+   vec3 pos=uProjection*uModel*vec3(aPosition,1.);
+   gl_Position=vec4(pos.xy,0.,1.);
+   v_texcoord=aTexCoord;
 }
