@@ -204,6 +204,10 @@
         ```
 2. 通过数学公式和uTime变化各个粒子的位置 
 # Three.js
+## Notice
+1. three的轴 z是面向屏幕 y是垂直向上的
+2. 修改材质，可能模型有共用的材质会导致修改一处材质全部发生变更，需要clone或覆盖模型材质
+3. 
 ## 结构
 - 渲染器
 - 场景
@@ -213,5 +217,13 @@
     - 几何
     - 材质
     - 着色器
+## Solution
+### 贴图位移
+- map.offset.x // x y 贴图偏移
+- texture.wrapS = texture.wrapT = RepeatWrapping // 允许水平 垂直贴图重复
+- texture.repeat.set(s, t) // 水平、垂直重复次数
+### 射线选取
+- raycaster.setFromCamer(new Vector2, camera) // 重相机位置发出射线
+- raycaster.intersectObjects(mesh[]) // 判断射线有无经过mesh数组 返回穿过的mesh
 # Cesium.js
 - 经纬度转为笛卡尔坐标系

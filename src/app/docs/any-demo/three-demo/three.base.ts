@@ -33,22 +33,21 @@ export class ThreeBase {
     /**设置画布大小 */
     this.tRender.setSize(window.innerWidth, window.innerHeight);
     /**透视相机 */
-    this.tCamera = new Three.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 10000);
+    this.tCamera = new Three.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.1, 10000);
     this.tScene = new Three.Scene();
     this.tScene.add(this.tCamera);
     this.tScene.add(new Three.AxesHelper());
     /**控制器 */
-    this.tControl = new OrbitControls(this.tCamera, el);
+    // this.tControl = new OrbitControls(this.tCamera, el);
     this.renderThree();
   }
   renderThree = () => {
     const delta = this.tClock.getDelta();
-    this.tRender.setScissor(0, 0, 100, 100);
-    this.tRender.setViewport(0, 0, 100, 100);
-    this.tRender.render(this.tScene, this.tCamera);
     this.uTime.value += delta;
     this.renderCb(delta);
     this.animeFlag = requestAnimationFrame(this.renderThree);
+    // this.tControl.update();
+    this.tRender.render(this.tScene, this.tCamera);
   };
   renderCb = (delta: number) => {};
   ngOnDestroy() {
