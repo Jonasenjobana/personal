@@ -1,6 +1,6 @@
 export class TEvent {
-  eventMap: Map<string, Function[]> = new Map();
-  onceMap: Map<string, Function[]> = new Map();
+  eventMap: Map<string, Set<Function>> = new Map();
+  onceMap: Map<string, Set<Function>> = new Map();
   readonly BASEEVENTNAME = 'BASE';
   constructor() {}
   on(event: string, callback: Function, immediate?: boolean): void;
@@ -11,33 +11,44 @@ export class TEvent {
     const immediate = (typeof b == 'boolean' ? b : c) as boolean;
     const eventList = this.eventMap.get(eventName);
     if (eventList) {
-      let idx = eventList.indexOf(eventCb);
-      if (idx == -1) {
-        eventList.push(eventCb);
+      let exist = eventList.has(eventCb)
+      if (!exist) {
+        eventList.add(eventCb);
       }
     } else {
-      this.eventMap.set(eventName, [eventCb]);
+      this.eventMap.set(eventName, new Set([eventCb]));
     }
     if (immediate) {
       eventCb();
     }
   }
+  /**批量清空 */
+  offAll(event?: string) {
+    if (event) {
+      this.eventMap.delete(event);
+      this.onceMap.delete(event);
+    } else {
+      this.eventMap.clear();
+      this.onceMap.clear();
+    }
+  }
   off(event: string, callback: Function): void;
   off(event: Function): void;
-  off<T extends string | Function>(event: T, callback?: T extends string | string[] ? Function : never) {
-    let eventName = typeof event == 'string' ? event : this.BASEEVENTNAME;
+  off<T extends string | Function>(a: T, b?: T extends string ? Function : never) {
+    let eventName = (typeof a == 'string' ? a : this.BASEEVENTNAME) as string;
+    let cb = (typeof a == 'string' ? b : a) as Function;
     const eventList = this.eventMap.get(eventName);
     const eventList2 = this.onceMap.get(eventName);
     if (eventList) {
-      let idx = eventList.indexOf(callback);
-      if (idx !== -1) {
-        eventList.splice(idx, 1);
+      let exist = eventList.has(cb);
+      if (exist) {
+        eventList.delete(cb);
       }
     }
     if (eventList2) {
-      let idx = eventList2.indexOf(callback);
-      if (idx !== -1) {
-        eventList2.splice(idx, 1);
+      let exist = eventList2.has(cb);
+      if (exist) {
+        eventList2.delete(cb);
       }
     }
   }
@@ -53,14 +64,15 @@ export class TEvent {
     const eventCb = (typeof a == 'string' ? b : a) as Function;
     const eventList = this.onceMap.get(eventName);
     if (eventList) {
-      let idx = eventList.indexOf(eventCb);
-      if (idx == -1) {
-        eventList.push(eventCb);
+      let exist = eventList.has(eventCb);
+      if (!exist) {
+        eventList.add(eventCb);
       }
     } else {
-      this.onceMap.set(eventName, [eventCb]);
+      this.onceMap.set(eventName, new Set([eventCb]));
     }
   }
+  
   /**触发事件 */
   fire(eventName: string, ...args: any[]) {
     const fireEvents = this.eventMap.get(eventName) || [];
@@ -71,8 +83,6 @@ export class TEvent {
     onceEvents.forEach(evt => {
       evt(...args);
     });
-    onceEvents.forEach(evt => {
-      this.off(eventName, evt);
-    });
+    this.onceMap.delete(eventName); // 直接清空
   }
 }

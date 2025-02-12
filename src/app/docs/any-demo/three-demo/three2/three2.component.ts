@@ -24,56 +24,19 @@ export class Three2Component extends ThreeBase {
   tEvent: TEvent = new TEvent();
   override ngAfterViewInit(): void {
     super.ngAfterViewInit();
-    this.tCamera.position.set(-183, 160, -233);
-    // this.tCamera.lookAt(new Three.Vector3(-180, 2.5, -249));
+    this.tCamera.position.set(-3, 3, -3);
     this.tScene.add(new Three.DirectionalLight(0xffffff, 2));
     const ambiLight = new Three.AmbientLight(0xffffff, 0.5);
     this.tScene.add(ambiLight);
-    // this.initScene();
+    this.initScene();
+    // this.initCube();
     this.control = new dat.GUI();
+    // this.tCamera.lookAt(new Three.Vector3(-180, 2.5, -249));
     // this.tControl.target.set(-180, 2.5, -249);
     this.control.add(this.textureUniform.progress, 'value').min(0).max(1).step(0.01);
     this.control.add(this.textureUniform.edgeWidth, 'value').min(0).max(1).step(0.01);
-    // this.el.addEventListener('mousemove', e => {
-    //   const { clientX, clientY } = e;
-    //   // 归一化
-    //   this.pointer.x = (clientX / window.innerWidth) * 2 - 1;
-    //   this.pointer.y = -(clientY / window.innerHeight) * 2 + 1;
-    // });
-    // this.el.addEventListener('click', e => {
-    //   console.log(this.tCamera.position, 'get camera position');
-    //   this.raycaster.setFromCamera(this.pointer, this.tCamera);
-    //   const intersects = this.raycaster.intersectObjects(this.pipeMeshes);
-    //   if (this.hover !== intersects[0].object) {
-    //     (intersects[0].object as any).material = (intersects[0].object as any).material.clone();
-    //     (intersects[0].object as any).material.color.set(0xffff00);
-    //     (this.hover as any)?.material.color.set(0xffffff);
-    //     this.hover = intersects[0].object;
-    //     // gsap.to(this.hover.rotation, {
-    //     //   x: this.tClock.getElapsedTime(),
-    //     //   duration: 10
-    //     // })
-    //   }
-    //   console.log(intersects, 'intersects');
-    // });
-    // this.fpc = new FirstPersonControls(this.tCamera, this.el);
-    // this.fpc.lookSpeed = 0.4; //鼠标移动查看的速度
-    // this.fpc.movementSpeed = 20; //相机移动速度
-    // console.log(this.fpc, 'fpc');
-    // this.fpc.noFly = true;
-    // this.fpc.lookVertical = true;
-    // this.fpc.lookSpeed = 0.125;
-    // this.fpc.movementSpeed = 100;
-    // this.fpc.constrainVertical = true; //约束垂直
-    // this.fpc.verticalMin = 1.0;
-    // this.fpc.verticalMax = 2.0;
-    // this.fpc.lon = -150; //进入初始视角x轴的角度
-    // this.fpc.lat = 120; //初始视角进入后y轴的角度
-    // this.control.add(this.tCamera.position, 'x').min(-100).max(100).step(0.01);
-    // this.control.add(this.tCamera.position, 'y').min(-100).max(100).step(0.01);
-    // this.control.add(this.tCamera.position, 'z').min(-100).max(100).step(0.01);
     // this.pathPipe();
-    this.crossHole()
+    // this.crossHole();
   }
   groupMeshes: Three.Group = new Three.Group();
   pipeMeshes: Three.Mesh[] = [];
@@ -83,9 +46,104 @@ export class Three2Component extends ThreeBase {
     progress: { value: 0 },
     edgeWidth: { value: 0.1 },
     edgeColor: { value: new Three.Color(0xff77ee) },
-    iTime: {value: 0},
+    iTime: { value: 0 },
     noiseTexture: { value: new Three.TextureLoader().load('/assets/images/texture/noise.png') }
   };
+  initCube() {
+    const geometry = new Three.BoxGeometry(1, 1, 1, 10, 10, 10);
+    const material = new Three.MeshNormalMaterial();
+    // material.wireframe = true;
+    const mesh = new Three.Mesh(geometry, material);
+    material.onBeforeCompile = shader => {
+      shader.uniforms['uTime'] = this.textureUniform.iTime;
+      shader.vertexShader = shader.vertexShader
+        .replace(
+          `#include <displacementmap_vertex>`,
+          `
+          #include <displacementmap_vertex>
+          float angle = sin(position.y+uTime) *0.5;
+          mat2 A = mat2(cos(angle),-sin(angle),
+                  sin(angle),cos(angle));
+          transformed.xz = A * transformed.xz;
+          // transformed.y += sin(position.x+uTime) *0.5;
+        `
+        )
+        .replace(
+          '#include <common>',
+          `
+        #include <common>
+        uniform float uTime;`
+        );
+      // shader.fragmentShader = shader.fragmentShader.replace(
+      console.log(shader.vertexShader);
+      console.log(shader.fragmentShader);
+      // )
+    };
+    this.tScene.add(mesh);
+  }
+  initRadarScan(group: Three.Group) {
+    const circle = new Three.CircleGeometry(10);
+    const material = new Three.ShaderMaterial({
+      uniforms: {
+        uTime: this.textureUniform.iTime
+      },
+      transparent: true,
+      vertexShader: /*glsl*/ `
+        varying vec2 vUv;
+        void main() {
+          vUv = uv -.5;// 原点平移至中心
+          gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+        }
+      `,
+      // 待优化 雷达扫描过渡
+      fragmentShader: /*glsl */ `
+        varying vec2 vUv;
+        uniform float uTime;
+        #define PI 3.1415926
+        #define PI2 3.1415926 * 2.0
+        float range = PI* .3;
+        void main() {
+          // 角度 0 - 2PI
+          float curr = mod(uTime * PI * 2.0 * .1, PI * 2.0); // 当前扫描角度
+          float angle = atan(vUv.x, vUv.y); // 像素所在角度
+          if (angle < 0.0) {
+            angle += PI * 2.0; // 防止为负数
+          }
+          float maxRadain = curr; // 最大角
+          float minRadain = curr - range; // 最小值
+          if (minRadain < .0) {
+            maxRadain = PI2 + curr;
+            minRadain = maxRadain - range;
+            if (angle < PI * 2.0) {
+              angle += PI * 2.0;
+            }
+          }
+          if (angle <= maxRadain && angle >= minRadain) {
+            // float alpha = ((angle + range) - radian) / range;
+            float alpha = max(1.0, 0.0);
+            gl_FragColor = vec4(0.0, 1.0, 1.0, alpha);
+          } else {
+            discard;
+          }
+          // if (angle <= radian && angle + range >= radian) {
+          //   float alpha = ((angle + range) - radian) / range;
+          //   alpha = max(alpha, 0.0);
+          //   gl_FragColor = vec4(0.0, 1.0, 1.0, alpha);
+          // } else {
+          //   discard;
+          // }
+        }
+      `,
+      side: Three.DoubleSide,
+      depthTest: true,
+      depthWrite: false
+    });
+    circle.rotateX(Math.PI / 2);
+    const mesh = new Three.Mesh(circle, material);
+    mesh.position.setY(0.01);
+    group.add(mesh);
+    group.add(new Three.AxesHelper());
+  }
   initScene() {
     const loader = new GLTFLoader();
     const draco = new DRACOLoader();
@@ -93,7 +151,11 @@ export class Three2Component extends ThreeBase {
     loader.setDRACOLoader(draco);
     loader.loadAsync('/assets/gltf/bnsw/house.glb').then(gltf => {
       const model = SkeletonUtils.clone(gltf.scene);
-      this.tScene.add(model);
+      const sceneg = new Three.Group();
+      sceneg.add(model);
+      this.tScene.add(sceneg);
+      this.initRadarScan(sceneg);
+
       console.log(model);
       model.traverse(child => {
         if (child instanceof Three.Mesh) {
@@ -105,31 +167,40 @@ export class Three2Component extends ThreeBase {
             // 改变材质
             // child.material.wireframe = true;
             child.material.onBeforeCompile = shader => {
-              console.log(shader)
-              shader.uniforms.uTime = this.textureUniform.iTime
-              shader.vertexShader = shader.vertexShader.replace(
-                '#include <common>',
-                `
+              shader.uniforms.uTime = this.textureUniform.iTime;
+              shader.vertexShader = shader.vertexShader
+                .replace(
+                  '#include <common>',
+                  `
                 #include <common>
                 uniform float uTime;
                 varying vec2 vUv;
                 `
-              ).replace('#include <uv_vertex>',
-                `
+                )
+                .replace(
+                  '#include <uv_vertex>',
+                  `
                 #include <uv_vertex>
                 vUv = uv;
                 `
-              )
-              shader.fragmentShader = shader.fragmentShader.replace('#include <dithering_fragment>', `
+                );
+              shader.fragmentShader = shader.fragmentShader
+                .replace(
+                  '#include <dithering_fragment>',
+                  `
                   #include <dithering_fragment>
                   // 原始贴图加滤镜
                   gl_FragColor = gl_FragColor * vec4(.1 * vUv.x, .7 * sin(uTime), 1.0, 1.0);
-                `).replace('#include <common>',
                 `
+                )
+                .replace(
+                  '#include <common>',
+                  `
                 #include <common>
                 uniform float uTime;
                 varying vec2 vUv;
-                `)
+                `
+                );
               // shader.uniforms.noiseTexture = this.textureUniform.noiseTexture;
               // shader.uniforms.iTime = this.textureUniform.iTime;
               // shader.uniforms.mainTexture = child.material.map;
@@ -139,7 +210,7 @@ export class Three2Component extends ThreeBase {
               //     vUv = uv;
               //     gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
               //   }`;
-              // shader.fragmentShader = ` 
+              // shader.fragmentShader = `
               //   varying vec2 vUv;
               //   uniform sampler2D noiseTexture;
               //   uniform sampler2D mainTexture;
@@ -172,7 +243,7 @@ export class Three2Component extends ThreeBase {
     // let i = 0;
   }
   override renderCb: (delta: number) => void = delta => {
-    this.textureUniform.iTime.value += .1;
+    this.textureUniform.iTime.value += 0.1;
     this.tEvent.fire('tick');
     // if (this.pipe && this.pipe.material && (this.pipe.material as any).map) (this.pipe?.material as Three.MeshBasicMaterial).map.offset.y -= delta;
     // this.fpc?.update(delta);
@@ -212,23 +283,39 @@ export class Three2Component extends ThreeBase {
     const geo = new Three.TubeGeometry(curvePath, 100, 2, 25, false);
     const tload = new Three.TextureLoader();
     const texture = tload.load('assets/images/texture/hole.png');
-    texture.repeat.set(10, 1);
-    texture.wrapS = texture.wrapT = Three.RepeatWrapping;
     const material = new Three.MeshBasicMaterial({
       // color: 0xffff00,
       map: texture,
       transparent: false,
-      side: Three.DoubleSide,
+      side: Three.DoubleSide
       // wireframe: true
     });
+    material.map.repeat.set(10, 1);
+    material.map.wrapS = material.map.wrapT = Three.RepeatWrapping;
     // 管道几何 + 材质
     const mesh = new Three.Mesh(geo, material);
     this.tScene.add(mesh);
-    // 曲线等距点 100个
+    // 曲线等距点 50
     const pathPoints = curvePath.getSpacedPoints(50);
+    this.tControl.enabled = false;
     this.tEvent.on('tick', () => {
-      
+      const progress = (this.tClock.getElapsedTime() % 20) / 20;
+      const curr = curvePath.getPoint(progress);
+      const next = curvePath.getPoint(Math.min(progress + 0.01, 1.0));
+      this.tCamera.position.copy(curr);
+      this.tCamera.lookAt(next);
     });
+    // 增加明亮对比度
+    material.onBeforeCompile = shader => {
+      shader.fragmentShader = shader.fragmentShader.replace(
+        `#include <dithering_fragment>`,
+        /*glsl*/`
+        #include <dithering_fragment>
+        vec3 adj = clamp((gl_FragColor.rgb - 0.5) * 2.0 + 0.5, 0.0, 1.0);
+        gl_FragColor.rgb = adj;
+        `
+      )
+    }
     const tl = gsap.timeline();
     for (let i = 0; i < pathPoints.length - 1; i++) {
       tl.to(

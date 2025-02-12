@@ -38,7 +38,7 @@ export class ThreeBase {
     this.tScene.add(this.tCamera);
     this.tScene.add(new Three.AxesHelper());
     /**控制器 */
-    // this.tControl = new OrbitControls(this.tCamera, el);
+    this.tControl = new OrbitControls(this.tCamera, el);
     this.renderThree();
   }
   renderThree = () => {
@@ -46,7 +46,7 @@ export class ThreeBase {
     this.uTime.value += delta;
     this.renderCb(delta);
     this.animeFlag = requestAnimationFrame(this.renderThree);
-    // this.tControl.update();
+    this.tControl.update();
     this.tRender.render(this.tScene, this.tCamera);
   };
   renderCb = (delta: number) => {};
