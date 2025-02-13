@@ -8,7 +8,9 @@ export class SLThree {
     this.tRender = new TRender();
     this.tScenes = [];
   }
-  
+  init(el) {
+    this.tRender = new TRender();
+  }
 }
 export interface SLThreeConfig {
   el: HTMLElement;

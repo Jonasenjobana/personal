@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, ElementRef, ViewChild } from '@angular/core';
 import * as dat from 'dat.gui';
 import * as Three from 'three';
 import gsap from 'gsap';
@@ -7,28 +7,38 @@ import { FirstPersonControls } from 'three/examples/jsm/controls/FirstPersonCont
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
 import { DRACOLoader } from 'three/examples/jsm/loaders/DRACOLoader';
 import * as SkeletonUtils from 'three/examples/jsm/utils/SkeletonUtils.js';
-import vs from './shader/disappear/vs.glsl';
-import fs from './shader/disappear/fs.glsl';
+import { CSS2DRenderer, CSS2DObject } from 'three/examples/jsm/renderers/CSS2DRenderer.js';
 import { TEvent } from './util/tEvent';
 @Component({
   selector: 'Three2',
-  templateUrl: '../Three.base.html',
-  styleUrls: ['../Three.base.less']
+  templateUrl: '../three.base.html',
+  styleUrls: ['../three.base.less']
 })
 export class Three2Component extends ThreeBase {
   raycaster = new Three.Raycaster();
   control: any;
   pointer: Three.Vector2 = new Three.Vector2();
   fpc: FirstPersonControls;
+  render2d: CSS2DRenderer = new CSS2DRenderer();
   hover: Three.Object3D;
   tEvent: TEvent = new TEvent();
+  @ViewChild('tagRef') tagRef: ElementRef<HTMLDivElement>;
+  constructor(private eleRef: ElementRef<HTMLElement>) {
+    super()
+  }
   override ngAfterViewInit(): void {
     super.ngAfterViewInit();
+    const { width, height } = this.el.getBoundingClientRect();
+    this.render2d.setSize(width, height);
+    this.render2d.domElement.style.position = 'absolute'
+    this.render2d.domElement.style.top = '0'
+    this.eleRef.nativeElement.appendChild(this.render2d.domElement)
     this.tCamera.position.set(-3, 3, -3);
     this.tScene.add(new Three.DirectionalLight(0xffffff, 2));
     const ambiLight = new Three.AmbientLight(0xffffff, 0.5);
     this.tScene.add(ambiLight);
     this.initScene();
+    this.rain();
     // this.initCube();
     this.control = new dat.GUI();
     // this.tCamera.lookAt(new Three.Vector3(-180, 2.5, -249));
@@ -144,6 +154,47 @@ export class Three2Component extends ThreeBase {
     group.add(mesh);
     group.add(new Three.AxesHelper());
   }
+  // 精灵模型
+  rain() {
+    const spM = new Three.SpriteMaterial({
+      // color: 0x00ffff,
+      transparent: true,
+      map: new Three.TextureLoader().load('/assets/images/direction-arrow.png')
+    });
+    spM.onBeforeCompile = shader => {
+      shader.uniforms['uTime'] = this.textureUniform.iTime;
+      // shader.fragmentShader = shader.fragmentShader
+      //   .replace(
+      //     `#include <fog_fragment>`,
+      //     `#include <fog_fragment>
+      //    gl_FragColor = color44;
+      //    `
+      //   )
+      //   .replace(
+      //     `#include <common>`,
+      //     `#include <common>
+      //    uniform float uTime;
+      //   `
+      //   );
+    };
+    const sp = new Three.Sprite(spM);
+    const tCamera2: Three.PerspectiveCamera = this.tCamera.clone() as Three.PerspectiveCamera;
+    tCamera2.near = 50;
+    const scene = new Three.Scene()
+    scene.add(tCamera2);
+    scene.add(sp);
+    this.tEvent.on('tick', () => {
+      this.tRender.render(scene, tCamera2);  
+    })
+  }
+  render2D() {
+    const tagEl = this.tagRef.nativeElement;
+    const tagObj = new CSS2DObject(tagEl);
+    const obj = new Three.Object3D();
+    obj.add(tagObj);
+    tagObj.position.copy(new Three.Vector3(-180, 115, -249));
+    this.tScene.add(obj);
+  }
   initScene() {
     const loader = new GLTFLoader();
     const draco = new DRACOLoader();
@@ -154,9 +205,10 @@ export class Three2Component extends ThreeBase {
       const sceneg = new Three.Group();
       sceneg.add(model);
       this.tScene.add(sceneg);
-      this.initRadarScan(sceneg);
-
+      // this.initRadarScan(sceneg);
+      this.render2D();
       console.log(model);
+      let first = false;
       model.traverse(child => {
         if (child instanceof Three.Mesh) {
           if (child.name.includes('管道')) {
@@ -164,7 +216,18 @@ export class Three2Component extends ThreeBase {
             this.pipeMeshes.push(child);
           }
           if (child.name.includes('房') && child.material.map) {
-            // 改变材质
+            // 查看纹理贴图
+            // if (!first) {
+            // 
+            //   const el = this.tdCanvas.nativeElement
+            //   const {width, height} = this.el.getBoundingClientRect()
+            //   el.width = width;
+            //   el.height = height;
+            //   const ctx = el.getContext('2d');
+            //   console.log(child.material.map.source.data)
+            //   ctx.drawImage(child.material.map.source.data, 0, 0, 1024, 1024)
+            //   first = true;
+            // }
             // child.material.wireframe = true;
             child.material.onBeforeCompile = shader => {
               shader.uniforms.uTime = this.textureUniform.iTime;
@@ -180,8 +243,8 @@ export class Three2Component extends ThreeBase {
                 .replace(
                   '#include <uv_vertex>',
                   `
-                #include <uv_vertex>
-                vUv = uv;
+                  #include <uv_vertex>
+                  vUv = uv;
                 `
                 );
               shader.fragmentShader = shader.fragmentShader
@@ -190,7 +253,11 @@ export class Three2Component extends ThreeBase {
                   `
                   #include <dithering_fragment>
                   // 原始贴图加滤镜
-                  gl_FragColor = gl_FragColor * vec4(.1 * vUv.x, .7 * sin(uTime), 1.0, 1.0);
+                  // gl_FragColor = gl_FragColor * vec4(.1 * vUv.x, .7 * sin(uTime), 1.0, 1.0);
+                  float diff = sin(uTime * .1) - vUv.g;
+                  if (diff < .05 && diff > -.05) {
+                    gl_FragColor = vec4(1.0, 1.0, 1.0, 1.0);
+                  }
                 `
                 )
                 .replace(
@@ -245,6 +312,7 @@ export class Three2Component extends ThreeBase {
   override renderCb: (delta: number) => void = delta => {
     this.textureUniform.iTime.value += 0.1;
     this.tEvent.fire('tick');
+    this.render2d.render(this.tScene, this.tCamera);
     // if (this.pipe && this.pipe.material && (this.pipe.material as any).map) (this.pipe?.material as Three.MeshBasicMaterial).map.offset.y -= delta;
     // this.fpc?.update(delta);
   };
@@ -309,13 +377,13 @@ export class Three2Component extends ThreeBase {
     material.onBeforeCompile = shader => {
       shader.fragmentShader = shader.fragmentShader.replace(
         `#include <dithering_fragment>`,
-        /*glsl*/`
+        /*glsl*/ `
         #include <dithering_fragment>
         vec3 adj = clamp((gl_FragColor.rgb - 0.5) * 2.0 + 0.5, 0.0, 1.0);
         gl_FragColor.rgb = adj;
         `
-      )
-    }
+      );
+    };
     const tl = gsap.timeline();
     for (let i = 0; i < pathPoints.length - 1; i++) {
       tl.to(

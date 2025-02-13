@@ -6,4 +6,5 @@ export class TRender {
     constructor() {
         // this.render = new THREE.WebGLRenderList();
     }
+    
 }
