@@ -162,6 +162,8 @@
 - 线性相关与线性无关
 ## 着色器编程
 ### 套路
+1. 颜色取反 1.0 - color
+2. fract重复，除了网格重复，还可以偏移到网格中心
 ### 公式
 1. fract
 - 保留小数点 常用于归一化、网格划分
@@ -194,6 +196,9 @@
 - 弧度转角度
 13. radians(a)
 - 角度转弧度
+14. mix(a, b, v)
+- 根据v 的值插值 v <= 0 为a v>=1 为b 
+- 可以根据此特性完成坐标状态变化
 ## webgl绘制粒子
 0. 只需要一个顶点着色器一个片元着色器绘制
 1. 设置所有粒子的初始状态包括位置传入缓冲区
@@ -217,7 +222,7 @@
     - 1. wegbl原生代码中有关于点、线、面绘制 几何最小单位是由三角形组成 使用Mesh 而点和线需要Point和Line
     - 2. 顶点着色器顾名思义传入的顶点，构成的片元区域，根据opengl的渲染流程，片元区域光栅化 经过片元着色器代码绘制颜色，由于顶点数量一定小于片元，所以会经过插值算法
     - 3. 片元着色器，gpu多线程运行，并且每个片元互不干扰 各自执行各自代码，导致无法信息交流，相当于局部绘制整体，不像canvas2d 可cpu去控制什么点绘制什么颜色（效率过低），因此通过贴图texture2d获取片元坐标所在的贴图颜色，这个坐标对应需要在构造几何传入attribute 相当于uvmap，将顶点和uv贴图进行映射，其他片元位置通过插值算法获取。 
-    
+5. mix还可实现过渡
 ## 结构
 - 渲染器
 - 场景
@@ -241,12 +246,19 @@
 - texture.wrapS = texture.wrapT = RepeatWrapping // 允许水平 垂直贴图重复
 - texture.repeat.set(s, t) // 水平、垂直重复次数
 ### 射线选取
-- raycaster.setFromCamer(new Vector2, camera) // 重相机位置发出射线
+- raycaster.setFromCamer(new Vector2, camera) // 从相机位置发出射线
 - raycaster.intersectObjects(mesh[]) // 判断射线有无经过mesh数组 返回穿过的mesh
 ### 材质修改
 - 对Three现有材质进行着色器修改可以使用onBeforeCompile
     - 可传uniform
     - 使用replace插入额外添加着色器代码
 - 遮罩纹理可以对uv贴图进行拾取
+### 体积碰撞
+- Three内置Box3,Sphere Box3.getBoundingSphere(sphere) 可以对获取包围盒的半径
 # Cesium.js
 - 经纬度转为笛卡尔坐标系
+
+# HSL（色相、饱和度、亮度）
+- Hue
+- Saturation
+- Lightness

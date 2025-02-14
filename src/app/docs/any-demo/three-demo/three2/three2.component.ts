@@ -9,6 +9,10 @@ import { DRACOLoader } from 'three/examples/jsm/loaders/DRACOLoader';
 import * as SkeletonUtils from 'three/examples/jsm/utils/SkeletonUtils.js';
 import { CSS2DRenderer, CSS2DObject } from 'three/examples/jsm/renderers/CSS2DRenderer.js';
 import { TEvent } from './util/tEvent';
+import shaderCommon from './shader/sl-shader-common';
+import { CameraAutoMover } from './util/tBox';
+import fs from './shader/water/fs';
+import fs2 from './shader/water/fs2';
 @Component({
   selector: 'Three2',
   templateUrl: '../three.base.html',
@@ -24,27 +28,27 @@ export class Three2Component extends ThreeBase {
   tEvent: TEvent = new TEvent();
   @ViewChild('tagRef') tagRef: ElementRef<HTMLDivElement>;
   constructor(private eleRef: ElementRef<HTMLElement>) {
-    super()
+    super();
   }
   override ngAfterViewInit(): void {
     super.ngAfterViewInit();
     const { width, height } = this.el.getBoundingClientRect();
     this.render2d.setSize(width, height);
-    this.render2d.domElement.style.position = 'absolute'
-    this.render2d.domElement.style.top = '0'
-    this.eleRef.nativeElement.appendChild(this.render2d.domElement)
-    this.tCamera.position.set(-3, 3, -3);
-    this.tScene.add(new Three.DirectionalLight(0xffffff, 2));
-    const ambiLight = new Three.AmbientLight(0xffffff, 0.5);
+    this.render2d.domElement.style.position = 'absolute';
+    this.render2d.domElement.style.top = '0';
+    this.eleRef.nativeElement.appendChild(this.render2d.domElement);
+    this.tCamera.position.set(-78, 72, -20);
+    // this.tControl.target.set(-78, 72, -20);
+    this.tScene.add(new Three.DirectionalLight(0xffffff, 4));
+    const ambiLight = new Three.AmbientLight(0xffffff, 2);
     this.tScene.add(ambiLight);
     this.initScene();
-    this.rain();
+    // this.sphere();
+    // this.rain();
     // this.initCube();
     this.control = new dat.GUI();
     // this.tCamera.lookAt(new Three.Vector3(-180, 2.5, -249));
     // this.tControl.target.set(-180, 2.5, -249);
-    this.control.add(this.textureUniform.progress, 'value').min(0).max(1).step(0.01);
-    this.control.add(this.textureUniform.edgeWidth, 'value').min(0).max(1).step(0.01);
     // this.pathPipe();
     // this.crossHole();
   }
@@ -57,7 +61,8 @@ export class Three2Component extends ThreeBase {
     edgeWidth: { value: 0.1 },
     edgeColor: { value: new Three.Color(0xff77ee) },
     iTime: { value: 0 },
-    noiseTexture: { value: new Three.TextureLoader().load('/assets/images/texture/noise.png') }
+    noiseTexture: { value: new Three.TextureLoader().load('/assets/images/texture/noise.png') },
+    arrowTexture: { value: new Three.TextureLoader().load('/assets/images/direction-arrow.png') }
   };
   initCube() {
     const geometry = new Three.BoxGeometry(1, 1, 1, 10, 10, 10);
@@ -90,6 +95,80 @@ export class Three2Component extends ThreeBase {
       // )
     };
     this.tScene.add(mesh);
+  }
+  raySelect() {
+    const { width, height } = this.el.getBoundingClientRect();
+    this.el.addEventListener('click', e => {
+      // 初始化
+      const cameraMover = new CameraAutoMover(this.tCamera, this.tControl);
+      const { offsetX, offsetY } = e;
+      const x = (offsetX / width) * 2 - 1;
+      const y = -(offsetY / height) * 2 + 1;
+      const pos = this.tCamera.position;
+      const raycaster = new Three.Raycaster();
+      raycaster.setFromCamera(new Three.Vector2(x, y), this.tCamera);
+      const cross = raycaster.intersectObjects(this.pipeMeshes);
+      if (cross?.length > 0) {
+        cameraMover.moveToObject(cross[0].object);
+        const mesh: Three.Mesh = cross[0].object as Three.Mesh;
+        // const meshPos = mesh.position.clone().applyMatrix4(mesh.matrixWorld);
+        // gsap.to(this.tCamera.position, {
+        //   duration: 3,
+        //   ease: 'none',
+        //   x: meshPos.x,
+        //   y: meshPos.y,
+        //   z: meshPos.z,
+        //   onUpdate: () => {
+        //     this.tCamera.lookAt(meshPos);
+        //     this.tControl.target.copy(meshPos);
+        //   }
+        // });
+        // gsap.to(this.tCamera.position)
+        // 获取物体的真实尺寸（考虑缩放）
+        const box = new Three.Box3().setFromObject(mesh);
+        const size = new Three.Vector3();
+        box.getSize(size);
+        const material = (mesh.material as Three.MeshStandardMaterial).clone();
+        // material.wireframe = true;
+        mesh.material = material;
+        material.map = this.textureUniform.arrowTexture.value;
+        material.map.wrapS = material.map.wrapT = Three.RepeatWrapping;
+        material.map.rotation = Math.PI / 2;
+        console.log(size)
+        // 设置重复参数
+        material.map.repeat.set(10, 1);
+        gsap.to(material.map.offset, {
+          ease: 'none',
+          y: -10,
+          duration: 5,
+          repeat: -1
+        });
+        mesh.material.onBeforeCompile = shader => {
+          shader.uniforms['uTime'] = this.textureUniform.iTime;
+          shader.uniforms['iResolution'] = { value: new Three.Vector2(width, height) };
+          shader.fragmentShader = shader.fragmentShader
+            .replace(
+              '#include <common>',
+              `
+            #include <common>
+            uniform vec2 iResolution;
+            uniform float uTime;
+            ${fs}
+            `
+            )
+            .replace(
+              '#include <dithering_fragment>',
+              `
+            #include <dithering_fragment>
+            // gl_FragColor = water(gl_FragCoord.xy/iResolution.xy);
+            // gl_FragColor = texture2D(arrowTexture, gl_FragCoord.xy/iResolution.xy);
+            `
+            );
+          console.log(shader, 'shaderpiep');
+        };
+      }
+      console.log(cross);
+    });
   }
   initRadarScan(group: Three.Group) {
     const circle = new Three.CircleGeometry(10);
@@ -163,45 +242,99 @@ export class Three2Component extends ThreeBase {
     });
     spM.onBeforeCompile = shader => {
       shader.uniforms['uTime'] = this.textureUniform.iTime;
-      // shader.fragmentShader = shader.fragmentShader
-      //   .replace(
-      //     `#include <fog_fragment>`,
-      //     `#include <fog_fragment>
-      //    gl_FragColor = color44;
-      //    `
-      //   )
-      //   .replace(
-      //     `#include <common>`,
-      //     `#include <common>
-      //    uniform float uTime;
-      //   `
-      //   );
+      shader.fragmentShader = shader.fragmentShader
+        .replace(
+          `#include <fog_fragment>`,
+          /*glsl*/ `#include <fog_fragment>
+           vec2 fuv = fract(vMapUv * 5.0);
+           // 中心圆
+          // //  float dist = length(fuv - vec2(.5));
+          // float dist = fract((length(fuv - vec2(.5)) - uTime * .02) * 5.0);
+          // vec3 color = vec3(step(.5, dist));
+          // //  vec3 color = vec3(step(sin(uTime * .4 + vMapUv.x + vMapUv.y) * .5, dist));
+          //  gl_FragColor = vec4(color, 1.0);
+          // 渐变切换 
+          //  vec3 color1 = vec3(1.0, 1.0, 0.0);
+          //  vec3 color2 = vec3(0.0, 1.0, 1.0); 
+          //  float mixer1 = vMapUv.x + vMapUv.y;// 0 - 2
+          //  float mixer2 = 2.0 - (vMapUv.x + vMapUv.y); // 2 - 0
+          //  float mixer = mixer1 / mixer2; 
+          // //  float mixer = min(mixer1, mixer2);
+          //  vec3 color3 = mix(color1, color2, mixer);
+          //  gl_FragColor = vec4(color3, 1.0);
+          vec3 mask1 = vec3(step(0.5, fract(vMapUv.x * 3.0)));
+          vec3 mask2 = vec3(step(0.5, fract(vMapUv.y * 3.0)));
+          vec3 color = abs(mask1 - mask2);
+          gl_FragColor = vec4(color, 1.0);
+         `
+        )
+        .replace(
+          `#include <common>`,
+          `#include <common>
+         uniform float uTime;
+        `
+        );
     };
     const sp = new Three.Sprite(spM);
-    const tCamera2: Three.PerspectiveCamera = this.tCamera.clone() as Three.PerspectiveCamera;
-    tCamera2.near = 50;
-    const scene = new Three.Scene()
-    scene.add(tCamera2);
-    scene.add(sp);
+    this.tScene.add(sp);
     this.tEvent.on('tick', () => {
-      this.tRender.render(scene, tCamera2);  
-    })
+      // this.tRender.render(this.tScene, this.tCamera);
+    });
   }
+  sphere() {
+    const cir = new Three.SphereGeometry(1, 64, 64);
+    const matr = new Three.ShaderMaterial({
+      uniforms: {
+        uTime: this.textureUniform.iTime
+      },
+      // wireframe: true,
+      fragmentShader: /*glsl*/ `
+        ${shaderCommon.hsl2rgb}
+        varying vec3 vNormal;
+        varying float vNoise;
+        uniform float uTime;
+        void main() {
+          vec3 hslColor = hsl2rgb(vNoise*.1 + .1, 1.0, 0.5);
+          gl_FragColor = vec4(hslColor, 1.0);
+        }
+      `,
+      vertexShader: /*glsl*/ `
+        ${shaderCommon.random}
+        ${shaderCommon.rotate}
+        ${shaderCommon.simpleNoise}
+        uniform float uTime;
+        varying float vNoise;
+        varying vec3 vNormal;
+        void main() {
+          float noise = cnoise(position* (sin(uTime * .1) + 1.0) * 4.0);
+          vec3 vPosition = position + normal * noise; // 增强某一向量趋于另一个向量趋势
+          vec3 vP = rotate(vPosition, vec3(.0, 1.0, .0), uTime + vPosition.x);// y轴旋转
+          vNoise = noise;
+          gl_Position = projectionMatrix * modelViewMatrix * vec4(vP, 1.0);
+          vNormal = normal;
+        }
+      `
+    });
+    const obj = new Three.Mesh(cir, matr);
+    this.tScene.add(obj);
+  }
+
   render2D() {
     const tagEl = this.tagRef.nativeElement;
     const tagObj = new CSS2DObject(tagEl);
     const obj = new Three.Object3D();
     obj.add(tagObj);
     tagObj.position.copy(new Three.Vector3(-180, 115, -249));
-    this.tScene.add(obj);
+    // this.tScene.add(obj);
   }
   initScene() {
     const loader = new GLTFLoader();
     const draco = new DRACOLoader();
     draco.setDecoderPath('/assets/js/draco/');
     loader.setDRACOLoader(draco);
-    loader.loadAsync('/assets/gltf/bnsw/house.glb').then(gltf => {
+    loader.loadAsync('/assets/gltf/bnsw/管道.glb').then(gltf => {
       const model = SkeletonUtils.clone(gltf.scene);
+      this.raySelect();
       const sceneg = new Three.Group();
       sceneg.add(model);
       this.tScene.add(sceneg);
@@ -218,7 +351,7 @@ export class Three2Component extends ThreeBase {
           if (child.name.includes('房') && child.material.map) {
             // 查看纹理贴图
             // if (!first) {
-            // 
+            //
             //   const el = this.tdCanvas.nativeElement
             //   const {width, height} = this.el.getBoundingClientRect()
             //   el.width = width;

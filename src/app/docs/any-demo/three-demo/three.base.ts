@@ -5,7 +5,7 @@ import * as dat from 'dat.gui';
 @Directive()
 export class ThreeBase {
   readonly canvasId: string = 'three-base';
-  tCamera: Three.Camera;
+  tCamera: Three.PerspectiveCamera;
   tRender: Three.WebGLRenderer;
   tScene: Three.Scene;
   animeFlag: number;
