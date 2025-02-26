@@ -23,6 +23,9 @@
 - 纹理坐标，顶点坐标映射到纹理坐标上，片元需要插值将中间像素坐标映射到纹理坐标，纹理坐标上有对应rgba信息。
 - uniform不支持传类似attribute数组，并且自动根据顶点位置取各自位置值。webgl2 有gl_VertexID可以获取顶点索引
 - 传入顶点坐标逆时针正面，顺时针背面
+7. 相同坐标系下，坐标向量相减 意味着两坐标向量的方向，归一化就是方向向量了 终点坐标指向起始坐标
+8. 叉乘求两向量构成平面法向量（根据右手定则的方向）
+10. webgl实现带有宽度的线条 本质使用的是三角形Mesh
 ## 基本流程
 1. 创建顶点着色器
     ```javascript
@@ -70,6 +73,8 @@
             gl.enableVertexAttribArray(positionLocation);
             gl.vertexAttribPointer(positionLocation, 3, gl.FLOAT, false, 0, 0);
         ```
+    - buffer类型可以是float32Array 也可以是 Uint8Array 对于颜色而言就是Uint8Array，vertexAttribPoint 需要gl.UNSIGNED_BYTE
+    - 如果出现找不到location，可能是着色器代码中没有使用到变量，或者仅声明未使用或未声明未使用
 5. 传uniform属性（顶点都共用）
     ```javascript
         const uLocation = gl.getUniformLocation(p, 'uModelViewMatrix');
@@ -100,6 +105,8 @@
         gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
     ```
     - 相机的位置可以根据投影矩阵变化顶点着色器
+    - viewMatrix视图矩阵，记录以相机为中心的坐标系x y z和相机坐标的矩阵。其作用是通过逆变换实现“相机移动等价于场景反向移动”
+        ![alt text](image.png)
 7. 绘图
     - 点
     - 线
@@ -114,7 +121,7 @@
 - 绘制3D
     1. 光线追踪，将画布像素点映射到3D坐标
         - 假定一个摄像头位置 在其前面放置网格相当于画布，与假定场景中点到摄像头形成的射线 经过网格生成像素点
-        ![alt text](aef81090333e8ed93c0593ac55f35281.png)
+            ![alt text](aef81090333e8ed93c0593ac55f35281.png)
 ## Math
 ### 线性代数
 #### 向量
@@ -171,13 +178,14 @@
 2. smoothStep(min, max, value)
 - 大于max 则返回max
 - 小于min 则返回min
-- 返回min,max区间插值
+- 返回min,max区间插值(平滑曲线)
 3. step(a, b)
 - b >  a 则返回1
 - b <= a 则返回0
 - 常用于简写if else
 4. distance(v_1, v_2)
 - 计算两向量的距离
+- 两点的距离
 5. length(v)
 - 向量长度
 6. lerp(v1, v2, flag)
@@ -199,6 +207,8 @@
 14. mix(a, b, v)
 - 根据v 的值插值 v <= 0 为a v>=1 为b 
 - 可以根据此特性完成坐标状态变化
+15. reflect(i, n) i 入射向量 n法向量
+- 计算反射向量
 ## webgl绘制粒子
 0. 只需要一个顶点着色器一个片元着色器绘制
 1. 设置所有粒子的初始状态包括位置传入缓冲区
@@ -222,7 +232,17 @@
     - 1. wegbl原生代码中有关于点、线、面绘制 几何最小单位是由三角形组成 使用Mesh 而点和线需要Point和Line
     - 2. 顶点着色器顾名思义传入的顶点，构成的片元区域，根据opengl的渲染流程，片元区域光栅化 经过片元着色器代码绘制颜色，由于顶点数量一定小于片元，所以会经过插值算法
     - 3. 片元着色器，gpu多线程运行，并且每个片元互不干扰 各自执行各自代码，导致无法信息交流，相当于局部绘制整体，不像canvas2d 可cpu去控制什么点绘制什么颜色（效率过低），因此通过贴图texture2d获取片元坐标所在的贴图颜色，这个坐标对应需要在构造几何传入attribute 相当于uvmap，将顶点和uv贴图进行映射，其他片元位置通过插值算法获取。 
-5. mix还可实现过渡
+5. step + mix 内置函数替代if else
+6. three shader内置变量
+    - 1. uv
+    - 2. map(texture)
+    - 3. vUv（片元uv坐标） vMapUv (材质可能旋转 偏移 uv坐标替换) 
+7. 正交相机 模拟2D场景、三视图
+8. 模型比如管道 贴图拉伸可能是顶点uv分配不均匀
+9. 如果需要材质透明 ShaderMaterial等材质（除了RawShaderMaterial) 需要关闭深度写和允许透明， 中间层可以根据需求修改颜色混入模式
+    - transparent: true
+    - depthWrite: false
+10. 
 ## 结构
 - 渲染器
 - 场景
@@ -236,6 +256,9 @@
 - 灯光
     
 ## Solution
+### Mesh形变
+    - morphTargetInfluences
+        - 暂存形变后的几何含有一定权重
 ### 精灵模型
 - 特性 
     1. 固定平行摄像头
@@ -255,9 +278,45 @@
 - 遮罩纹理可以对uv贴图进行拾取
 ### 体积碰撞
 - Three内置Box3,Sphere Box3.getBoundingSphere(sphere) 可以对获取包围盒的半径
+### 生成带贴图的线
+    - 内置的Line由于底层不支持设置linewidth所以只能通过三角形构造面来模拟线条
+    - 需要处理lineCap、lineWidth、lineJoin、lineDash
+    - 保持面朝向屏幕
+    - 
 # Cesium.js
-- 经纬度转为笛卡尔坐标系
-
+- 经纬度转为笛卡尔坐标系（单位: 米）
+- 着色器绘制
+    1. 着色器内部将二维经纬度转为3D坐标
+        - 地球半径，经纬度坐标可以获取地球上的3D坐标
+        ```c++
+        // glsl代码
+        vec3 latLngToPosition(float lat, float lng, float radius) {
+            float phi = radians(lat + 90.0);
+            float theta = radians(lng + 180.0);
+            return vec3(
+              radius * sin(phi) * cos(theta),
+              radius * cos(phi),
+              radius * sin(phi) * sin(theta)
+            );
+        }
+        ```
+    2. 数据预处理
+        - 数据存储到纹理上
+        - 减少采样频率
+    3. 地球动态粒子效果
+        - 
+    4. 还原2D Canvas海图船舶效果
+        - Points的特性
+            - PointSize设置一定大小
+            - 顶点属性传入经纬度、贴图类型、旋转角度 [lat,lng,type,radain,lat,lng,type,radain,......]
+                - 顶点着色器去解析
+                    - webgl传值
+                        1. gl.vertexAttribPointer(positionLocation, size, type, normalize, stride, offset); 
+                        2. size: 开始位置多个一组；stride: 完成一组后跳多少步到下一组；offset：从偏移位置开始
+                - 缺点：无法进行点击互动
+            - 单独Point构建
+                - 缺点：当数量过多会卡顿
+        - 3D 地球很难计算边界获取船舶
 # HSL（色相、饱和度、亮度）
 - Hue
 - Saturation

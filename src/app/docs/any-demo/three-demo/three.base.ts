@@ -11,6 +11,7 @@ export class ThreeBase {
   animeFlag: number;
   tClock: Three.Clock;
   tControl: OrbitControls;
+  isComposerRender: boolean = false;
   uTime: {value: number} = {value: 0};
   gui: dat.gui;
   @ViewChild('threeBase') threeBase: ElementRef<HTMLCanvasElement>;
@@ -22,6 +23,7 @@ export class ThreeBase {
     this.gui = new dat.GUI();
     this.tClock = new Three.Clock();
   }
+  saveBuffer() {}
   ngAfterViewInit() {
     this.initThree();
   }
@@ -47,6 +49,7 @@ export class ThreeBase {
     this.renderCb(delta);
     this.animeFlag = requestAnimationFrame(this.renderThree);
     this.tControl.update();
+    if (!this.isComposerRender)
     this.tRender.render(this.tScene, this.tCamera);
   };
   renderCb = (delta: number) => {};

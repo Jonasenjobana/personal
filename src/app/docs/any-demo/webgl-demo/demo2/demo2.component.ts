@@ -4,6 +4,9 @@ import { SquareGL } from '../entity/square';
 import { LetterF } from '../entity/letterF';
 import { ShipGl } from '../entity/ship';
 import { TextureDemo } from '../entity/textureDemo';
+import { mat4 } from 'gl-matrix';
+import { LetterF3D } from '../entity/letterF3D';
+import { LightBox } from '../entity/lightBox';
 @Component({
   selector: 'demo2',
   templateUrl: './demo2.component.html',
@@ -27,9 +30,20 @@ export class Demo2Component {
     this.gl = el.getContext('webgl2');
   }
   setPrograms() {
+    this.light();
+    // this.letter3df();
     // this.square();
-    this.ship2();
+    // this.ship2();
     // this.letterF();
+    
+  }
+  light() {
+    const f = new LightBox(this.gl);
+    this.entitys.push(f)
+  }
+  letter3df() {
+    const f = new LetterF3D(this.gl);
+    this.entitys.push(f);
   }
   letterF() {
     const f = new LetterF(this.gl, this.gui)

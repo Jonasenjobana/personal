@@ -11,8 +11,18 @@ import { CSS2DRenderer, CSS2DObject } from 'three/examples/jsm/renderers/CSS2DRe
 import { TEvent } from './util/tEvent';
 import shaderCommon from './shader/sl-shader-common';
 import { CameraAutoMover } from './util/tBox';
-import fs from './shader/water/fs';
-import fs2 from './shader/water/fs2';
+import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer.js';
+import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js';
+import { OutlinePass } from './js/pass/outlinepass.js';
+import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPass.js';
+import { SCENE_PIPE_CONFIG } from './config/pipe';
+import { GPUComputationRenderer } from 'three/examples/jsm/misc/GPUComputationRenderer';
+import { Line2 } from 'three/examples/jsm/lines/Line2';
+import { LineGeometry } from 'three/examples/jsm/lines/LineGeometry'
+import { LineMaterial } from 'three/examples/jsm/lines/LineMaterial' 
+import { fragementShaderEndReplace, shaderStartReplace, vertexShaderEndReplace } from './util/ShaderReplace';
+import { InstancedInterleavedBuffer } from 'three';
+
 @Component({
   selector: 'Three2',
   templateUrl: '../three.base.html',
@@ -25,6 +35,7 @@ export class Three2Component extends ThreeBase {
   fpc: FirstPersonControls;
   render2d: CSS2DRenderer = new CSS2DRenderer();
   hover: Three.Object3D;
+  effectCom: EffectComposer;
   tEvent: TEvent = new TEvent();
   @ViewChild('tagRef') tagRef: ElementRef<HTMLDivElement>;
   constructor(private eleRef: ElementRef<HTMLElement>) {
@@ -37,12 +48,23 @@ export class Three2Component extends ThreeBase {
     this.render2d.domElement.style.position = 'absolute';
     this.render2d.domElement.style.top = '0';
     this.eleRef.nativeElement.appendChild(this.render2d.domElement);
-    this.tCamera.position.set(-78, 72, -20);
+    this.tCamera.position.set(0, 0, -40);
+    this.effectCom = new EffectComposer(this.tRender);
     // this.tControl.target.set(-78, 72, -20);
-    this.tScene.add(new Three.DirectionalLight(0xffffff, 4));
-    const ambiLight = new Three.AmbientLight(0xffffff, 2);
+    this.tScene.background = new Three.Color(0xefefef);
+    const dl = new Three.DirectionalLight(0xffffff, 4);
+    dl.position.set(0, 10, 0);
+    dl.lookAt(new Three.Vector3(0, 0, 0));
+    this.tScene.add(dl);
+    const ambiLight = new Three.AmbientLight(0xffffff, 4);
+    ambiLight.position.set(0, 10, 0);
+    ambiLight.lookAt(new Three.Vector3(0, 0, 0));
     this.tScene.add(ambiLight);
-    this.initScene();
+    this.pointBuffer();
+    // this.initMc();
+    // this.initTube();
+    // this.waterPlane();
+    // this.initScene();
     // this.sphere();
     // this.rain();
     // this.initCube();
@@ -62,8 +84,297 @@ export class Three2Component extends ThreeBase {
     edgeColor: { value: new Three.Color(0xff77ee) },
     iTime: { value: 0 },
     noiseTexture: { value: new Three.TextureLoader().load('/assets/images/texture/noise.png') },
-    arrowTexture: { value: new Three.TextureLoader().load('/assets/images/direction-arrow.png') }
+    arrowTexture: { value: new Three.TextureLoader().load('/assets/images/direction-arrow.png') },
+    waterTexture: { value: new Three.TextureLoader().load('/assets/images/texture/water2.png') },
+    earthTexture: { value: new Three.TextureLoader().load('/assets/images/texture/world2.jpg') },
+    ship1: { value: new Three.TextureLoader().load('/assets/map/ship/1.png') },
+    ship2: { value: new Three.TextureLoader().load('/assets/map/ship/2.png') },
+    ship3: { value: new Three.TextureLoader().load('/assets/map/ship/3.png') },
+    repeat: { value: 1 }
   };
+  repeatMap: { [key in string]: { value: number } } = {};
+  initMc() {
+    const cellSize = 256;
+    const cell = new Uint8Array(cellSize * cellSize * cellSize);
+    const box = new Three.BoxGeometry(1);
+    const material = new Three.MeshPhongMaterial({ color: 'green' });
+    for (let y = 0; y < cellSize; ++y) {
+      for (let z = 0; z < cellSize; ++z) {
+        for (let x = 0; x < cellSize; ++x) {
+          const height = (Math.sin((x / cellSize) * Math.PI * 4) + Math.sin((z / cellSize) * Math.PI * 6)) * 20 + cellSize / 2;
+          if (height < y + 1) {
+            const offset = y * cellSize * cellSize + z * cellSize + x;
+            cell[offset] = 1;
+          }
+        }
+      }
+    }
+    for (let y = 0; y < cellSize; ++y) {
+      for (let z = 0; z < cellSize; ++z) {
+        for (let x = 0; x < cellSize; ++x) {
+          const offset = y * cellSize * cellSize + z * cellSize + x;
+          const block = cell[offset];
+          const mesh = new Three.Mesh(box, material);
+          mesh.position.set(x, y, z);
+          this.tScene.add(mesh);
+        }
+      }
+    }
+  }
+  pointBuffer() {
+    const count = 1000;
+    const pointType = new Float32Array(count);
+    const pointPosition = new Float32Array(count * 3);
+    const pointColor = new Float32Array(count * 3);
+    const pointRadain = new Float32Array(count);
+    const radius = 1.5;
+    const earth = new Three.SphereGeometry(radius - 0.01, 64, 64);
+    for (let i = 0; i < count * 3; i += 3) {
+      const r = Math.random() * Math.PI * 2;
+      const r2 = Math.random() * Math.PI;
+      pointPosition[i] = radius * Math.cos(r) * Math.sin(r2);
+      pointPosition[i + 1] = radius * Math.cos(r2);
+      pointPosition[i + 2] = radius * Math.sin(r) * Math.sin(r2);
+      pointColor[i] = Math.random();
+      pointColor[i + 1] = Math.random();
+      pointColor[i + 2] = Math.random();
+      pointType[i / 3] = Math.floor(Math.random() * 3);
+      pointRadain[i / 3] = Math.random() * Math.PI * 2;
+    }
+    const parital = new Three.BufferGeometry();
+    parital.setAttribute('position', new Three.BufferAttribute(pointPosition, 3));
+    parital.setAttribute('color', new Three.BufferAttribute(pointColor, 3));
+    parital.setAttribute('type', new Three.BufferAttribute(pointType, 1));
+    parital.setAttribute('radain', new Three.BufferAttribute(pointRadain, 1));
+    const martial = new Three.PointsMaterial({
+      size: 16,
+      vertexColors: true,
+      sizeAttenuation: false
+    });
+    martial.onBeforeCompile = shader => {
+      shader.uniforms['ship1'] = this.textureUniform.ship1;
+      shader.uniforms['ship2'] = this.textureUniform.ship2;
+      shader.uniforms['ship3'] = this.textureUniform.ship3;
+      shader.vertexShader = shader.vertexShader
+        .replace(
+          `#include <common>`,
+          /*glsl*/ `
+        attribute float type;
+        attribute float radain;
+        varying float vType;
+        varying float vRadain;
+        #include <common>
+        `
+        )
+        .replace(
+          `#include <fog_vertex>`,
+          `#include <fog_vertex>
+          vType = type;
+          vRadain = radain;
+        `
+        );
+      shader.fragmentShader = shader.fragmentShader
+        .replace(
+          `#include <common>`,
+          /*glsl*/ `
+        #include <common>
+        uniform sampler2D ship1;
+        uniform sampler2D ship2;
+        uniform sampler2D ship3;
+        varying float vType;
+        varying float vRadain;
+        `
+        )
+        .replace(
+          `#include <premultiplied_alpha_fragment>`,
+          /*glsl*/ `
+          #include <premultiplied_alpha_fragment>
+          vec4 tColor;
+          vec2 uv = gl_PointCoord;
+          uv.y = 1.0 - uv.y;
+          uv -= vec2(.5);
+          uv = vec2(uv.x * cos(vRadain) - uv.y * sin(vRadain), uv.x * sin(vRadain) + uv.y * cos(vRadain));
+          uv += vec2(.5);
+          if (vType == .0) {
+            tColor = texture2D(ship1, uv);
+          } else if (vType == 1.0) {
+            tColor = texture2D(ship2, uv);
+          } else {
+            tColor = texture2D(ship3, uv);
+          }
+          if (tColor.a < .1) discard;
+          gl_FragColor = tColor;
+          `
+        );
+      console.log(shader);
+    };
+    const material2 = new Three.MeshPhongMaterial({
+      map: this.textureUniform.earthTexture.value
+    });
+    const point = new Three.Points(parital, martial);
+    const mesh = new Three.Mesh(earth, material2);
+    this.tScene.add(point);
+    this.tScene.add(mesh);
+    this.flyLine(mesh);
+  }
+  /**环绕飞线 */
+  flyLine(mesh: Three.Mesh) {
+    const radius = 1.5;
+    const alatlng: [number, number] = [39.3,124]
+    const blatlng: [number, number] = [33.4, 114]
+    function latLonToPosition(lat, lon, radius) {
+      const phi = (90 - lat) * Math.PI / 180; // 纬度转弧度
+      const theta = (lon + 180) * Math.PI / 180; // 经度转弧度
+      return new Three.Vector3(
+        -radius * Math.sin(phi) * Math.cos(theta),
+        radius * Math.cos(phi),
+        radius * Math.sin(phi) * Math.sin(theta)
+      );
+    }
+    const aPos = latLonToPosition(...alatlng, radius);
+    const bPos = latLonToPosition(...blatlng, radius);
+    const middle = new Three.Vector3((aPos.x + bPos.x)/2, (aPos.y + bPos.y)/2 + 1, (aPos.z + bPos.z)/2)
+    const curve = new Three.CubicBezierCurve3(aPos, middle, middle, bPos);
+    const lineGeo = new LineGeometry();
+    const pp: any = curve.getPoints(30).reduce((arr, el) => {
+      arr.push(...el)
+      return arr
+    }, []) // 分成2片需要3个点 3*3 长度存3d坐标
+    lineGeo.setPositions(pp)
+    console.log(lineGeo, new InstancedInterleavedBuffer(pp, 6,1))
+    const lineMaterial = new LineMaterial({
+      linewidth: 16,
+      wireframe: true,
+      color: 0x000
+    })
+    lineMaterial.onBeforeCompile = shader => {
+      shader.uniforms['map1'] = this.textureUniform.arrowTexture;
+      
+      shader.fragmentShader = shaderStartReplace(shader.fragmentShader, 
+        /*glsl*/`
+          uniform sampler2D map1;
+        `
+      )
+      shader.fragmentShader = fragementShaderEndReplace(shader.fragmentShader, /*glsl*/`
+          vec2 mapUv = vUv;
+          mapUv.y = fract(vUv.y * 10.0);
+          // if (mod(int(vUv.y * 10.0), 2.0) == 0.0) discard;
+          // gl_FragColor = texture2D(map1, mapUv);
+          if (gl_FragColor.g < .1) {
+            // discard;
+          }
+        `)
+      console.log(shader)
+    }
+    const line = new Line2(lineGeo, lineMaterial);
+    mesh.add(line);
+  }
+  spritGeo() {
+    const spritMaterial = new Three.SpriteMaterial();
+    const spirt = new Three.Sprite(spritMaterial);
+    this.tScene.add(spirt);
+  }
+  initTube() {
+    const tube = new Three.TubeGeometry(
+      new Three.CatmullRomCurve3([new Three.Vector3(20, 10, 10), new Three.Vector3(10, 10, 10), new Three.Vector3(10, 10, 20), new Three.Vector3(20, 20, 30), new Three.Vector3(20, 20, 40)]),
+      40,
+      2,
+      5
+    );
+    const material = new Three.MeshPhysicalMaterial({
+      transmission: 1.0,
+      ior: 1.5,
+      color: 0x00ff00
+    });
+    material.onBeforeCompile = shader => {
+      shader.uniforms['iTime'] = this.textureUniform.iTime;
+      shader.uniforms['uRepeat'] = { value: new Three.Vector2(10, 3) };
+      console.log(shader);
+
+      // fragmentShader: wfs,
+      // vertexShader: `
+      //         // 顶点的Y坐标
+      //   varying vec3 vPosition;
+      //   varying vec2 vUv;
+      //   void main() {
+      //       vUv = uv;
+      //       vPosition  = vec3( position.x , position.y, position.z );
+      //       gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+      //   }
+      // `
+    };
+    // material.wireframe = true;
+    const mesh = new Three.Mesh(tube, material);
+    const plane = new Three.PlaneGeometry(100, 100);
+    plane.rotateZ(Math.PI / 2);
+    const planeMesh = new Three.MeshBasicMaterial({
+      color: 0xefefef,
+      side: Three.DoubleSide
+    });
+    this.tScene.add(new Three.Mesh(plane, planeMesh));
+    this.tScene.add(mesh);
+  }
+  /**水波纹 波浪纹理 */
+  waterPlane() {
+    const circle = new Three.SphereGeometry(1);
+    const circleMesh = new Three.Mesh(
+      circle,
+      new Three.MeshPhysicalMaterial({
+        color: 0x000088
+      })
+    );
+    circleMesh.position.set(-2, -2, -2);
+    this.tScene.add(circleMesh);
+    const waterPlane = new Three.PlaneGeometry(1, 1, 128, 128); // 细分多点
+    const waterShader = new Three.ShaderMaterial({
+      uniforms: {
+        uTime: this.textureUniform.iTime
+      },
+      side: Three.DoubleSide,
+      wireframe: true,
+      vertexShader: /*glsl*/ `
+      uniform float uTime;
+      ${shaderCommon.simpleNoise}
+      varying vec3 vNormal;
+      varying vec3 vPosition;
+    
+      void main() {
+        float x = position.x;
+        float y = position.y;
+        float delta = 0.001;
+    
+        // 计算Z值
+        float z = cnoise(position + vec3(sin(uTime*.01),0,uTime*.01));
+    
+        // 计算x方向梯度
+        float z_x_plus = cnoise(vec3(position.x+delta, position.yz));
+        float z_x_minus = cnoise(vec3(position.x-delta, position.yz));
+        float dz_dx = (z_x_plus - z_x_minus) / (2.0 * delta);
+    
+        // 计算y方向梯度
+        float z_y_plus = cnoise(vec3(position.x, position.y + delta, position.z));
+        float z_y_minus = cnoise(vec3(position.x, position.y - delta, position.z));
+        float dz_dy = (z_y_plus - z_y_minus) / (2.0 * delta);
+    
+        // 法向量计算
+        vec3 normal = normalize(vec3(-dz_dx, -dz_dy, 1.0));
+    
+        // 输出
+        gl_Position = projectionMatrix * modelViewMatrix * vec4(x, y, z, 1.0);
+        vNormal = normal;
+      }
+      `,
+      fragmentShader: /*glsl*/ `
+      varying vec3 vNormal;
+      void main () {
+        gl_FragColor = vec4(vNormal * 0.5 + 0.5, 1.0);
+      }
+      `
+    });
+    const mesh = new Three.Mesh(waterPlane, waterShader);
+    mesh.rotateX(Math.PI / 2);
+    this.tScene.add(mesh);
+  }
   initCube() {
     const geometry = new Three.BoxGeometry(1, 1, 1, 10, 10, 10);
     const material = new Three.MeshNormalMaterial();
@@ -96,76 +407,228 @@ export class Three2Component extends ThreeBase {
     };
     this.tScene.add(mesh);
   }
+  /**生成缓冲区材质*/
+  passHandle() {
+    const { width, height } = this.el.getBoundingClientRect();
+    const renderBuffer = new Three.WebGLRenderTarget(512, 512);
+    renderBuffer.texture.name = 'render-target-buffer';
+    const rtFov = 75;
+    const rtAspect = width / height;
+    const rtNear = 0.1;
+    const rtFar = 1000;
+    const rtCamera = new Three.PerspectiveCamera(rtFov, rtAspect, rtNear, rtFar);
+    rtCamera.position.z = 2;
+
+    const rtScene = new Three.Scene();
+    rtScene.background = new Three.Color('red');
+    const color = 0xffffff;
+    const intensity = 1;
+    const light = new Three.DirectionalLight(color, intensity);
+    light.position.set(-1, 2, 4);
+    light.lookAt(new Three.Vector3(0, 0, 0));
+    rtScene.add(light);
+    rtScene.add(rtCamera);
+    const cube = new Three.BoxGeometry(1, 1, 1);
+    const cube2 = cube.clone() as Three.BoxGeometry;
+    const material = new Three.MeshBasicMaterial({ map: renderBuffer.texture });
+    const material2 = new Three.MeshBasicMaterial({ color: 0x3dff00, wireframe: true });
+    const mesh = new Three.Mesh(cube, material);
+    const mesh2 = new Three.Mesh(cube2, material2);
+    gsap.to(mesh2.rotation, {
+      x: Math.PI * 2,
+      y: Math.PI * 2,
+      z: Math.PI * 2,
+      repeat: -1,
+      duration: 5
+    });
+    rtScene.add(mesh2);
+    this.tScene.add(mesh);
+    this.tEvent.on('tick', () => {
+      this.tRender.setRenderTarget(renderBuffer);
+      this.tRender.render(rtScene, rtCamera);
+      this.tRender.setRenderTarget(null);
+    });
+    // this
+  }
+  override saveBuffer(): void {
+    this.passHandle();
+  }
   raySelect() {
     const { width, height } = this.el.getBoundingClientRect();
+    const renderPass = new RenderPass(this.tScene, this.tCamera);
+    // this.effectCom.addPass(renderPass);
+    const v2 = new Three.Vector2(512, 512);
+    const bloom = new UnrealBloomPass(v2, 1, 1, 0);
+    // this.effectCom.addPass(bloom);
+    const outlinePass = new OutlinePass(v2, this.tScene, this.tCamera);
+    this.textureUniform.arrowTexture.value.center = new Three.Vector2(0.5, 0.5);
+    this.textureUniform.arrowTexture.value.rotation = Math.PI / 2;
     this.el.addEventListener('click', e => {
       // 初始化
       const cameraMover = new CameraAutoMover(this.tCamera, this.tControl);
       const { offsetX, offsetY } = e;
       const x = (offsetX / width) * 2 - 1;
       const y = -(offsetY / height) * 2 + 1;
-      const pos = this.tCamera.position;
       const raycaster = new Three.Raycaster();
-      raycaster.setFromCamera(new Three.Vector2(x, y), this.tCamera);
-      const cross = raycaster.intersectObjects(this.pipeMeshes);
+      raycaster.setFromCamera(new Three.Vector2(x, y), this.tCamera); // x y 点击
+      const cross = raycaster.intersectObjects(this.pipeMeshes); // 获取与射线相交的对象
       if (cross?.length > 0) {
-        cameraMover.moveToObject(cross[0].object);
-        const mesh: Three.Mesh = cross[0].object as Three.Mesh;
-        // const meshPos = mesh.position.clone().applyMatrix4(mesh.matrixWorld);
-        // gsap.to(this.tCamera.position, {
-        //   duration: 3,
-        //   ease: 'none',
-        //   x: meshPos.x,
-        //   y: meshPos.y,
-        //   z: meshPos.z,
-        //   onUpdate: () => {
-        //     this.tCamera.lookAt(meshPos);
-        //     this.tControl.target.copy(meshPos);
-        //   }
+        cameraMover.moveToObject(cross[0].object); // 改变相机位置
+        // const mesh: Three.Mesh = cross[0].object as Three.Mesh;
+        // this.repeatMap[mesh.name] = this.repeatMap[mesh.name] ?? { value: SCENE_PIPE_CONFIG[mesh.name].repeat}
+        // // this.textureUniform.repeat = this.repeatMap[mesh.name];
+        // // mesh.material
+        // // const meshPos = mesh.position.clone().applyMatrix4(mesh.matrixWorld);
+        // // gsap.to(this.tCamera.position, {
+        // //   duration: 3,
+        // //   ease: 'none',
+        // //   x: meshPos.x,
+        // //   y: meshPos.y,
+        // //   z: meshPos.z,
+        // //   onUpdate: () => {
+        // //     this.tCamera.lookAt(meshPos);
+        // //     this.tControl.target.copy(meshPos);
+        // //   }
+        // // });
+        // // gsap.to(this.tCamera.position)
+        // // 获取物体的真实尺寸（考虑缩放）
+        // const water = mesh.clone() as Three.Mesh;
+        // mesh.parent.add(water);
+        // const material = (mesh.material as Three.MeshStandardMaterial).clone();
+        // mesh.material = new Three.MeshBasicMaterial({ color: 0x00008e, opacity: 0.6, transparent: true, depthWrite: false });
+        // // material.wireframe = true;
+        // water.material = new Three.ShaderMaterial({
+        //   transparent: true,
+        //   depthWrite: false,
+        //   // blending: Three.CustomBlending,
+        //   // blending: Three.NormalBlending,
+        //   // blendEquation: Three.AddEquation,
+        //   // blendSrc: Three.OneMinusDstAlphaFactor, // 特殊混合模式
+        //   // blendDst: Three.DstAlphaFactor,
+        //   uniforms: {
+        //     uTime: this.textureUniform.iTime,
+        //     tImage: this.textureUniform.waterTexture,
+        //     arrowTexture: this.textureUniform.arrowTexture,
+        //     repeat:  this.repeatMap[mesh.name]
+        //   },
+        //   vertexShader: /*glsl*/ `
+        //       varying vec3 vPosition;
+        //       varying vec2 vUv;
+        //       void main() {
+        //           vUv = uv;
+        //           vec3 newPos = position + normal * -.02;
+        //           gl_Position = projectionMatrix * modelViewMatrix * vec4(newPos, 1.0);
+        //       }
+        //     `,
+        //   fragmentShader: /*glsl*/ `
+        //     uniform sampler2D tImage;
+        //     uniform float uTime;
+        //     varying vec2 vUv;
+        //     uniform float repeat;
+
+        //     void main() {
+        //       /** 使用 -uOffset 保证和 progress 动画方向一致*/
+
+        //       vec2 p = fract(vUv * vec2(repeat, 1.0) - vec2(uTime * .1, .0));
+        //       vec4 texture_color = vec4(0.112156862745098, 0.44527450980392157, 0.8733333333333333, 1.0);
+
+        //       vec4 k = vec4(uTime)*0.8;
+        //       k.xy = p * 7.0;
+        //       float val1 = length(0.5-fract(k.xyw*=mat3(vec3(-2.0,-1.0,0.0), vec3(3.0,-1.0,1.0), vec3(1.0,-1.0,-1.0))*0.5));
+        //       float val2 = length(0.5-fract(k.xyw*=mat3(vec3(-2.0,-1.0,0.0), vec3(3.0,-1.0,1.0), vec3(1.0,-1.0,-1.0))*0.2));
+        //       float val3 = length(0.5-fract(k.xyw*=mat3(vec3(-2.0,-1.0,0.0), vec3(3.0,-1.0,1.0), vec3(1.0,-1.0,-1.0))*0.5));
+        //       vec4 color = vec4 ( pow(min(min(val1,val2),val3), 7.0) * 3.0)+texture_color;
+        //       gl_FragColor = vec4(color.rgb, 1.0);
+        //     }
+        //     `
         // });
-        // gsap.to(this.tCamera.position)
-        // 获取物体的真实尺寸（考虑缩放）
-        const box = new Three.Box3().setFromObject(mesh);
-        const size = new Three.Vector3();
-        box.getSize(size);
-        const material = (mesh.material as Three.MeshStandardMaterial).clone();
-        // material.wireframe = true;
-        mesh.material = material;
-        material.map = this.textureUniform.arrowTexture.value;
-        material.map.wrapS = material.map.wrapT = Three.RepeatWrapping;
-        material.map.rotation = Math.PI / 2;
-        console.log(size)
+        // const arrow = water.clone() as Three.Mesh;
+        // arrow.material = new Three.ShaderMaterial({
+        //   transparent: true,
+        //   depthWrite: false,
+        //   // blending: Three.NormalBlending,
+        //   uniforms: {
+        //     uTime: this.textureUniform.iTime,
+        //     tImage: this.textureUniform.waterTexture,
+        //     arrowTexture: this.textureUniform.arrowTexture,
+        //     repeat: this.repeatMap[mesh.name]
+        //   },
+        //   opacity: 0.6,
+        //   vertexShader: /*glsl*/ `
+        //     varying vec3 vPosition;
+        //     varying vec2 vUv;
+        //     void main() {
+        //         vUv = uv;
+        //         vec3 newPos = position + normal * -.04;
+        //         gl_Position = projectionMatrix * modelViewMatrix * vec4(newPos, 1.0);
+        //     }
+        //   `,
+        //   fragmentShader: /*glsl*/ `
+        //   uniform sampler2D arrowTexture;
+        //   uniform float uTime;
+        //   varying vec2 vUv;
+        //   uniform float repeat;
+
+        //   void main() {
+        //     /** 使用 -uOffset 保证和 progress 动画方向一致*/
+        //     vec2 uv = vUv.yx;
+        //     vec2 p = fract(uv * vec2(1.0, repeat) + vec2(.0, -uTime * .1));
+        //     vec4 color = texture2D(arrowTexture, p);
+        //      // 硬边缘透明处理
+        //     if(color.a < 0.1) discard;
+        //     gl_FragColor = color;
+        //   }
+        //   `
+        // });
+        // mesh.parent.add(arrow);
+        // material.map = this.textureUniform.arrowTexture.value;
+        // material.map.wrapS = material.map.wrapT = Three.RepeatWrapping;
+        // material.map.rotation = Math.PI / 2;
         // 设置重复参数
-        material.map.repeat.set(10, 1);
-        gsap.to(material.map.offset, {
-          ease: 'none',
-          y: -10,
-          duration: 5,
-          repeat: -1
-        });
-        mesh.material.onBeforeCompile = shader => {
-          shader.uniforms['uTime'] = this.textureUniform.iTime;
-          shader.uniforms['iResolution'] = { value: new Three.Vector2(width, height) };
-          shader.fragmentShader = shader.fragmentShader
-            .replace(
-              '#include <common>',
-              `
-            #include <common>
-            uniform vec2 iResolution;
-            uniform float uTime;
-            ${fs}
-            `
-            )
-            .replace(
-              '#include <dithering_fragment>',
-              `
-            #include <dithering_fragment>
-            // gl_FragColor = water(gl_FragCoord.xy/iResolution.xy);
-            // gl_FragColor = texture2D(arrowTexture, gl_FragCoord.xy/iResolution.xy);
-            `
-            );
-          console.log(shader, 'shaderpiep');
-        };
+        // material.map.repeat.set(10, 1);
+        // gsap.to(material.map.offset, {
+        //   ease: 'none',
+        //   y: -10,
+        //   duration: 5,
+        //   repeat: -1
+        // });
+        // mesh.material.onBeforeCompile = shader => {
+        //   shader.uniforms['uTime'] = this.textureUniform.iTime;
+        //   shader.uniforms['iResolution'] = { value: new Three.Vector2(width, height) };
+        //   shader.uniforms['tImage'] = { value: this.textureUniform.watetTexture};
+        //   shader.uniforms['arrowTexture'] = { value: this.textureUniform.arrowTexture };
+        //   shader.fragmentShader = shader.fragmentShader
+        //     .replace(
+        //       '#include <common>',
+        //       `
+        //     #include <common>
+        //     uniform sampler2D arrowTexture;
+        //     uniform vec2 iResolution;
+        //     varying vec2 vUv;
+        //     ${fs}
+        //     `
+        //     )
+        //     .replace(
+        //       '#include <dithering_fragment>',
+        //       `
+        //     #include <dithering_fragment>
+        //     gl_FragColor = water(gl_FragCoord.xy/iResolution.xy);
+        //     gl_FragColor = texture2D(arrowTexture, gl_FragCoord.xy/iResolution.xy);
+        //     `
+        //     );
+        //   shader.vertexShader = shader.vertexShader.replace(`#include <fog_vertex>`, `
+        //     #include <fog_vertex>
+        //     vec3 newPosition = position + normal * -0.02;
+        //     // gl_Position = projectionMatrix * modelViewMatrix * vec4(newPosition, 1.0);
+        //     vec2 vUv = uv;
+        //     `).replace(`#include <common>`, `
+        //       varying vec2 vUv;
+        //       `)
+        // };
+
+        // outlinePass.visibleEdgeColor.set('#ff00ff');
+        // this.effectCom.addPass(outlinePass);
+        // this.isComposerRender = true;
       }
       console.log(cross);
     });
@@ -347,6 +810,113 @@ export class Three2Component extends ThreeBase {
           if (child.name.includes('管道')) {
             // this.groupMeshes.add(child);
             this.pipeMeshes.push(child);
+            const mesh: Three.Mesh = child as Three.Mesh;
+            this.repeatMap[mesh.name] = this.repeatMap[mesh.name] ?? { value: SCENE_PIPE_CONFIG[mesh.name].repeat };
+            // this.textureUniform.repeat = this.repeatMap[mesh.name];
+            // mesh.material
+            // const meshPos = mesh.position.clone().applyMatrix4(mesh.matrixWorld);
+            // gsap.to(this.tCamera.position, {
+            //   duration: 3,
+            //   ease: 'none',
+            //   x: meshPos.x,
+            //   y: meshPos.y,
+            //   z: meshPos.z,
+            //   onUpdate: () => {
+            //     this.tCamera.lookAt(meshPos);
+            //     this.tControl.target.copy(meshPos);
+            //   }
+            // });
+            // gsap.to(this.tCamera.position)
+            // 获取物体的真实尺寸（考虑缩放）
+            const water = mesh.clone() as Three.Mesh;
+            mesh.parent.add(water);
+            const material = (mesh.material as Three.MeshStandardMaterial).clone();
+            mesh.material = new Three.MeshBasicMaterial({ color: 0x00008e, opacity: 0.6, transparent: true, depthWrite: false });
+            // material.wireframe = true;
+            water.material = new Three.ShaderMaterial({
+              transparent: true,
+              depthWrite: false,
+              // blending: Three.CustomBlending,
+              // blending: Three.NormalBlending,
+              // blendEquation: Three.AddEquation,
+              // blendSrc: Three.OneMinusDstAlphaFactor, // 特殊混合模式
+              // blendDst: Three.DstAlphaFactor,
+              uniforms: {
+                uTime: this.textureUniform.iTime,
+                tImage: this.textureUniform.waterTexture,
+                arrowTexture: this.textureUniform.arrowTexture,
+                repeat: this.repeatMap[mesh.name]
+              },
+              vertexShader: /*glsl*/ `
+                  varying vec3 vPosition;
+                  varying vec2 vUv;
+                  void main() {
+                      vUv = uv;
+                      vec3 newPos = position + normal * -.02;
+                      gl_Position = projectionMatrix * modelViewMatrix * vec4(newPos, 1.0);
+                  }
+                `,
+              fragmentShader: /*glsl*/ `
+                uniform sampler2D tImage;
+                uniform float uTime;
+                varying vec2 vUv;
+                uniform float repeat;
+      
+                void main() {
+                  /** 使用 -uOffset 保证和 progress 动画方向一致*/
+    
+                  vec2 p = fract(vUv * vec2(repeat, 1.0) - vec2(uTime * .1, .0));
+                  vec4 texture_color = vec4(0.112156862745098, 0.44527450980392157, 0.8733333333333333, 1.0);
+        
+                  vec4 k = vec4(uTime)*0.8;
+                  k.xy = p * 7.0;
+                  float val1 = length(0.5-fract(k.xyw*=mat3(vec3(-2.0,-1.0,0.0), vec3(3.0,-1.0,1.0), vec3(1.0,-1.0,-1.0))*0.5));
+                  float val2 = length(0.5-fract(k.xyw*=mat3(vec3(-2.0,-1.0,0.0), vec3(3.0,-1.0,1.0), vec3(1.0,-1.0,-1.0))*0.2));
+                  float val3 = length(0.5-fract(k.xyw*=mat3(vec3(-2.0,-1.0,0.0), vec3(3.0,-1.0,1.0), vec3(1.0,-1.0,-1.0))*0.5));
+                  vec4 color = vec4 ( pow(min(min(val1,val2),val3), 7.0) * 3.0)+texture_color;
+                  gl_FragColor = vec4(color.rgb, 1.0);
+                }
+                `
+            });
+            const arrow = water.clone() as Three.Mesh;
+            arrow.material = new Three.ShaderMaterial({
+              transparent: true,
+              depthWrite: false,
+              // blending: Three.NormalBlending,
+              uniforms: {
+                uTime: this.textureUniform.iTime,
+                tImage: this.textureUniform.waterTexture,
+                arrowTexture: this.textureUniform.arrowTexture,
+                repeat: this.repeatMap[mesh.name]
+              },
+              opacity: 0.6,
+              vertexShader: /*glsl*/ `
+                varying vec3 vPosition;
+                varying vec2 vUv;
+                void main() {
+                    vUv = uv;
+                    vec3 newPos = position + normal * -.04;
+                    gl_Position = projectionMatrix * modelViewMatrix * vec4(newPos, 1.0);
+                }
+              `,
+              fragmentShader: /*glsl*/ `
+              uniform sampler2D arrowTexture;
+              uniform float uTime;
+              varying vec2 vUv;
+              uniform float repeat;
+    
+              void main() {
+                /** 使用 -uOffset 保证和 progress 动画方向一致*/
+                vec2 uv = vUv.yx;
+                vec2 p = fract(uv * vec2(1.0, repeat) + vec2(.0, -uTime * .1));
+                vec4 color = texture2D(arrowTexture, p);
+                 // 硬边缘透明处理
+                if(color.a < 0.1) discard;
+                gl_FragColor = color;
+              }
+              `
+            });
+            mesh.parent.add(arrow);
           }
           if (child.name.includes('房') && child.material.map) {
             // 查看纹理贴图
@@ -446,6 +1016,9 @@ export class Three2Component extends ThreeBase {
     this.textureUniform.iTime.value += 0.1;
     this.tEvent.fire('tick');
     this.render2d.render(this.tScene, this.tCamera);
+    if (this.isComposerRender) {
+      this.effectCom.render();
+    }
     // if (this.pipe && this.pipe.material && (this.pipe.material as any).map) (this.pipe?.material as Three.MeshBasicMaterial).map.offset.y -= delta;
     // this.fpc?.update(delta);
   };

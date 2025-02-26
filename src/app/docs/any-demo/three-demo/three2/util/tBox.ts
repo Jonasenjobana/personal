@@ -19,7 +19,7 @@ export class CameraAutoMover {
 
     // 2. 转换为包围球简化计算
     const sphere = new Sphere();
-    box.getBoundingSphere(sphere);
+    box.getBoundingSphere(sphere);// 球形包围盒计算
 
     // 3. 计算最佳观察距离
     const distance = this.calculateIdealDistance(sphere.radius);
