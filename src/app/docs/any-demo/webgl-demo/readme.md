@@ -279,10 +279,21 @@
 ### 体积碰撞
 - Three内置Box3,Sphere Box3.getBoundingSphere(sphere) 可以对获取包围盒的半径
 ### 生成带贴图的线
-    - 内置的Line由于底层不支持设置linewidth所以只能通过三角形构造面来模拟线条
-    - 需要处理lineCap、lineWidth、lineJoin、lineDash
-    - 保持面朝向屏幕
-    - 
+- 内置的Line由于底层不支持设置linewidth所以只能通过三角形构造面来模拟线条
+- 需要处理lineCap、lineWidth、lineJoin、lineDash
+- 保持面朝向屏幕
+- 
+### InstancedBufferGeometry 根据模板生成大量重复的mesh 比如带宽度线段构造三角形面
+- 构造模板时候uv不一定要求一定按照范围0 - 1 根据边界方式构造
+  ```javascript
+      // LineSegement构造模板 两端+中间
+  	const positions = [ - 1, 2, 0, 1, 2, 0, - 1, 1, 0, 1, 1, 0, - 1, 0, 0, 1, 0, 0, - 1, - 1, 0, 1, - 1, 0 ];
+	const uvs = [ - 1, 2, 1, 2, - 1, 1, 1, 1, - 1, - 1, 1, - 1, - 1, - 2, 1, - 2 ];
+	const index = [ 0, 2, 1, 2, 3, 1, 2, 4, 3, 4, 5, 3, 4, 6, 5, 6, 7, 5 ];
+      // 此时uv 为-2 2 区间
+  ```
+- 着色器想要有记忆状态 只能通过纹理或者attribute预处理记忆值
+    1. LineMaterial 实现线宽 需要有起始和终止两个端点去调整整体顶点着色器的位置，在attribute中传入InstanceStart,InstanceEnd,一个获取当前值，一个获取下一段值
 # Cesium.js
 - 经纬度转为笛卡尔坐标系（单位: 米）
 - 着色器绘制

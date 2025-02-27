@@ -18,11 +18,10 @@ import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPa
 import { SCENE_PIPE_CONFIG } from './config/pipe';
 import { GPUComputationRenderer } from 'three/examples/jsm/misc/GPUComputationRenderer';
 import { Line2 } from 'three/examples/jsm/lines/Line2';
-import { LineGeometry } from 'three/examples/jsm/lines/LineGeometry'
-import { LineMaterial } from 'three/examples/jsm/lines/LineMaterial' 
+import { LineGeometry } from 'three/examples/jsm/lines/LineGeometry';
 import { fragementShaderEndReplace, shaderStartReplace, vertexShaderEndReplace } from './util/ShaderReplace';
 import { InstancedInterleavedBuffer } from 'three';
-
+import { LineMaterial } from './js/line2/LineMaterial';
 @Component({
   selector: 'Three2',
   templateUrl: '../three.base.html',
@@ -60,6 +59,7 @@ export class Three2Component extends ThreeBase {
     ambiLight.position.set(0, 10, 0);
     ambiLight.lookAt(new Three.Vector3(0, 0, 0));
     this.tScene.add(ambiLight);
+    // this.instancedBufferGeometry();
     this.pointBuffer();
     // this.initMc();
     // this.initTube();
@@ -220,54 +220,99 @@ export class Three2Component extends ThreeBase {
   /**环绕飞线 */
   flyLine(mesh: Three.Mesh) {
     const radius = 1.5;
-    const alatlng: [number, number] = [39.3,124]
-    const blatlng: [number, number] = [33.4, 114]
+    const alatlng: [number, number] = [39.3, 124];
+    const blatlng: [number, number] = [33.4, 114];
     function latLonToPosition(lat, lon, radius) {
-      const phi = (90 - lat) * Math.PI / 180; // 纬度转弧度
-      const theta = (lon + 180) * Math.PI / 180; // 经度转弧度
-      return new Three.Vector3(
-        -radius * Math.sin(phi) * Math.cos(theta),
-        radius * Math.cos(phi),
-        radius * Math.sin(phi) * Math.sin(theta)
-      );
+      const phi = ((90 - lat) * Math.PI) / 180; // 纬度转弧度
+      const theta = ((lon + 180) * Math.PI) / 180; // 经度转弧度
+      return new Three.Vector3(-radius * Math.sin(phi) * Math.cos(theta), radius * Math.cos(phi), radius * Math.sin(phi) * Math.sin(theta));
     }
     const aPos = latLonToPosition(...alatlng, radius);
     const bPos = latLonToPosition(...blatlng, radius);
-    const middle = new Three.Vector3((aPos.x + bPos.x)/2, (aPos.y + bPos.y)/2 + 1, (aPos.z + bPos.z)/2)
+    const middle = new Three.Vector3((aPos.x + bPos.x) / 2, (aPos.y + bPos.y) / 2 + 1, (aPos.z + bPos.z) / 2);
     const curve = new Three.CubicBezierCurve3(aPos, middle, middle, bPos);
     const lineGeo = new LineGeometry();
     const pp: any = curve.getPoints(30).reduce((arr, el) => {
-      arr.push(...el)
-      return arr
-    }, []) // 分成2片需要3个点 3*3 长度存3d坐标
-    lineGeo.setPositions(pp)
-    console.log(lineGeo, new InstancedInterleavedBuffer(pp, 6,1))
-    const lineMaterial = new LineMaterial({
+      arr.push(...el);
+      return arr;
+    }, []); // 分成2片需要3个点 3*3 长度存3d坐标
+    lineGeo.setPositions(pp);
+    console.log(lineGeo, new InstancedInterleavedBuffer(pp, 6, 1));
+    const lineMaterial: any = new LineMaterial({
       linewidth: 16,
-      wireframe: true,
       color: 0x000
-    })
+    });
     lineMaterial.onBeforeCompile = shader => {
       shader.uniforms['map1'] = this.textureUniform.arrowTexture;
-      
-      shader.fragmentShader = shaderStartReplace(shader.fragmentShader, 
-        /*glsl*/`
+      shader.vertexShader = vertexShaderEndReplace(shader.vertexShader, 
+        ``
+      )
+      shader.fragmentShader = shaderStartReplace(
+        shader.fragmentShader,
+        /*glsl*/ `
           uniform sampler2D map1;
         `
-      )
-      shader.fragmentShader = fragementShaderEndReplace(shader.fragmentShader, /*glsl*/`
+      );
+      shader.fragmentShader = fragementShaderEndReplace(
+        shader.fragmentShader,
+        /*glsl*/ `
           vec2 mapUv = vUv;
-          mapUv.y = fract(vUv.y * 10.0);
-          // if (mod(int(vUv.y * 10.0), 2.0) == 0.0) discard;
-          // gl_FragColor = texture2D(map1, mapUv);
-          if (gl_FragColor.g < .1) {
-            // discard;
+          if (abs(vUv.y) > 1.0) {
+            mapUv.y = mapUv.y > 0.0 ?  mapUv.y - 1.0 : 1.0 + mapUv.y;
+            gl_FragColor = texture2D(map1, mapUv);
           }
-        `)
-      console.log(shader)
-    }
+          // if (gl_FragColor.g < .1) {
+          //   // discard;
+          // }
+        `
+      );
+      console.log(shader);
+    };
     const line = new Line2(lineGeo, lineMaterial);
     mesh.add(line);
+  }
+  instancedBufferGeometry() {
+    // 创建基础几何体（例如一个单位立方体）
+    const baseGeometry = new Three.BoxGeometry(1, 1, 1);
+
+    // 转换为 InstancedBufferGeometry
+    const instancedGeometry = new Three.InstancedBufferGeometry();
+    instancedGeometry.index = baseGeometry.index; // 索引数据
+    instancedGeometry.attributes = baseGeometry.attributes; // 顶点属性（position, normal, uv等）
+    const instanceCount = 1000; // 实例数量
+
+    // 实例位置偏移（每个实例3个浮点数：x, y, z）
+    const positions = new Float32Array(instanceCount * 3);
+    for (let i = 0; i < instanceCount; i++) {
+      positions[i * 3] = Math.random() * 100 - 50; // x ∈ [-50, 50)
+      positions[i * 3 + 1] = Math.random() * 100 - 50; // y
+      positions[i * 3 + 2] = Math.random() * 100 - 50; // z
+    }
+
+    // 将位置数据添加为实例化属性
+    instancedGeometry.setAttribute('instancePosition', new Three.InstancedBufferAttribute(positions, 3));
+    const material = new Three.MeshStandardMaterial({
+      color: 0x00ff00
+      // 关键：标记材质支持实例化
+    });
+    material.onBeforeCompile = shader => {
+      shader.vertexShader = shader.vertexShader.replace(
+        '#include <common>',
+        `
+        #include <common>
+        attribute vec3 instancePosition; // 声明实例化属性
+        `
+      );
+      shader.vertexShader = shader.vertexShader.replace(
+        '#include <begin_vertex>',
+        `
+        // 将实例位置叠加到顶点坐标
+        vec3 transformed = position + instancePosition;
+        `
+      );
+    };
+    const mesh = new Three.InstancedMesh(instancedGeometry, material, instanceCount);
+    this.tScene.add(mesh);
   }
   spritGeo() {
     const spritMaterial = new Three.SpriteMaterial();
