@@ -42,7 +42,7 @@ export class GanteCanvasComponent {
     this.stageGroup = new Group({
       name: 'gante graph',
       style: {
-        y: 40
+        // y: 40
       }
     });
     this.canvas.addEventListener('wheel', ($event: FederatedWheelEvent) => {

@@ -100,15 +100,15 @@
           "builder": "@angular-builders/custom-webpack:dev-server",
           "configurations": {
             "zq": {
-              "browserTarget": "personal:build:development",
+              "buildTarget": "personal:build:development",
               "host": "192.168.1.159",
               "port": 8282
             },
             "production": {
-              "browserTarget": "personal:build:production"
+              "buildTarget": "personal:build:production"
             },
             "development": {
-              "browserTarget": "personal:build:development"
+              "buildTarget": "personal:build:development"
             }
           },
           "defaultConfiguration": "development"
@@ -116,7 +116,7 @@
         "extract-i18n": {
           "builder": "@angular-devkit/build-angular:extract-i18n",
           "options": {
-            "browserTarget": "personal:build"
+            "buildTarget": "personal:build"
           }
         },
         "test": {
