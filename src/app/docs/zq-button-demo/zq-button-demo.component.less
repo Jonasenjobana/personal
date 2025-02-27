@@ -1,0 +1,16 @@
+.test {
+    background-color:antiquewhite;
+    height: 100px;
+    width: 100px;
+    position: relative;
+    &::after {
+        content: '';
+        position: absolute;
+        height: 3px;
+        top: 10px;
+        left: 10px;
+        
+        width: 3px;
+        background-color: black;
+    }
+}

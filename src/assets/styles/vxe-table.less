@@ -1,0 +1,45 @@
+
+.vxe-table-wrapper {
+    position: relative;
+}
+.vxe-table {
+    
+    table-layout: fixed;
+    .vxe-head {
+        background-color: #f8f8f9;
+    }
+
+    .vxe-head,
+    .vxe-body {
+        &>tr>td {
+            padding: 0 8px;
+            height: 28px;
+            border: 1px solid #e8eaec;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+    }
+    .virtual-viewport {
+        height: 100%;
+        width: 100%;
+    }
+    .vxe-body {
+        overflow: auto;
+        tr.hover,tr.selected {
+            td {
+                background-color: #f5f7fa;
+            }
+        }
+        &>tr:nth-child(1) {
+            border-top: unset;
+
+            td {
+                border-top: unset;
+            }
+        }
+        td {
+            background-color: #fff;
+        }
+    }
+}

@@ -1,0 +1,64 @@
+.rotate {
+  width: 102px;
+  height: 76px;
+  position: relative;
+}
+.bg {
+  width: 102px;
+  height: 76px;
+  position: absolute;
+  top: 0;
+  left: 0;
+  background: url('/assets/images/动态切片/1.png') no-repeat;
+  background-position: center center;
+  background-size: 100% 100%;
+}
+.vhf,.ais {
+  z-index: 999;
+  height: 32px;
+  width: 32px;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -88%);
+}
+.ais {
+  background: url('/assets/images/动态切片/AIS基站.png') no-repeat;
+  background-size: 100% 100%;
+}
+.vhf {
+  background: url('/assets/images/动态切片/VHF基站.png') no-repeat;
+  background-size: 100% 100%;
+}
+.container {
+  width: 102px;
+  height: 76px;
+  top: 0;
+  left: 0;
+  position: absolute;
+  transform: rotateX(65deg);
+}
+.setBg(@series) {
+  background-image: url('/assets/images/动态切片/动态切片-@{series}）.png');
+  background-size: 100% 100%;
+}
+each(range(8), {
+  .slice-@{value} {
+    width: 120px;
+    height: 120px;
+    .setBg(@value);
+    position: absolute;
+    transform: translate(-50%, var(--offsetY));
+    top: 50%;
+    left: 50%;
+    animation: rotate var(--duration) linear infinite;
+  }
+})
+@keyframes rotate {
+  0% {
+    transform:translate(-50%, var(--offsetY)) rotateZ(0deg);
+  }
+  100% {
+    transform:translate(-50%, var(--offsetY)) rotateZ(360deg);
+  }
+}

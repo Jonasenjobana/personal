@@ -80,4 +80,17 @@ export const DemoList: MenuItem[] = [
     title: 'Message Demo',
     link: '/docs/message-demo',
   },
+  {
+    title: 'Gante Demo',
+    link: '/docs/gante-demo',
+  },
+  {
+    title: 'Three Demo',
+    link: '/docs/three-demo',
+  },
+  // 地图实验
+  {
+    title: 'Canvas Map & Leaflet lab',
+    link: '/docs/map-lab'
+  }
 ];

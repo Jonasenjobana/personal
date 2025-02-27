@@ -21,7 +21,7 @@ export class LayoutComponent implements OnInit {
       const { url } = event as NavigationEnd
       const item = this.menuLeft.find(el => url.includes(el.link!)) || this.menuRight.find(el => url.includes(el.link!))
       
-      this.menuChange(item)
+      // this.menuChange(item)
     })
   }
 

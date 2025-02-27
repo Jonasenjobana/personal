@@ -1,0 +1,21 @@
+<svg width="500" height="500" viewBox="0 0 500 500" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" #svgRef>
+    <path id="myPath" stroke-dasharray="4 1000" stroke-dashoffset="2" fill="none" stroke="blue" stroke-width="2">
+        <animate attributeName="stroke-dashoffset" values="0; 100;" dur="5s" repeatCount="indefinite" />
+      </path>
+    <!-- <path d="M50,50 L100,100 L150,50" fill="none" stroke-dasharray="4" stroke-dashoffset="2" stroke="blue" stroke-width="2">
+        <animate attributeName="strokeDashoffset" value="0;10;0" dur="10s" repeatCount="indefinite">
+
+        </animate>
+    </path> -->
+    <circle></circle>
+    <rect width="20" height="20" x="100" y="100" fill="red">
+        <animate
+          attributeName="rx"
+          values="0;200;0"
+          dur="10s"
+          repeatCount="indefinite" />
+        <animateMotion dur="3s" repeatCount="indefinite">
+            <mpath xlink:href="#myPath" />
+        </animateMotion>
+      </rect>
+</svg>

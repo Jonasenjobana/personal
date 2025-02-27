@@ -9,15 +9,31 @@ import { RouterModule, Routes } from '@angular/router';
 import { DocsComponent } from './docs.component';
 import { InputDemoComponent } from './input-demo/input-demo.component';
 import { ZqSelectDemoComponent } from './zq-select-demo/zq-select-demo.component';
-import { TableDemoComponent } from './table-demo/table-demo.component';
 import { ScrollMenuComponent } from './scroll-menu/scroll-menu.component';
 import { MessageDemoComponent } from './message-demo/message-demo.component';
+import { GanteCanvasComponent } from './any-demo/canvas-demo/gante-canvas/gante-canvas.component';
+import { ParticalCanvasComponent } from './any-demo/canvas-demo/partical-canvas/partical-canvas.component';
+import { TableDemoComponent } from './any-demo/vxe-table/table-demo/table-demo.component';
+import { PipeCanvasComponent } from './any-demo/canvas-demo/pipe-canvas/pipe-canvas.component';
 
 const routes: Routes = [
   {
     path: '',
     component: DocsComponent,
     children: [
+      {
+        path: '',
+        pathMatch: 'full',
+        redirectTo: 'three-demo/day8-1'
+      },
+      {
+        path: 'cesium',
+        loadChildren: () => import('./any-demo/cesium/cesium.module').then(m => m.CesiumModule)
+      },
+      {
+        path: 'table-demo',
+        component: TableDemoComponent
+      }, 
       {
         path: 'button-demo',
         component: ZqButtonDemo
@@ -30,10 +46,10 @@ const routes: Routes = [
         path: 'select-demo',
         component: ZqSelectDemoComponent
       },
-      {
-        path: 'table-demo',
-        component: TableDemoComponent
-      },
+      // {
+      //   path: 'table-demo',
+      //   component: TableDemoComponent
+      // },
       {
         path: 'modal-demo',
         component: ZqModalDemoComponent
@@ -58,13 +74,45 @@ const routes: Routes = [
         path: 'form-demo',
         component: FormDemoComponent
       },
-      {
-        path: 'table-demo',
-        component: TableDemoComponent
-      },
+      // {
+      //   path: 'table-demo',
+      //   component: TableDemoComponent
+      // },
       {
         path: 'message-demo',
         component: MessageDemoComponent
+      },
+      {
+        path: 'pipe-demo',
+        component: PipeCanvasComponent
+      },
+      {
+        path: 'partical',
+        component: ParticalCanvasComponent
+      },
+      {
+        path: 'three-demo',
+        loadChildren: () => import('./any-demo/three-demo/three-demo.module').then(m => m.ThreeDemoModule)
+      },
+      {
+        path: 'map-lab',
+        loadChildren: () => import('./any-demo/map-demo/map-demo.module').then(m => m.MapDemoModule)
+      },
+      {
+        path: 'dom',
+        loadChildren: () => import('./any-demo/dom-demo/dom-demo.module').then(m => m.DomDemoModule)
+      },
+      {
+        path: 'echart',
+        loadChildren: () => import('./any-demo/echart-demo/echart-demo.module').then(m => m.EchartDemoModule)
+      },
+      {
+        path: 'webgl',
+        loadChildren: () => import('./any-demo/webgl-demo/webgl-demo.module').then(m => m.WebglDemoModule)
+      },
+      {
+        path: 'svg',
+        loadChildren: () => import('./any-demo/svg-demo/svg-demo.module').then(m => m.SvgDemoModule)
       }
     ]
   }

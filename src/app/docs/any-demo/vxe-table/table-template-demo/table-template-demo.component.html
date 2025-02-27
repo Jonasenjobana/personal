@@ -1,0 +1,21 @@
+<!-- 基于vex-grid 封装业务表格 -->
+<div class="container">
+    <vxe-grid [vxeConfig]="inGrid">
+        <!-- 自定义模板 根据配置 -->
+        <vxe-template [templateName]="'battery'" [type]="'row'">
+            <ng-template let-row="row" let-col="col">battery{{row[col.field]}}</ng-template>
+        </vxe-template>
+        <vxe-template [templateName]="'crud'" [type]="'row'">
+            <ng-template let-row="row" let-col="col">crud{{row[col.field]}}</ng-template>
+        </vxe-template>
+        <vxe-template [templateName]="'link'" [type]="'row'">
+            <ng-template let-row="row" let-col="col">link{{row[col.field]}}</ng-template>
+        </vxe-template>
+        <vxe-template [templateName]="'code-btn'" [type]="'row'">
+            <ng-template let-row="row" let-col="col">code-btn{{row[col.field]}}</ng-template>
+        </vxe-template>
+        <vxe-template [templateName]="'dot'" [type]="'row'">
+            <ng-template let-row="row" let-col="col">dot{{row[col.field]}}</ng-template>
+        </vxe-template>
+    </vxe-grid>
+</div>

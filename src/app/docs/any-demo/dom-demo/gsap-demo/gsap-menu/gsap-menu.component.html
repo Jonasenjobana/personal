@@ -1,0 +1,21 @@
+<div class="view" #scrollView>
+    <div class="line" #lineRef>
+        <div *ngFor="let item of orderMenu; let i = index" class="menu-item {{item.className}}" [ngStyle]="caculateSize(item)" (click)="activeChange(item)"
+            #menuItem>
+            {{item.title}}
+        </div>
+        <div *ngFor="let item of orderMenu; let i = index" class="menu-item {{item.className}}" [ngStyle]="caculateSize(item)" (click)="activeChange(item)"
+            #menuItem>
+            {{item.title}}
+        </div>
+        <div *ngFor="let item of orderMenu; let i = index" class="menu-item {{item.className}}" [ngStyle]="caculateSize(item)" (click)="activeChange(item)"
+            #menuItem>
+            {{item.title}}
+        </div>
+    </div>
+    <div class="ctrl">
+        <button nz-button nzType="primary" (click)="next()">👈</button>
+        <!-- <h1 style="display: inline;">无限滚动菜单DEMO</h1> -->
+        <button nz-button nzType="primary" (click)="prev()">👉</button>
+    </div>
+</div>

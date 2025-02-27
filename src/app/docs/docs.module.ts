@@ -26,6 +26,11 @@ import { MessageDemoComponent } from './message-demo/message-demo.component';
 import { MessageTipComponent } from './message-demo/components/message-tip/message-tip.component';
 import { MessageWarpComponent } from './message-demo/components/message-warp/message-warp.component';
 import { EllipsePipe } from './message-demo/ellipse.pipe';
+import { CanvasDemoModule } from './any-demo/canvas-demo/canvas-demo.module';
+import { VxeTableModule } from './any-demo/vxe-table/vxe-table.module';
+import { BigScreenComponent } from './big-screen/big-screen.component';
+import { BigScreenLayerComponent } from './big-screen/big-screen-layer/big-screen-layer.component';
+import { CesiumModule } from './any-demo/cesium/cesium.module';
 
 
 @NgModule({
@@ -51,7 +56,9 @@ import { EllipsePipe } from './message-demo/ellipse.pipe';
     MessageDemoComponent,
     MessageTipComponent,
     MessageWarpComponent,
-    EllipsePipe
+    EllipsePipe,
+    BigScreenComponent,
+    BigScreenLayerComponent,
   ],
   imports: [
     FormsModule,
@@ -61,6 +68,9 @@ import { EllipsePipe } from './message-demo/ellipse.pipe';
     HttpClientModule,
     FormsModule,
     ReactiveFormsModule,
+    CanvasDemoModule,
+    VxeTableModule,
+    CesiumModule,
   ]
 })
 export class DocsModule { }

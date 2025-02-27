@@ -47,7 +47,7 @@
  */
  (window as any)['__zone_symbol__PASSIVE_EVENTS'] = ['scroll'];
 import 'zone.js';  // Included with Angular CLI.
-
+window['CESIUM_BASE_URL'] = '/assets/cesium/';
 
 /***************************************************************************************************
  * APPLICATION IMPORTS

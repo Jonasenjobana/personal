@@ -1,0 +1,16 @@
+<div class="vxe-table-head" #tableHead [style.height.px]="headHeight">
+  <table class="vxe-table" #tableRef [style.transform]="'translateX(' + transformX + 'px)'">
+    <colgroup>
+          <col *ngFor="let item of colgroupLeaf" [style.width.px]="item.autoWidth || 50">
+          <col *ngIf="scrollable" [style.width.px]="gutterWidth">
+      </colgroup>
+    <thead class="vxe-head">
+      <tr *ngFor="let header of tableHeaders;let idx = index">
+          <td *ngFor="let item of header" [attr.rowspan]="item.VXETYPE == 'vxe-colgroup' ? 1 : tableHeaders.length - item._level" [attr.colspan]="item._colspan || 1">
+            <ng-template [ngTemplateOutlet]="item.vxeColumnTemplate" [ngTemplateOutletContext]="{col: item}"></ng-template>
+          </td>
+          <td *ngIf="scrollable && idx == 0" [attr.rowspan]="tableHeaders.length"></td>
+      </tr>
+    </thead>
+  </table>
+</div>
