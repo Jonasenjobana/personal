@@ -7,7 +7,8 @@ import * as Three from 'three';
 @Component({
   selector: 'three-day6',
   templateUrl: '../three.base.html',
-  styleUrls: ['../three.base.less']
+  styleUrls: ['../three.base.less'],
+  standalone: true
 })
 export class ThreeDay61Component extends ThreeBase {
   constructor() {

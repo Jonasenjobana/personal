@@ -28,7 +28,6 @@
   ></zq-select>
 </div>
 <div class="container">
-  <!-- 表头合并 -->
   <button (click)="shows[0] = !shows[0]">{{shows[0] ? '隐藏' : '显示'}}基本信息列</button>
   <button (click)="shows[1] = !shows[1]">{{shows[1] ? '隐藏' : '显示'}}更多信息列</button>
   <button (click)="shows[2] = !shows[2]">{{shows[2] ? '隐藏' : '显示'}}额外信息列</button>
@@ -36,12 +35,12 @@
   <button (click)="shows[4] = !shows[4]">{{shows[4] ? '隐藏' : '显示'}}Name列</button>
   <button (click)="shows[5] = !shows[5]">{{shows[5] ? '隐藏' : '显示'}}Sex列</button>
   <button (click)="shows[6] = !shows[6]">{{shows[6] ? '隐藏' : '显示'}}详细信息列</button>
-  <vxe-table [inData]="data" [maxHeight]="300" (checkChange)="onCheckChange($event)" [rowConfig]="{ isHover: true }" [virtualConfig]="{itemHeight: 33}">
+  <vxe-table [inData]="data" [maxHeight]="300" (checkChange)="onCheckChange($event)" [rowConfig]="{ isHover: true }" [virtualConfig]="{ itemHeight: 28 }">
     <vxe-column type="checkbox" [width]="50" fixed="left"></vxe-column>
     <vxe-column type="seq" [width]="100" fixed="left"></vxe-column>
     <vxe-colgroup [hidden]="!shows[0]" title="基本信息" align="center" fixed="left">
       <vxe-column [hidden]="!shows[4]" title="Name" field="name" [width]="233">
-        <ng-template let-row="row" let-col="col">
+        <ng-template #rowTemplate let-row="row" let-col="col">
           <input type="text" nz-input [(ngModel)]="row[col.field]"/>
         </ng-template>
       </vxe-column>
@@ -60,5 +59,4 @@
     </vxe-colgroup>
     <vxe-column [hidden]="!shows[3]" title="Address" [width]="100" field="address" fixed="right"></vxe-column>
   </vxe-table>
-  <!-- 树形表格 -->
 </div>

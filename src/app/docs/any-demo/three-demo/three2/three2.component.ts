@@ -25,7 +25,8 @@ import { LineMaterial } from './js/line2/LineMaterial';
 @Component({
   selector: 'Three2',
   templateUrl: '../three.base.html',
-  styleUrls: ['../three.base.less']
+  styleUrls: ['../three.base.less'],
+  standalone: true
 })
 export class Three2Component extends ThreeBase {
   raycaster = new Three.Raycaster();

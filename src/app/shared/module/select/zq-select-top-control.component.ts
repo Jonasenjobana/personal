@@ -1,12 +1,16 @@
+import { FormsModule } from '@angular/forms';
+import { ZqInputDirective } from '../input/zq-input.directive';
 import { ZqSelectOption, ZqSelectType, ZqSelectItem } from './type';
 import { Component, EventEmitter, Inject, Input, OnInit, Optional, Output, SimpleChanges } from '@angular/core';
+import { IconDirective } from '../directive/icon.directive';
+import { CommonModule } from '@angular/common';
 @Component({
   selector: 'zq-select-top-control',
   template: `
     <ng-container [ngSwitch]="selectType">
       <ng-container *ngSwitchDefault>
-        <input
-          *ngIf="zqSearch; else span"
+        @if(zqSearch) {
+          <input
           class="zq-select-input"
           zq-input
           [placeholder]="zqPlacement"
@@ -15,9 +19,9 @@ import { Component, EventEmitter, Inject, Input, OnInit, Optional, Output, Simpl
           (ngModelChange)="onValueChange($event)"
           (blur)="onInputBlur()"
         />
-        <ng-template #span>
+        } @else {
           <div style="height: 30px; line-height: 30px;">{{value}}</div>
-        </ng-template>
+        }
       </ng-container>
       <ng-container *ngSwitchCase="'Tag'">
         <div class="tag-wrapper">
@@ -33,12 +37,17 @@ import { Component, EventEmitter, Inject, Input, OnInit, Optional, Output, Simpl
         </div>
       </ng-container>
     </ng-container>
-    <span *ngIf="inClear" class="sufix icon-close" (click)="clearControl($event)"></span>
-    <span *ngIf="!inClear" class="sufix icon-down" [class.sufix-active]="isOpen"></span>
+    @if(inClear) {
+      <span class="sufix icon-close" (click)="clearControl($event)"></span>
+    } @else {
+      <span class="sufix icon-down" [class.sufix-active]="isOpen"></span>
+    }
   `,
   host: {
     class: 'zq-select-top'
-  }
+  },
+  standalone: true,
+  imports: [CommonModule, ZqInputDirective, IconDirective, FormsModule]
 })
 export class ZqSelectTopControlComponent implements OnInit {
   @Input() listOfControlItem: ZqSelectOption[] = [];

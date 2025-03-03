@@ -6,11 +6,14 @@ import { Component, Input, OnInit, SimpleChanges } from '@angular/core';
     <div class="select-item" [class.item-checked]="isChecked">
       {{label}}
     </div>
-    <span zqIcon="check" *ngIf="isChecked"></span>
+    @if(isChecked) {
+      <span zqIcon="check"></span>
+    }
   `,
   host: {
     class: 'zq-select-item'
-  }
+  },
+  standalone: true
 })
 export class ZqSelectItemComponent implements OnInit {
   @Input() label: any

@@ -16,11 +16,15 @@ import { VxeTableService } from '../vxe-table.service';
 import { VxeColgroupComponent } from '../vxe-colgroup/vxe-colgroup.component';
 import { VxeColumnGroupBase } from '../vxe-base/vxe-column-group';
 import { VxeTableComponent } from '../vxe-table/vxe-table.component';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'vxe-column',
   templateUrl: './vxe-column.component.html',
   styleUrls: ['./vxe-column.component.less'],
+  standalone: true,
+  imports: [CommonModule, FormsModule],
 })
 export class VxeColumnComponent extends VxeColumnGroupBase {
   readonly VXETYPE = 'vxe-column';
@@ -38,6 +42,7 @@ export class VxeColumnComponent extends VxeColumnGroupBase {
     public override element: ElementRef
   ) {
     super(element);
+    console.log(this.vxeService.id)
     if (!vxeService) Error('error: vxeService is null');
   }
   ngOnChanges(changes: SimpleChanges) {

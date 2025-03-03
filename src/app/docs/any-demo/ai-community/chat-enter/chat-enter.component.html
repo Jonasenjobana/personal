@@ -1,0 +1,21 @@
+<div class="chat-box">
+    <div class="chat-maintain">
+        @for (item of infos; track $index) {
+            <div class="chat-maintain-item">
+                <div class="avatar"></div>
+                <div class="content">
+                    <!-- thinking -->
+                    <!-- base text -->
+                    <!-- markdown解析组件 -->
+                     <sl-markdown [mdUpdateText]="jumpText()"></sl-markdown>
+                </div>
+            </div>
+        }
+        <sl-markdown [mdUpdateText]="jumpText()"></sl-markdown>
+    </div>
+    <div class="chat-box-input">
+        <textarea class="chat-box-input-textarea" placeholder="给AI发消息" [(ngModel)]="text"></textarea>
+        <div class="text-place">{{text()}}</div>
+    </div>
+    <div class="chat-box-toolbar"></div>
+</div>

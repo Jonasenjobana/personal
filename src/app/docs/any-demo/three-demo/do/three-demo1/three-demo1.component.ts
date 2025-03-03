@@ -6,7 +6,8 @@ import gsap from 'gsap';
 @Component({
   selector: 'three-demo1',
   templateUrl: '../../three.base.html',
-  styleUrls: ['../../three.base.less']
+  styleUrls: ['../../three.base.less'],
+  standalone: true
 })
 export class ThreeDemo1Component extends ThreeBase {
   constructor() {

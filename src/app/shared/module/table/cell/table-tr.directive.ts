@@ -5,7 +5,8 @@ import { Directive, ElementRef } from '@angular/core';
   host: {
     class: 'zq-tr',
     
-  }
+  },
+  standalone: true
 })
 export class TableTrDirective {
 

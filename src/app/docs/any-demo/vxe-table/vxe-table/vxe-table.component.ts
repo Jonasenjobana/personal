@@ -41,6 +41,9 @@ import { NavigationEnd, Router } from '@angular/router';
 import * as _ from 'lodash';
 import { VxeDynamicTable } from '../vxe-base/vxe-dynamic-table';
 import { createDynamicHeader } from '../vxe-base/vxe-mixin';
+import { VxeTableContentComponent } from '../vxe-table-content/vxe-table-content.component';
+import { VxeTableHeadComponent } from '../vxe-table-head/vxe-table-head.component';
+import { VxeFixedColumnComponent } from '../vxe-fixed-column/vxe-fixed-column.component';
 
 @Component({
   selector: 'vxe-table',
@@ -49,7 +52,9 @@ import { createDynamicHeader } from '../vxe-base/vxe-mixin';
   providers: [VxeTableService],
   host: {
     '[class.vxe-border-inner]': 'innerBorder',
-  }
+  },
+  standalone: true,
+  imports: [VxeTableContentComponent, VxeTableHeadComponent, VxeFixedColumnComponent]
 })
 export class VxeTableComponent implements VxeDynamicTable {
   /**表格数据 */

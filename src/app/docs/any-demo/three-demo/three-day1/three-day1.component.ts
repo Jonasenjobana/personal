@@ -32,7 +32,8 @@ import * as dat from 'dat.gui';
 @Component({
   selector: 'three-day1',
   templateUrl: './three-day1.component.html',
-  styleUrls: ['./three-day1.component.less']
+  styleUrls: ['./three-day1.component.less'],
+  standalone: true
 })
 export class ThreeDay1Component {
   cube: Mesh;

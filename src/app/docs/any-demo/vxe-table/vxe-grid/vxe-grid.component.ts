@@ -1,11 +1,14 @@
 import { Component, Input, ViewChild, ViewContainerRef, TemplateRef, ContentChild, ContentChildren, QueryList, ChangeDetectorRef, SimpleChanges } from '@angular/core';
 import { VxeGridColumn, VxeGridConfig } from '../vxe-model';
 import { VxeTemplateDirective } from '../vxe-base/vxe-template.directive';
+import { VxeTableComponent } from '../vxe-table/vxe-table.component';
 /**配置化表格 */
 @Component({
   selector: 'vxe-grid',
   templateUrl: './vxe-grid.component.html',
-  styleUrls: ['./vxe-grid.component.less']
+  styleUrls: ['./vxe-grid.component.less'],
+  standalone: true,
+  imports: [VxeTableComponent]
 })
 export class VxeGridComponent {
   @Input() vxeConfig: VxeGridConfig

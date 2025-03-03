@@ -1,12 +1,20 @@
 import { Component, ViewChild } from '@angular/core';
-import { NgForm } from '@angular/forms';
+import { FormsModule, NgForm } from '@angular/forms';
 import { CodeNetData, Organize, WareHouses } from './net';
 import { VxeData, VxeGridColumn, VxeGridConfig } from '../vxe-model';
 import html2Canvas from "html2canvas";
+import { VxeTableComponent } from '../vxe-table/vxe-table.component';
+import { VxeColgroupComponent } from '../vxe-colgroup/vxe-colgroup.component';
+import { VxeColumnComponent } from '../vxe-column/vxe-column.component';
+import { VxeGridComponent } from '../vxe-grid/vxe-grid.component';
+import { CommonModule } from '@angular/common';
+import { VxeTemplateDirective } from '../vxe-base/vxe-template.directive';
 @Component({
   selector: 'table-demo',
   templateUrl: './table-demo.component.html',
-  styleUrls: ['./table-demo.component.less']
+  styleUrls: ['./table-demo.component.less'],
+  standalone: true,
+  imports: [VxeTableComponent, VxeColgroupComponent, VxeColumnComponent, VxeGridComponent, FormsModule, CommonModule, VxeTemplateDirective]
 })
 export class TableDemoComponent {
   @ViewChild('rowtemp') rowtemp: any

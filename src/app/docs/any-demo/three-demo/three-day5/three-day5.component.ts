@@ -9,7 +9,8 @@ import { vec2 } from 'three/examples/jsm/nodes/Nodes';
 @Component({
   selector: 'three-day5',
   templateUrl: '../three.base.html',
-  styleUrls: ['../three.base.less']
+  styleUrls: ['../three.base.less'],
+  standalone: true
 })
 export class ThreeDay5Component extends ThreeBase {
   /**缓存拾取颜色 */

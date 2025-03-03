@@ -51,7 +51,8 @@
               "src/styles.less",
               "src/styles/leaflet.css",
               "node_modules/ng-zorro-antd/ng-zorro-antd.min.css",
-              "node_modules/cesium/Build/Cesium/Widgets/widgets.css"
+              "node_modules/cesium/Build/Cesium/Widgets/widgets.css",
+              "node_modules/highlight.js/styles/github-dark.min.css"
             ],
             "scripts": [],
             "stylePreprocessorOptions": {

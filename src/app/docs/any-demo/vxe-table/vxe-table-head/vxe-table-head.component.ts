@@ -14,6 +14,8 @@ import { VxeColumnConfig, VxeColumnGroup, VxeColumnGroups, VxeGutterConfig } fro
 import { VxeColumnGroupBase } from '../vxe-base/vxe-column-group';
 import { VxeTableComponent } from '../vxe-table/vxe-table.component';
 import { Subject, takeUntil } from 'rxjs';
+import { CommonModule, NgTemplateOutlet } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 
 /**含表头合并处理 */
 @Component({
@@ -22,7 +24,9 @@ import { Subject, takeUntil } from 'rxjs';
   styleUrls: ['./vxe-table-head.component.less'],
   host: {
     '[class.fixed-right]': 'fixed == "right"',
-  }
+  },
+  standalone: true,
+  imports: [CommonModule, FormsModule, NgTemplateOutlet]
 })
 export class VxeTableHeadComponent {
   @Input() wraperWidth: number;

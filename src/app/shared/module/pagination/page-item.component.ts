@@ -9,7 +9,8 @@ import { Component, Input, OnInit, Output, EventEmitter, SimpleChanges } from '@
   `,
   host: {
     class: 'zq-page-li'
-  }
+  },
+  standalone: true
 })
 export class PageItemComponent implements OnInit {
   @Input() index?: number;

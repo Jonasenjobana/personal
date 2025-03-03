@@ -1,6 +1,6 @@
 import { LayoutService } from './layout.service';
 import { Component, OnInit } from '@angular/core';
-import { NavigationEnd, Router, ActivatedRoute } from '@angular/router';
+import { NavigationEnd, Router, ActivatedRoute, RouterOutlet } from '@angular/router';
 import { filter, map } from 'rxjs';
 import { MenuItem } from '../shared/model/Menu.model';
 import { LAYOUT_MENU_LEFT, LAYOUT_MENU_RIGHT } from './layout.menu';
@@ -9,8 +9,10 @@ import { LAYOUT_MENU_LEFT, LAYOUT_MENU_RIGHT } from './layout.menu';
   selector: 'app-layout',
   templateUrl: './layout.component.html',
   styleUrls: ['./layout.component.less'],
+  standalone: true,
+  imports: [RouterOutlet],
   providers: [
-    LayoutService
+    LayoutService,
   ]
 })
 export class LayoutComponent implements OnInit {

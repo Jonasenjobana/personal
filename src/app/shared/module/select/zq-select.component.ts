@@ -2,6 +2,7 @@ import { copyDeep } from 'src/app/shared/utils/common.util';
 import { ZqSelectOption, ZqSelectItem } from './type';
 import {
   CdkConnectedOverlay,
+  CdkOverlayOrigin,
   ConnectedOverlayPositionChange,
   ConnectedPosition,
   OverlayRef
@@ -25,6 +26,9 @@ import { BehaviorSubject, combineLatest, combineLatestWith, map, filter, Subject
 import { ZqSelectType } from './type';
 import { ZqPositionPair } from '../modal/type';
 import { uniqueId } from 'lodash';
+import { ZqSelectPanelComponent } from './zq-select-panel.component';
+import { ZqSelectTopControlComponent } from './zq-select-top-control.component';
+import { CommonModule } from '@angular/common';
 @Component({
   selector: 'zq-select',
   template: `
@@ -85,7 +89,9 @@ import { uniqueId } from 'lodash';
       useExisting: forwardRef(() => ZqSelectComponent),
       multi: true
     }
-  ]
+  ],
+  standalone: true,
+  imports: [CommonModule, CdkOverlayOrigin, CdkConnectedOverlay, ZqSelectPanelComponent, ZqSelectTopControlComponent]
 })
 export class ZqSelectComponent implements OnInit, ControlValueAccessor {
   trigerWidth!: number;
@@ -188,6 +194,7 @@ export class ZqSelectComponent implements OnInit, ControlValueAccessor {
   ngOnChanges(changes: SimpleChanges) {
     const { inOptions, selectType } = changes;
     if (inOptions) {
+      console.log(this.inOptions)
       if (typeof this.inOptions[0] == 'string') {
         this.zqOptions = (this.inOptions.map(el => {
           return {
@@ -195,6 +202,8 @@ export class ZqSelectComponent implements OnInit, ControlValueAccessor {
             label: el
           }
         })) as ZqSelectItem[]
+      } else {
+        this.zqOptions = this.inOptions as ZqSelectItem[]
       }
       this.listOfOptions = this.zqOptions || [];
       const listOfTemplate = this.listOfOptions
@@ -206,6 +215,7 @@ export class ZqSelectComponent implements OnInit, ControlValueAccessor {
           };
         });
       this.listOfTemplateItem$.next(listOfTemplate);
+      console.log(this.zqOptions, this.listOfOptions)
     }
     if (selectType) {
       this.inMulti = true;

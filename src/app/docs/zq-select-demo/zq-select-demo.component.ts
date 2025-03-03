@@ -1,9 +1,17 @@
 import { Component, Input, OnInit, Output, EventEmitter } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 import { ZqSelectOption } from 'src/app/shared/module/select/type';
+import { ZqSelectComponent } from 'src/app/shared/module/select/zq-select.component';
+import { VxeTableComponent } from '../any-demo/vxe-table/vxe-table/vxe-table.component';
+import { VxeColumnComponent } from '../any-demo/vxe-table/vxe-column/vxe-column.component';
+import { VxeColgroupComponent } from '../any-demo/vxe-table/vxe-colgroup/vxe-colgroup.component';
+import { NzInputModule } from 'ng-zorro-antd/input';
 @Component({
   selector: 'zq-select-demo',
   templateUrl: './zq-select-demo.component.html',
   styleUrls: ['./zq-select-demo.component.less'],
+  standalone: true,
+  imports: [ZqSelectComponent, FormsModule, VxeTableComponent, VxeColumnComponent, VxeColgroupComponent, NzInputModule ]
 })
 export class ZqSelectDemoComponent implements OnInit {
   option: ZqSelectOption[] = [
@@ -54,6 +62,7 @@ export class ZqSelectDemoComponent implements OnInit {
   }
 
   ngOnInit(): void { 
+    console.log(this.option)
   }
   onSelectChange(item: ZqSelectOption[]) {
     this.title = JSON.stringify(item)

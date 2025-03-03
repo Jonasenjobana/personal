@@ -22,7 +22,8 @@ import { MitaSideModel } from '../model/mitaside';
 @Component({
   selector: 'three-day9-1',
   templateUrl: '../three.base.html',
-  styleUrls: ['../three.base.less']
+  styleUrls: ['../three.base.less'],
+  standalone: true
 })
 export class ThreeDay91Component extends ThreeBase {
   constructor() {

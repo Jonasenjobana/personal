@@ -2,7 +2,7 @@ import { Component, ElementRef, Renderer2, ViewChild } from '@angular/core';
 import { ThreeBase } from '../three.base';
 import { OffscreenCanvasCreator } from '@antv/g';
 import * as moment from 'moment';
-import * as rbush from 'rbush';
+// import * as rbush from 'rbush';
 import { Vector2 } from 'three';
 /**
  * 粒子练习
@@ -10,7 +10,8 @@ import { Vector2 } from 'three';
 @Component({
   selector: 'three-day8-1',
   templateUrl: './three-day8-1.component.html',
-  styleUrls: ['./three-day8-1.component.less']
+  styleUrls: ['./three-day8-1.component.less'],
+  standalone: true
 })
 export class ThreeDay81Component extends ThreeBase {
   constructor(private renderer2: Renderer2) {
@@ -22,7 +23,7 @@ export class ThreeDay81Component extends ThreeBase {
   }
   @ViewChild('2dCanvas', { static: true }) canvasRef: ElementRef<HTMLCanvasElement>;
   ctx: CanvasRenderingContext2D;
-  rbush: rbush = new rbush();
+  rbush: any
   /**缓存粒子位置 */
   cachedParticle: Particle[] = [];
   /**

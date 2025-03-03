@@ -1,5 +1,6 @@
 import { Component, EventEmitter, Input, OnInit, Output, SimpleChanges } from '@angular/core';
 import { PaginationOption } from './type';
+import { PageContentComponent } from './page-content.component';
 
 @Component({
   selector: 'zq-pagination',
@@ -16,7 +17,9 @@ import { PaginationOption } from './type';
       <div class="page-size"></div>
       <div class="page-jump"></div>
     </div>
-  `
+  `,
+  standalone: true,
+  imports: [PageContentComponent],
 })
 export class PaginationComponent implements OnInit {
   /** 总页数 */

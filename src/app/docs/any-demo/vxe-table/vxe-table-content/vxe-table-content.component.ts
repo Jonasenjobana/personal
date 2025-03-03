@@ -14,8 +14,11 @@ import { VxeTableService } from '../vxe-table.service';
 import { VxeColumnGroup, VxeContentEvent, VxeData, VxeGutterConfig, VxeHeadEvent, VxeRowConfig, VxeTableModel, VxeTreeConfig, VxeVirtualConfig } from '../vxe-model';
 import { VxeTableComponent } from '../vxe-table/vxe-table.component';
 import { Subject, fromEvent, takeUntil } from 'rxjs';
-import { CdkVirtualScrollViewport } from '@angular/cdk/scrolling';
-
+import { CdkVirtualScrollViewport, ScrollingModule } from '@angular/cdk/scrolling';
+import { CdkDrag, CdkDropList } from '@angular/cdk/drag-drop';
+import { FormsModule } from '@angular/forms';
+import { NzIconModule } from 'ng-zorro-antd/icon';
+import { CommonModule, NgTemplateOutlet } from '@angular/common';
 @Component({
   selector: 'vxe-table-content',
   templateUrl: './vxe-table-content.component.html',
@@ -25,7 +28,9 @@ import { CdkVirtualScrollViewport } from '@angular/cdk/scrolling';
     '[class.vxe-fixed-content]': `fixed == 'left' || fixed == 'right'`,
     '[class.vxe-content-left]': `fixed == 'left'`,
     '[class.vxe-content-right]': `fixed == 'right'`
-  }
+  },
+  standalone: true,
+  imports: [CommonModule, FormsModule, NzIconModule, ScrollingModule, CdkDrag, NgTemplateOutlet  ],
 })
 export class VxeTableContentComponent {
   @Input() fixed: 'left' | 'right';
@@ -138,8 +143,11 @@ export class VxeTableContentComponent {
       this.isHover = isHover;
       this.rowHeight = height
     }
+    if (contentCol) {
+      console.log(this.contentCol)
+    }
     if (treeConfig) {
-      const {showLine = false} = this.treeConfig;
+      const {showLine = false} = this.treeConfig || {};
     }
     if (vData) {
       if (!vData.firstChange) {

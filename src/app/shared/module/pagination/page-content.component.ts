@@ -2,20 +2,23 @@
 import { Component, Input, OnInit, Output, SimpleChanges, EventEmitter } from '@angular/core';
 import { ZqSelectOption } from '../select/type';
 import { PageItemComponent } from './page-item.component';
+import { ZqSelectComponent } from '../select/zq-select.component';
+import { FormsModule, NgModel } from '@angular/forms';
 
 @Component({
   selector: 'zq-page-content',
   template: `
     <ul class="zq-page-ul">
-      <li
+      @for (item of listOfPageItem; track $index) {
+        <li
         zq-page-item
-        *ngFor="let item of listOfPageItem"
         [index]="item.index"
         [type]="item.type!"
         [disabled]="item.disabled"
         [currentIndex]="currentPage"
         (click)="onPageChange(item)"
-      ></li>
+        ></li>
+      }
       <li>
         <span>显示</span>
         <zq-select
@@ -33,7 +36,9 @@ import { PageItemComponent } from './page-item.component';
         <span>页</span>
       </li>
     </ul>
-  `
+  `,
+  standalone: true,
+  imports: [ZqSelectComponent, FormsModule, PageItemComponent]
 })
 export class PageContentComponent implements OnInit {
   @Input() currentPage!: number;

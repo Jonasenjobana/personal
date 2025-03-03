@@ -6,7 +6,8 @@ import { Directive, ElementRef, Input, SimpleChanges, Renderer2 } from '@angular
     class: 'zq-icon',
     '[class.zq-icon-sm]': "iconSize === 'sm'",
     '[class.zq-icon-lg]': "iconSize === 'lg'"
-  }
+  },
+  standalone: true
 })
 export class IconDirective {
   @Input() set zqIcon(value) {

@@ -5,7 +5,8 @@ import { ThreeBase } from '../three.base';
 @Component({
   selector: 'three-day6',
   templateUrl: '../three.base.html',
-  styleUrls: ['../three.base.less']
+  styleUrls: ['../three.base.less'],
+  standalone: true
 })
 export class ThreeDay6Component extends ThreeBase {
   constructor() {

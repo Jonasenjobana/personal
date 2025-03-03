@@ -6,7 +6,8 @@ import { cnoise } from '../glsl/glsl.util';
 @Component({
   selector: 'three-day7-2',
   templateUrl: '../three.base.html',
-  styleUrls: ['../three.base.less']
+  styleUrls: ['../three.base.less'],
+  standalone: true
 })
 export class ThreeDay72Component extends ThreeBase {
   constructor() {

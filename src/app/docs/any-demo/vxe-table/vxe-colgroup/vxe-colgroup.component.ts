@@ -22,6 +22,7 @@ import { createDynamicHeader } from '../vxe-base/vxe-mixin';
   selector: 'vxe-colgroup',
   templateUrl: './vxe-colgroup.component.html',
   styleUrls: ['./vxe-colgroup.component.less'],
+  standalone: true,
 })
 export class VxeColgroupComponent extends VxeColumnGroupBase implements VxeDynamicTable {
   readonly VXETYPE = 'vxe-colgroup';

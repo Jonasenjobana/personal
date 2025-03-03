@@ -1,22 +1,22 @@
 import { PaginationOption } from './../pagination/type';
 import { Component, forwardRef, Inject, Input, OnInit, Optional, Output, SkipSelf, EventEmitter } from '@angular/core';
 import { ZqTableItem } from './type';
+import { TableTrDirective } from './cell/table-tr.directive';
+import { PaginationComponent } from '../pagination/pagination.component';
 
 @Component({
   selector: 'zq-table',
   template: `
-    <col
-      [style.width]="col.width + 'px'"
-      [style.minWidth]="col.width + 'px'"
-      [style.height]="true ? '30px' : '30px'"
-      [align]="col?.align || 'center'"
-      *ngFor="let col of inCols"
-    />
+    @for (col of inCols; track $index) {
+    <col [style.width]="col.width + 'px'" [style.minWidth]="col.width + 'px'" [style.height]="true ? '30px' : '30px'" [align]="col?.align || 'center'" />
+    }
     <thead>
       <tr>
-        <th *ngFor="let item of inCols">
+        @for (item of inCols; track $index) {
+          <th>
           {{ item.title }}
         </th>
+        }
       </tr>
     </thead>
     <tbody> </tbody>
@@ -24,11 +24,13 @@ import { ZqTableItem } from './type';
   `,
   host: {
     class: 'zq-table'
-  }
+  },
+  standalone: true,
+  imports: [PaginationComponent]
 })
 export class TableComponent<T> implements OnInit {
   @Input() inCols: ZqTableItem<T>[] = [];
-  @Input() pagination: PaginationOption = new PaginationOption()
+  @Input() pagination: PaginationOption = new PaginationOption();
   @Output() pageChange: EventEmitter<number> = new EventEmitter();
   @Output() sizeChange: EventEmitter<number> = new EventEmitter();
   constructor() {}

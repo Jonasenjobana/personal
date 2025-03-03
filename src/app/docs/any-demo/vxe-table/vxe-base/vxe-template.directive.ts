@@ -2,7 +2,8 @@ import { ContentChild, Directive, Input, TemplateRef } from '@angular/core';
 
 /**模板锚点 */
 @Directive({
-  selector: 'vxe-template,[vxeTemplate]'
+  selector: 'vxe-template,[vxeTemplate]',
+  standalone: true
 })
 export class VxeTemplateDirective {
   @Input() templateName: string;

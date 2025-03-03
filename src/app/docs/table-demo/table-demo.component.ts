@@ -1,10 +1,13 @@
 import { Component, OnInit } from '@angular/core';
+import { TableComponent } from 'src/app/shared/module/table/table.component';
 import { ZqTableItem } from 'src/app/shared/module/table/type';
 
 @Component({
   selector: 'zq-table-demo',
   templateUrl: './table-demo.component.html',
-  styleUrls: ['./table-demo.component.less']
+  styleUrls: ['./table-demo.component.less'],
+  standalone: true,
+  imports: [TableComponent]
 })
 export class TableDemoComponent implements OnInit {
   tableItem: ZqTableItem<User>[] = [

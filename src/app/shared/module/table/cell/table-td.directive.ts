@@ -4,7 +4,8 @@ import { Directive } from '@angular/core';
   selector: '[zqTableTd]',
   host: {
     class: 'zq-td',
-  }
+  },
+  standalone: true
 })
 export class TableTdDirective {
 

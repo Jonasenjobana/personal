@@ -18,6 +18,7 @@ import { VxeColgroupComponent } from './vxe-colgroup/vxe-colgroup.component';
  */
 @Injectable()
 export class VxeTableService {
+  id = Math.random()
   public dataChange$: Subject<any[]> = new Subject();
   private fixedChange$: Subject<void> = new Subject();
   private _data: any[] = [];

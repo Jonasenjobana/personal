@@ -1,5 +1,8 @@
 import { Component, Input, OnInit, Output, EventEmitter, SimpleChanges } from '@angular/core';
 import { ZqSelectOption, ZqSelectItem } from './type';
+import { ZqSelectItemComponent } from './zq-select-item.component';
+import { EmptyBoxComponent } from '../empty-box/empty-box.component';
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'zq-select-panel',
@@ -21,7 +24,9 @@ import { ZqSelectOption, ZqSelectItem } from './type';
   `,
   host: {
     class: 'zq-select-panel'
-  }
+  },
+  standalone: true,
+  imports: [ZqSelectItemComponent, EmptyBoxComponent, CommonModule]
 })
 export class ZqSelectPanelComponent implements OnInit {
   @Input() inOptionHeight?: number | string;

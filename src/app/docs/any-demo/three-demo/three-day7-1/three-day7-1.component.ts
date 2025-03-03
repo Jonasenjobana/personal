@@ -10,7 +10,8 @@ import * as Three from 'three';
 @Component({
   selector: 'three-day7-1',
   templateUrl: './three-day7-1.component.html',
-  styleUrls: ['./three-day7-1.component.less']
+  styleUrls: ['./three-day7-1.component.less'],
+  standalone: true
 })
 export class ThreeDay71Component extends ThreeBase {
   @ViewChild('anime') animeRef: ElementRef<HTMLCanvasElement>;

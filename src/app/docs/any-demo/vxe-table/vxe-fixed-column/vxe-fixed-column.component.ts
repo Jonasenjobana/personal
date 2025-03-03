@@ -12,7 +12,9 @@ import { VxeTableContentComponent } from '../vxe-table-content/vxe-table-content
 @Component({
   selector: 'vxe-fixed-column',
   templateUrl: './vxe-fixed-column.component.html',
-  styleUrls: ['./vxe-fixed-column.component.less']
+  styleUrls: ['./vxe-fixed-column.component.less'],
+  standalone: true,
+  imports: [VxeTableContentComponent, VxeTableHeadComponent],
 })
 export class VxeFixedColumnComponent {
   @Input() rowConfig: Partial<VxeRowConfig>;
@@ -43,6 +45,7 @@ export class VxeFixedColumnComponent {
     private cdr: ChangeDetectorRef,
     @Optional() private parent: VxeTableComponent
   ) {
+    console.log(this.vxeService.id)
     this.vxeService.gutterChange$.subscribe(({type, size}) => {
       if (type == 'vertical' && this.gutterWidth != size) {
         this.gutterWidth = size;

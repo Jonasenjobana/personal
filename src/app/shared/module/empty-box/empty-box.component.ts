@@ -3,7 +3,8 @@ import { Component, Input, OnInit } from '@angular/core';
 @Component({
   selector: 'zq-empty-box',
   templateUrl: './empty-box.component.html',
-  styleUrls: ['./empty-box.component.less']
+  styleUrls: ['./empty-box.component.less'],
+  standalone: true
 })
 export class EmptyBoxComponent implements OnInit {
   @Input() emptyTip: string = '暂无数据'

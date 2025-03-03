@@ -12,6 +12,7 @@ import { ZqButtonShape, ZqButtonSize, ZqButtonType } from '../../types/types';
     '[class.zq-btn-primary]': `zqType === 'primary'`,
     '[class.zq-btn-default]': `zqType === 'default'`
   },
+  standalone: true
 })
 export class ZqButtonComponent implements OnInit {
   @Input() preIcon: string = '';

@@ -1,10 +1,14 @@
 import { Component, Input, SimpleChanges } from '@angular/core';
 import { VxeGridColumn, VxeGridConfig } from '../vxe-model';
+import { VxeTemplateDirective } from '../vxe-base/vxe-template.directive';
+import { VxeGridComponent } from '../vxe-grid/vxe-grid.component';
 
 @Component({
   selector: 'table-template-demo',
   templateUrl: './table-template-demo.component.html',
-  styleUrls: ['./table-template-demo.component.less']
+  styleUrls: ['./table-template-demo.component.less'],
+  standalone: true,
+  imports: [VxeTemplateDirective, VxeGridComponent]
 })
 export class TableTemplateDemoComponent {
   @Input() inGrid: CustomVxeGridConfig;
