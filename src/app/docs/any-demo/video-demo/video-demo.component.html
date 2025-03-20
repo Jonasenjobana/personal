@@ -1,5 +1,6 @@
-<div style="width: 900px; height: 600px;margin: 50px auto;" #liveplayerWraper>
-    <sl-videoplayer [url]="url" [isLive]="isLive" [startTime]="startDuration" [inDuration]="inDuration"></sl-videoplayer>
+<div [ngStyle]="{width: w+'px', height: h+'px'}"style="margin: 50px auto;" #liveplayerWraper>
+    <sl-videoplayer *ngIf="show" [url]="url" [isLive]="isLive" [startTime]="startDuration" [inDuration]="inDuration" [inPaused]="pause"></sl-videoplayer>
     <button (click)="toNext()">next</button>
-    {{isLive}}
+    <button (click)="pause = !pause">{{pause ? '播放' : '暂停'}}</button>
+    <button (click)="destroy()">销毁</button>
 </div>

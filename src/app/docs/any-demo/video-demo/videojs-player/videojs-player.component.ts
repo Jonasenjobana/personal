@@ -13,13 +13,14 @@ import { CommonModule } from '@angular/common';
 })
 export class VideojsPlayerComponent {
   constructor(private renderer: Renderer2) {}
+  @Input() autoPoster = true;
   @Input() autoplay = true;
   @Input() url = '';
   @Input() fullscreen = false;
   @Input() inPaused = true;
   @Input() loop = false 
-  /**当前播放时间 */
-  @Input() time = -1;
+  /**初始化播放时间 */
+  @Input() readyTime = -1;
   @Output() vjsReady: EventEmitter<Player> = new EventEmitter();
   @Output() canplayChange: EventEmitter<void> = new EventEmitter();
   @Output() timeChange: EventEmitter<{ currentTime: number; duration: number; progress: number }> = new EventEmitter();
@@ -31,9 +32,8 @@ export class VideojsPlayerComponent {
   flvPlayer: FlvJs.Player | null = null;
   playmainElement!: HTMLDivElement;
   fullAnimeFlag: number = -1;
-  pauseAnimeFlag: number = -1;
   urlAnimeFlag: number = -1;
-  timeAnimeFlag: number = -1;
+  loadedmetadataFlag: NodeJS.Timeout = null;
   fullscreenchangeCb = () => {
     const ifFull = document.fullscreenElement == this.playerWraperRef.nativeElement;
     this.toggleFullscreen(ifFull);
@@ -59,19 +59,12 @@ export class VideojsPlayerComponent {
   get isFLV() {
     return getSourceTypeByUrl(this.url) == 'video/x-flv';
   }
-  async setTime(time: number) {
+  setTime(time: number) {
     if (time < 0 || time > this.vjsPlayer?.duration() || !Number.isFinite(time)) return;
-    const isPaused = this.inPaused;
-    this.vjsPlayer.pause();
     this.vjsPlayer?.currentTime(time);
-    await Promise.resolve();
-    !isPaused && this.vjsPlayer.play();
   }
   setPause(paused: boolean) {
-    cancelAnimationFrame(this.pauseAnimeFlag);
-    this.pauseAnimeFlag = requestAnimationFrame(() => {
-      paused ? this.vjsPlayer?.paused() : this.vjsPlayer?.play();
-    });
+    paused ? this.vjsPlayer?.pause() : this.vjsPlayer?.play();
   }
   toggleFullscreen(fullscreen) {
     const wrap = this.playerWraperRef.nativeElement;
@@ -101,7 +94,7 @@ export class VideojsPlayerComponent {
           sources: !isFLV && [{ src, type }]
         },
         () => {
-          this.autoplay && this.vjsPlayer.play();
+          // this.autoplay && !this.inPaused && this.vjsPlayer.play();
           this.vjsPlayer.controls(false);
           this.vjsReady.emit(this.vjsPlayer);
           isFLV && this.flvPlayer?.load();
@@ -109,9 +102,22 @@ export class VideojsPlayerComponent {
         }
       );
       this.vjsPlayer.on('timeupdate', e => {
-
-        this.timeChange.emit({ currentTime: this.vjsPlayer.currentTime(), duration: this.vjsPlayer.duration(), progress: this.vjsPlayer.currentTime() / this.vjsPlayer.duration() });
+        const duration = this.vjsPlayer.duration();
+        const currentTime = this.vjsPlayer.currentTime();
+        this.timeChange.emit({ currentTime: currentTime, duration: duration, progress: currentTime / duration });
       });
+      this.vjsPlayer.on('loadeddata', () => {
+        console.log('loadeddata')
+      })
+      this.vjsPlayer.on('loadedmetadata', () => {
+        // console.log('meta load')
+        // this.setTime(this.readyTime);
+        // this.setPause(false);
+        // clearTimeout(this.loadedmetadataFlag);
+        // this.loadedmetadataFlag = setTimeout(() => {
+        //   this.setPause(this.inPaused);
+        // }, 100)
+      })
       this.vjsPlayer.on('canplay', () => {
         this.canplayChange.emit();
       });

@@ -1,4 +1,4 @@
-<videojs-player [url]="url" [inPaused]="inPaused" #videojsPlayer="videojsPlayer" [time]="time" [autoplay]="autoplay"
+<videojs-player [url]="url" [inPaused]="inPaused" #videojsPlayer="videojsPlayer" [readyTime]="startTime" [autoplay]="autoplay"
     (timeChange)="onTimeChange($event)" (vjsReady)="onVjsReady($event)">
     <div class="sl-liveplayer-control" control>
         <div class="sl-liveplayer-control__items items_left">
