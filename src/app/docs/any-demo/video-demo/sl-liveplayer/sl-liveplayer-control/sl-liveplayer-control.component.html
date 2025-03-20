@@ -1,0 +1,17 @@
+<div class="sl-liveplayer-control" [class.control_fullscreen]="fullscreen" [class.visibile]="isHoverControl">
+    <div class="sl-liveplayer-control__items items_left">
+        <div class="control-item control-item__{{playstate ? 'pause' : 'play'}}">
+            <i class="icon icon_{{playstate ? 'pause' : 'play'}}" (click)="onPlayStateChange()"></i>
+        </div>
+        <div class="control-item control-item__speed">
+        </div>
+        <div class="control-item control-item__name">
+            <ng-content select="[name]"></ng-content>
+        </div>
+    </div>
+    <div class="sl-liveplayer-control__items items_right">
+        <div class="control-item control-item__full">
+            <i class="icon icon_full" (click)="onFullscreenChange()"></i>
+        </div>
+    </div>
+</div>

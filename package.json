@@ -17,6 +17,7 @@
     "@angular/common": "^19.2.0",
     "@angular/compiler": "^19.2.0",
     "@angular/core": "^19.2.0",
+    "@angular/elements": "^19.2.2",
     "@angular/forms": "^19.2.0",
     "@angular/platform-browser": "^19.2.0",
     "@angular/platform-browser-dynamic": "^19.2.0",
@@ -25,10 +26,12 @@
     "@antv/g-canvas": "^2.0.39",
     "@antv/g-lottie-player": "^1.0.32",
     "@cesium-china/cesium-map": "^1.0.0",
+    "@videojs/themes": "^1.0.1",
     "cesium": "^1.121.1",
     "dat.gui": "^0.7.9",
     "echarts": "^5.5.1",
     "echarts-gl": "^2.0.9",
+    "flv.js": "^1.6.2",
     "gl-matrix": "^3.4.3",
     "gltfjsx": "^6.5.3",
     "gsap": "^3.12.5",
@@ -46,6 +49,7 @@
     "rxjs": "~7.5.0",
     "three": "^0.165.0",
     "tslib": "^2.3.0",
+    "video.js": "^8.22.0",
     "zone.js": "~0.15.0"
   },
   "devDependencies": {

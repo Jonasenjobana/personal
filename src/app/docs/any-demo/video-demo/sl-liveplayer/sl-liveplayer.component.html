@@ -1,0 +1,20 @@
+<div class="sl-liveplayer">
+    <div class="sl-liveplayer__wraper" #liveplayerWraper [ngStyle]="{width: liveplayWidth, height: liveplayHeight}">
+        <div class="sl-liveplayer__main" (click)="changePlayState()" (dblclick)="toggleFullscreen()" *ngIf="readyFlag">
+            <live-player style="pointer-events: none;" [live]="isLive" [controls]="false" [videoUrl]="url"
+                autoplay="true" hide-big-play-button="true" #livePlayer (timeupdate)="onTimeUpdate($event)" (ended)="onEnded()"
+                (error)="onError($event)">
+            </live-player>
+            <div class="sl-liveplayer__main__slot">
+                <ng-content select="[main]"></ng-content>
+            </div>
+        </div>
+        <div class="sl-liveplayer__controlbar" [ngStyle]="{height: (fullscreen ? fullBarHeight : barHeight) +'px'}">
+            <sl-liveplayer-control>
+                <ng-content name></ng-content>
+            </sl-liveplayer-control>
+            <sl-liveplayer-progress [ngStyle]="{bottom: (fullscreen ? fullBarHeight : barHeight) + 'px'}"
+                [duration]="duration" *ngIf="!isLive && showProgress"></sl-liveplayer-progress>
+        </div>
+    </div>
+</div>

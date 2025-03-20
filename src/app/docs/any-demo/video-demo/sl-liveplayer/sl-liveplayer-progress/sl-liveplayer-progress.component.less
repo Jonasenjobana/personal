@@ -1,0 +1,39 @@
+:host {
+    --progressHeight: 8px;
+    --thumbWidth: 12px;
+    --thumbHeight: 12px;
+    position: absolute;
+    width: 100%;
+    left: 0;
+    bottom: 28px;
+    width: 100%;
+}
+.sl-liveplayer-progress {
+    height: var(--progressHeight);
+    background-color: rgba(0, 0, 0, 0.479);
+    cursor: pointer;
+    .sl-liveplayer-progress__bar {
+        height: 100%;
+        width: 100%;
+        .sl-liveplayer-progress__active {
+            pointer-events: none;
+            height: 100%;
+            width: 0;
+            position: absolute;
+            top: 0;
+            left: 0;
+            background-color: rgb(255, 166, 0);
+        }
+        .sl-liveplayer-progress__thumb {
+            pointer-events: none;
+            background-color: aqua;
+            position: absolute;
+            top: calc((var(--thumbHeight) - var(--progressHeight)) / -2);
+            left: calc(var(--thumbWidth) / -2);
+            // transform: translate(calc(var(--thumbWidth) / -2), calc((var(--thumbHeight) - var(--progressHeight)) / -2));
+            height: var(--thumbHeight);
+            width: var(--thumbWidth);
+            border-radius: 50%;
+        }
+    }
+}

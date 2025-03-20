@@ -1,0 +1,1 @@
+export type SlDateFormate = 'YYYY-MM-DD' | 'YYYY-MM-DD HH:mm:ss' | 'HH:mm:ss'

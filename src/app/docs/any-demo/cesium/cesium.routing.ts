@@ -4,7 +4,7 @@ import { Cesium01Component } from './cesium01/cesium01.component';
 import { Cesium02Component } from './cesium02/cesium02.component';
 import { Cesium03Component } from './cesium03/cesium03.component';
 
-const routes: Routes = [
+export const routes: Routes = [
   {
     path: '01',
     component: Cesium01Component
@@ -18,9 +18,3 @@ const routes: Routes = [
     component: Cesium03Component
   }
 ];
-
-@NgModule({
-  imports: [RouterModule.forChild(routes)],
-  exports: [RouterModule]
-})
-export class CesiumRoutingModule { }

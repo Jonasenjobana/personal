@@ -1,0 +1,11 @@
+<div class="sl-videojs-player" #playerWraperRef>
+    <div class="sl-videojs-player__main" #playerMainRef (dblclick)="doubleClickMain()">
+        <div class="sl-videojs-player__main__slot">
+            <ng-content select="[main]"></ng-content>
+        </div>
+    </div>
+    <div class="sl-videojs-player__controlbar">
+        <ng-content select="[progress]"></ng-content>
+        <ng-content select="[control]"></ng-content>
+    </div>
+</div>

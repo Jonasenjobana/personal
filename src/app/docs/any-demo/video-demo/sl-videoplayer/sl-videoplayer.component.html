@@ -1,0 +1,24 @@
+<videojs-player [url]="url" [inPaused]="inPaused" #videojsPlayer="videojsPlayer" [time]="time" [autoplay]="autoplay"
+    (timeChange)="onTimeChange($event)" (vjsReady)="onVjsReady($event)">
+    <div class="sl-liveplayer-control" control>
+        <div class="sl-liveplayer-control__items items_left">
+            <div class="control-item control-item__{{videojsPlayer.isPaused ? 'play' : 'pause'}}">
+                <i class="icon icon_{{videojsPlayer.isPaused ? 'play' : 'pause'}}"
+                    (click)="videojsPlayer.isPaused ? videojsPlayer.vjsPlayer.play() : videojsPlayer.vjsPlayer.pause()"></i>
+                <span style="color: #fff;">{{videojsPlayer.isPaused}}</span>
+            </div>
+        </div>
+        <div class="sl-liveplayer-control__items items_right">
+            <div class="control-item control-item__full">
+                <i class="icon icon_full" (click)="videojsPlayer.toggleFullscreen(!videojsPlayer.fullscreen)"></i>
+            </div>
+        </div>
+    </div>
+    <div class="sl-liveplayer-progress" progress>
+        <ng-content select="[progress]"></ng-content>
+        <div class="sl-liveplayer-progress__bar" [class.sl-liveplayer-progress__bar_hidden]="isLive" #progressBar>
+            <div class="sl-liveplayer-progress__active" #progressActive></div>
+            <div class="sl-liveplayer-progress__thumb" #progressThumb></div>
+        </div>
+    </div>
+</videojs-player>
