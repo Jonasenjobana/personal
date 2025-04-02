@@ -6,6 +6,7 @@ import { ZqSelectDemoComponent } from './zq-select-demo/zq-select-demo.component
 import { Ng19demoComponent } from './any-demo/ng19demo/ng19demo.component';
 import { AiCommunityComponent } from './any-demo/ai-community/ai-community.component';
 import { VideoDemoComponent } from './any-demo/video-demo/video-demo.component';
+import { FormDemoComponent } from './any-demo/form/form-demo/form-demo.component';
 
 export const routes: Routes = [
   //  {
@@ -13,6 +14,10 @@ export const routes: Routes = [
   //         pathMatch: 'full',
   //         redirectTo: 'three-demo/day8-1'
   //       },
+  {
+    path: 'form',
+    component: FormDemoComponent
+  },
   {
     path: 'video',
     component: VideoDemoComponent

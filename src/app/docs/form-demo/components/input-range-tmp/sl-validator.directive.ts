@@ -6,16 +6,20 @@ import { AbstractControl, NG_VALIDATORS, NgModel, ValidationErrors, Validator } 
 })
 export class SlValidatorDirective implements Validator {
   @Input() slValidator!: SLValidator
-  constructor(private elementRef: ElementRef, private ngModel: NgModel) { 
-    console.log(ngModel,'ngModel');
-    
+  constructor(private elementRef: ElementRef) { 
   }
   validate(control: AbstractControl<any, any>): ValidationErrors | null {
+    const {type} = this.slValidator;
+    if (type == 'require') {
+      if (!control.value) return {
+        require: 'need'
+      }
+    }
     return null
   }
 }
 export interface SLValidator {
-  type: 'number' | 'int+' | 'int0+',
+  type: 'require' | 'number' | 'int+' | 'int0+',
   required?: boolean
   regExp?: RegExp
   label?: string

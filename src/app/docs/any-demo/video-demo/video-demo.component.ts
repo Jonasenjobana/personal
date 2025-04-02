@@ -13,10 +13,10 @@ import { CommonModule } from '@angular/common';
   styleUrl: './video-demo.component.less',
 })
 export class VideoDemoComponent {
-  pause: boolean = false;
+  pause: boolean = true;
   ngOnInit() {
     const {starttime, endtime} = this.data[0]
-    this.startDuration = 0; // 当前进度
+    this.startDuration = 60; // 当前进度
     this.inDuration = 600; // 总时长
   }
   w = 1600
@@ -29,9 +29,9 @@ export class VideoDemoComponent {
   }
   isLive: boolean = false;
   idx: number = 0;
-  url: string = 'http://183.63.55.74:10000/sms/34020000002020000001/record/34020000001320241201_34020000001320000001/20250318/20250318073000/34020000001320241201_34020000001320000001_record.m3u8'
-  // url: string = 'http://183.63.55.74:10000/sms/34020000002020000001/flv/hls/34020000001320241201_34020000001320000001.flv'
-  startDuration = 30
+  // url: string = 'http://183.63.55.74:10000/sms/34020000002020000001/record/34020000001320241201_34020000001320000001/20250318/20250318073000/34020000001320241201_34020000001320000001_record.m3u8'
+  url: string = 'http://183.63.55.74:10000/sms/34020000002020000001/flv/hls/34020000001320241201_34020000001320000001.flv'
+  startDuration = 120
   inDuration = 500
   duration: number = 0;
   data: any = [

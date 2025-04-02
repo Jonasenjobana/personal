@@ -1,0 +1,13 @@
+<div style="width: 300px; height: 30px;">
+    <form [formGroup]="formModel">
+        <input type="text" nz-input formControlName="name">
+        <rang-input #rangeInputRef="rangInput" formControlName="range"></rang-input>
+        <!-- <form formGroupName="other">
+            <input type="text" nz-input formControlName="note">
+            <input type="text" nz-input formControlName="age">
+        </form> -->
+        <form2-test formControlName="other"></form2-test>
+    </form>
+    <button (click)="onSubmit()">submit</button>
+    <button (click)="onReset()">reset</button>
+</div>

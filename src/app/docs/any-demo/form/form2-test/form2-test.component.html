@@ -1,0 +1,4 @@
+<form #formRef="ngForm">
+    <input type="text" name="note" nz-input [(ngModel)]="formModel.note">
+    <input type="text" [slValidator]="{type: 'require'}" name="age" nz-input [(ngModel)]="formModel.age">
+</form>

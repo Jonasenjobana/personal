@@ -1,24 +1,27 @@
-<videojs-player [url]="url" [inPaused]="inPaused" #videojsPlayer="videojsPlayer" [readyTime]="startTime" [autoplay]="autoplay"
-    (timeChange)="onTimeChange($event)" (vjsReady)="onVjsReady($event)">
-    <div class="sl-liveplayer-control" control>
-        <div class="sl-liveplayer-control__items items_left">
-            <div class="control-item control-item__{{videojsPlayer.isPaused ? 'play' : 'pause'}}">
-                <i class="icon icon_{{videojsPlayer.isPaused ? 'play' : 'pause'}}"
-                    (click)="videojsPlayer.isPaused ? videojsPlayer.vjsPlayer.play() : videojsPlayer.vjsPlayer.pause()"></i>
-                <span style="color: #fff;">{{videojsPlayer.isPaused}}</span>
+<videojs-player [url]="url" [inPaused]="inPaused" [isLive]="isLive" #videojsPlayer="videojsPlayer" [readyTime]="readyTime" [autoplay]="autoplay" (videoStatusChange)="onStatusChange($event)"
+    (timeChange)="onTimeChange($event)">
+    <ng-content main select="[main]"></ng-content>
+    <div class="sl-videoplayer-control" control>
+        <ng-content select="[control]"></ng-content>
+        <div class="sl-videoplayer-control__default" [class.sl-videoplayer-control__hidden]="!showControl">
+            <div class="sl-videoplayer-control__items items_left">
+                <div class="control-item control-item__{{videojsPlayer.isPaused ? 'play' : 'pause'}}">
+                    <i class="icon icon_{{videojsPlayer.isPaused ? 'play' : 'pause'}}"
+                        (click)="inPaused = !inPaused"></i>
+                </div>
             </div>
-        </div>
-        <div class="sl-liveplayer-control__items items_right">
-            <div class="control-item control-item__full">
-                <i class="icon icon_full" (click)="videojsPlayer.toggleFullscreen(!videojsPlayer.fullscreen)"></i>
+            <div class="sl-videoplayer-control__items items_right">
+                <div class="control-item control-item__full">
+                    <i class="icon icon_full" (click)="videojsPlayer.toggleFullscreen(!videojsPlayer.fullscreen)"></i>
+                </div>
             </div>
         </div>
     </div>
-    <div class="sl-liveplayer-progress" progress>
+    <div class="sl-videoplayer-progress" progress>
         <ng-content select="[progress]"></ng-content>
-        <div class="sl-liveplayer-progress__bar" [class.sl-liveplayer-progress__bar_hidden]="isLive" #progressBar>
-            <div class="sl-liveplayer-progress__active" #progressActive></div>
-            <div class="sl-liveplayer-progress__thumb" #progressThumb></div>
+        <div class="sl-videoplayer-progress__bar" [class.sl-videoplayer-progress__bar_hidden]="isLive || !showProgress" #progressBar>
+            <div class="sl-videoplayer-progress__active" #progressActive></div>
+            <div class="sl-videoplayer-progress__thumb" #progressThumb></div>
         </div>
     </div>
 </videojs-player>

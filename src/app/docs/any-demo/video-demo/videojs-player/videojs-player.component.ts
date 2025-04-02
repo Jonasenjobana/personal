@@ -3,29 +3,37 @@ import FlvJs from 'flv.js';
 import videojs from 'video.js';
 import Player from 'video.js/dist/types/player';
 import { getSourceTypeByUrl, resolveUrl } from './vjs.util';
-import { CommonModule } from '@angular/common';
+export type VideoLife = 'ready' | 'loadmetadata' | 'canplay';
 @Component({
   selector: 'videojs-player',
-  imports: [CommonModule],
   templateUrl: './videojs-player.component.html',
-  styleUrl: './videojs-player.component.less',
+  styleUrls: ['./videojs-player.component.less'],
   exportAs: 'videojsPlayer'
 })
 export class VideojsPlayerComponent {
   constructor(private renderer: Renderer2) {}
-  @Input() autoPoster = true;
   @Input() autoplay = true;
   @Input() url = '';
   @Input() fullscreen = false;
   @Input() inPaused = true;
-  @Input() loop = false 
+  @Input() loop = false;
+  /**直播 */
+  @Input() isLive = false;
+  /**auto (不省流) metadata只预加载前面有用的 none不预加载点击播放才加载(省流) */
+  @Input() preload: 'auto' | 'metadata' | 'none' = 'auto';
   /**初始化播放时间 */
-  @Input() readyTime = -1;
-  @Output() vjsReady: EventEmitter<Player> = new EventEmitter();
-  @Output() canplayChange: EventEmitter<void> = new EventEmitter();
-  @Output() timeChange: EventEmitter<{ currentTime: number; duration: number; progress: number }> = new EventEmitter();
+  @Input() readyTime = 0;
+  /**时间变化跳转 */
+  @Input() deltaTime = 0;
+  @Output() videoStatusChange: EventEmitter<any> = new EventEmitter();
+  @Output() timeChange: EventEmitter<{ currentTime: number; duration: number }> = new EventEmitter();
   @ViewChild('playerMainRef', { static: true }) playerMainRef!: ElementRef<HTMLDivElement>;
   @ViewChild('playerWraperRef', { static: true }) playerWraperRef!: ElementRef<HTMLDivElement>;
+  videoStatus: {[key in VideoLife]: boolean} = {
+    ready: false, 
+    loadmetadata: false, // 加载完元数据
+    canplay: false,
+  }
   // theme = input('');
   defaultAspect = '16:9'; // 默认宽高比
   vjsPlayer: Player | null = null;
@@ -34,6 +42,10 @@ export class VideojsPlayerComponent {
   fullAnimeFlag: number = -1;
   urlAnimeFlag: number = -1;
   loadedmetadataFlag: NodeJS.Timeout = null;
+  loading: boolean = false;
+  /**初始化视频跳转到指定位置 */
+  ifInitVideoTime: boolean = false;
+  onfocus: boolean = false;
   fullscreenchangeCb = () => {
     const ifFull = document.fullscreenElement == this.playerWraperRef.nativeElement;
     this.toggleFullscreen(ifFull);
@@ -43,14 +55,25 @@ export class VideojsPlayerComponent {
   }
   ngAfterViewInit() {
     document.addEventListener('fullscreenchange', this.fullscreenchangeCb);
+    this.playmainElement.addEventListener('focus', () => {
+      this.onfocus = true;
+    })
+    this.playmainElement.addEventListener('blur', () => {
+      this.onfocus = false;
+    })
   }
   ngOnChanges(changes: SimpleChanges) {
-    const { url, inPaused } = changes;
+    const { url, inPaused, readyTime } = changes;
     if (url) {
       this.initVJSPlayer(url.currentValue);
     }
     if (inPaused) {
       this.setPause(inPaused.currentValue);
+    }
+    if (readyTime) {
+      if (this.ifInitVideoTime) {
+        this.ifInitVideoTime = false;
+      }      
     }
   }
   get isPaused() {
@@ -59,9 +82,12 @@ export class VideojsPlayerComponent {
   get isFLV() {
     return getSourceTypeByUrl(this.url) == 'video/x-flv';
   }
-  setTime(time: number) {
-    if (time < 0 || time > this.vjsPlayer?.duration() || !Number.isFinite(time)) return;
-    this.vjsPlayer?.currentTime(time);
+  setTime(currentTime: number) {
+    if (this.ifSeekTimeInValid(currentTime)) return;
+    this.vjsPlayer?.currentTime(currentTime);
+  }
+  ifSeekTimeInValid(currentTime: number) {
+    return currentTime < 0 || currentTime > this.vjsPlayer?.duration() || !Number.isFinite(currentTime)
   }
   setPause(paused: boolean) {
     paused ? this.vjsPlayer?.pause() : this.vjsPlayer?.play();
@@ -78,63 +104,112 @@ export class VideojsPlayerComponent {
   doubleClickMain() {
     this.toggleFullscreen(!this.fullscreen);
   }
+  clickMain() {
+    console.log('clickMain');
+  }
   initVJSPlayer(url?: string) {
     this.disposeVJSPlayer();
     cancelAnimationFrame(this.urlAnimeFlag);
     this.urlAnimeFlag = requestAnimationFrame(() => {
       const videoEl = this.createVideoEl();
       const { src, type } = resolveUrl(url || this.url);
-      const isFLV = type == 'video/x-flv';
+      const isFLV = ['video/x-flv', 'rtmp/flv'].includes(type);
       this.vjsPlayer = videojs(
         videoEl,
         {
+          preload: this.preload,
+          notSupportedMessage: true,
           languages: 'zh-CN',
           fill: true,
           techOrder: ['html5'],
+          controls: false,
           sources: !isFLV && [{ src, type }]
         },
         () => {
-          // this.autoplay && !this.inPaused && this.vjsPlayer.play();
-          this.vjsPlayer.controls(false);
-          this.vjsReady.emit(this.vjsPlayer);
+          // ready
+          this.vjsPlayer.play();
+          this.emitVideoStatus('ready', true);
           isFLV && this.flvPlayer?.load();
-          console.log('ready');
         }
       );
+      this.vjsPlayer.on('play', () => {
+        
+      })
       this.vjsPlayer.on('timeupdate', e => {
+        if (this.isFLV && this.isLive) {
+          // flv直播 延迟追帧
+          this.catchUpTime();
+        }
         const duration = this.vjsPlayer.duration();
         const currentTime = this.vjsPlayer.currentTime();
-        this.timeChange.emit({ currentTime: currentTime, duration: duration, progress: currentTime / duration });
+        this.setVideoInitTime();
+        this.timeChange.emit({ currentTime: currentTime, duration: duration });
       });
-      this.vjsPlayer.on('loadeddata', () => {
-        console.log('loadeddata')
+      this.vjsPlayer.on('waiting', e => {
+        this.loading = true;
+      });
+      this.vjsPlayer.on('loadmetadata', () => {
+        
       })
-      this.vjsPlayer.on('loadedmetadata', () => {
-        // console.log('meta load')
-        // this.setTime(this.readyTime);
-        // this.setPause(false);
-        // clearTimeout(this.loadedmetadataFlag);
-        // this.loadedmetadataFlag = setTimeout(() => {
-        //   this.setPause(this.inPaused);
-        // }, 100)
-      })
+      // this.vjsPlayer.on('play',)
       this.vjsPlayer.on('canplay', () => {
-        this.canplayChange.emit();
+        this.loading = false;
+        this.emitVideoStatus('canplay', true);
+        this.setVideoInitTime();
       });
       this.vjsPlayer.on('dispose', () => {
         this.disposeFLVPlayer();
       });
       if (isFLV) {
-        this.flvPlayer = FlvJs.createPlayer({
-          type: 'flv',
-          url,
-          isLive: true,
-          hasVideo: true
-        });
+        this.flvPlayer = FlvJs.createPlayer(
+          {
+            type: 'flv',
+            url,
+            isLive: true,
+            hasVideo: true
+          },
+          {
+            autoCleanupSourceBuffer: true
+          }
+        );
         // 绑定videojs 播放器
         this.flvPlayer.attachMediaElement(videoEl);
       }
     });
+  }
+  /**切片 设置视频初始位置 */
+  setVideoInitTime() {
+    if (this.isLive) return;
+    const currentTime = this.vjsPlayer.currentTime();
+    const ifInit = this.ifInitVideoTime || Math.abs(currentTime - this.readyTime) <= 5;
+    if (!ifInit) {
+      if (this.ifSeekTimeInValid(this.readyTime)) {
+        // readyTime不合法 死锁 
+        console.error('readyTime not valid');
+        return;
+      }
+      this.setTime(this.readyTime);
+    } else {
+      (!this.autoplay || this.inPaused) && this.vjsPlayer.pause();
+      // TODO bug 导致暂停
+      this.ifInitVideoTime = ifInit;
+    }
+  }
+  /**直播延迟追帧 */
+  catchUpTime() {
+    const end = this.flvPlayer.buffered.end(0); //获取当前buffered值(缓冲区末尾)
+    const delta = end - this.flvPlayer.currentTime; //获取buffered与当前播放位置的差值
+     // 延迟过大，通过跳帧的方式更新视频
+    if (delta > 10 || delta < 0) {
+      this.vjsPlayer.currentTime(this.flvPlayer.buffered.end(0) - 1);
+      return;
+    }
+    // 追帧
+    if (delta > 1) {
+      this.vjsPlayer.playbackRate(1.1);
+    } else {
+      this.vjsPlayer.playbackRate(1);
+    }
   }
   createVideoEl() {
     const videoEl = this.renderer.createElement('video');
@@ -146,16 +221,31 @@ export class VideojsPlayerComponent {
     return videoEl;
   }
   disposeVJSPlayer() {
+    this.initVideoStatus();
     this.vjsPlayer?.dispose();
     this.vjsPlayer = null;
+    this.ifInitVideoTime = false;
   }
   disposeFLVPlayer() {
     this.flvPlayer?.destroy();
     this.flvPlayer = null;
   }
+  initVideoStatus() {
+    this.videoStatus = {
+      ready: false, 
+      loadmetadata: false, // 加载完元数据
+      canplay: false,
+    }
+    this.videoStatusChange.emit(this.videoStatus);
+  }
+  emitVideoStatus(type: VideoLife, value: boolean) {
+    this.videoStatus[type] = value;
+    this.videoStatusChange.emit(this.videoStatus);
+  }
   ngOnDestroy() {
     document.removeEventListener('fullscreenchange', this.fullscreenchangeCb);
     this.disposeFLVPlayer();
     this.disposeVJSPlayer();
+    this.initVideoStatus();
   }
 }
